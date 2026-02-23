@@ -1,2 +1,2 @@
 # Popular-Vote
-User Private Question w/ AI orked context clustering
+Private query session w/ AI forked clustering/ condensing
