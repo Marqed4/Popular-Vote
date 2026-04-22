@@ -11,11 +11,11 @@ export default function App() {
 
   if (view) {
     return (
-      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <button onClick={() => setView(null)} style={{ alignSelf: 'flex-start', margin: '0.75rem 1rem' }}>
+      <div className="app-view">
+        <button className="app-back-btn" onClick={() => setView(null)}>
           ← Back
         </button>
-        <p style={{ padding: '1rem', fontFamily: 'monospace' }}>
+        <p className="app-view-label">
           {view.role} view · session <strong>{view.code}</strong>
         </p>
       </div>

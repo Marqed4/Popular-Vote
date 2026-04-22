@@ -58,12 +58,12 @@ Here are the clustered themes from participant submissions:
 ${clusterSummary}
 
 Your job:
-- Help the user explore and understand these themes more deeply
+- Help the user understand using group/topic context
 - Draw connections between themes where relevant
 - If asked about a specific theme, expand on what participants were likely trying to understand
-- Suggest which themes might be most important to address first based on submission counts
-- Keep responses concise and grounded in the actual clusters above
-- Do not invent themes or questions that are not represented above`;
+- Suggest which themes and delve for clarity, what might be most important to address first based on submission counts?
+- Keep responses concise and grounded in the actual clusters above, ask to rebase when things are convoluted
+- Do not invent themes or questions without reviewing context, that's the most important constraint.`;
 }
 
 export default router;

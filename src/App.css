@@ -37,3 +37,24 @@ body {
   background: var(--color-background-primary, #fff);
   color: var(--color-text-primary, #111);
 }
+
+body, #root {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.app-view {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-back-btn {
+  align-self: flex-start;
+  margin: 0.75rem 1rem;
+}
+
+.app-view-label {
+  padding: 1rem;
+  font-family: monospace;
+}

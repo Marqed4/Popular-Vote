@@ -46,7 +46,7 @@ Respond ONLY with a valid JSON array, no markdown, no explanation, just the arra
 
       const raw = response.text.trim();
 
-      // strip markdown code because gemini returns a json
+      // strip markdown code as gemini returns a json
       const cleaned = raw.replace(/^```json\n?/, '').replace(/^```\n?/, '').replace(/```$/, '').trim();
 
       const clusters = JSON.parse(cleaned);
@@ -59,7 +59,7 @@ Respond ONLY with a valid JSON array, no markdown, no explanation, just the arra
 
     } catch (err) {
       console.error('ClusteringEngine error:', err);
-      throw new Error('Clustering failed — ' + err.message);
+      throw new Error('Clustering failed ' + err.message);
     }
   }
 
@@ -82,7 +82,7 @@ Respond with ONLY the query string, nothing else.`;
 
     } catch (err) {
       console.error('regenerateRepresentativeQuery error:', err);
-      throw new Error('Failed to regenerate query — ' + err.message);
+      throw new Error('Failed to regenerate query ' + err.message);
     }
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
 import "./Home.css";
 
 const supabase = createClient(
@@ -8,6 +9,7 @@ const supabase = createClient(
 );
 
 const SESSIONS_PER_PAGE = 15;
+const BG_STORAGE_KEY = "pv-background";
 
 const PHASE_MAP = {
   OPEN:       ["pv-phase-open",    "Open"],
@@ -26,6 +28,38 @@ function formatDate(iso) {
 function PhaseBadge({ phase }) {
   const [cls, label] = PHASE_MAP[phase] ?? ["pv-phase-ended", phase];
   return <span className={`pv-phase-badge ${cls}`}>{label}</span>;
+}
+
+function SettingsIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
+function BackgroundPicker({ current, onSelect, onClose }) {
+  return (
+    <div className="pv-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="pv-modal pv-bg-picker">
+        <button className="pv-modal-close" onClick={onClose}>×</button>
+        <h2>Choose Background</h2>
+        <div className="pv-bg-grid">
+          {Object.entries(DefaultBackgrounds).map(([key, src]) => (
+            <button
+              key={key}
+              className={`pv-bg-option ${current === key ? "active" : ""}`}
+              onClick={() => { onSelect(key); onClose(); }}
+            >
+              <img src={src} alt={key} />
+              <span>{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function InstructionsModal({ onClose }) {
@@ -57,9 +91,7 @@ function YourSessions({ onRejoin }) {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  useEffect(() => {
-    loadSessions();
-  }, [page]);
+  useEffect(() => { loadSessions(); }, [page]);
 
   async function loadSessions() {
     setLoading(true);
@@ -115,7 +147,6 @@ function YourSessions({ onRejoin }) {
             )}
           </>
         )}
-
         <div className="pv-divider">or</div>
         <button className="pv-btn-create" onClick={() => onRejoin("NEW")}>
           Create New Session
@@ -175,7 +206,6 @@ function JoinSession({ onJoin }) {
         <div className="pv-panel-subtitle">Enter a code, paste a link, or scan a QR code.</div>
       </div>
       <div className="pv-panel-body">
-
         <div className="pv-join-tabs">
           {[["type", "Type Code"], ["link", "Paste Link"], ["qr", "Scan QR"]].map(([id, label]) => (
             <button
@@ -209,7 +239,7 @@ function JoinSession({ onJoin }) {
           <p className="pv-link-hint">Paste the full session URL — the code will be extracted automatically.</p>
           <input
             className="pv-link-input"
-            placeholder="https://…?code=ABC123"
+            placeholder="https://…?code=XYZ67"
             value={linkVal}
             onChange={handleLinkChange}
           />
@@ -227,7 +257,6 @@ function JoinSession({ onJoin }) {
             <p className="pv-qr-hint">QR codes are displayed on the host's dashboard.</p>
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -235,22 +264,42 @@ function JoinSession({ onJoin }) {
 
 export default function Home({ onNavigate }) {
   const [showInstructions, setShowInstructions] = useState(false);
+  const [showBgPicker, setShowBgPicker] = useState(false);
+  const [bgKey, setBgKey] = useState(() => localStorage.getItem(BG_STORAGE_KEY) ?? "barn");
+
+  function handleSelectBg(key) {
+    setBgKey(key);
+    localStorage.setItem(BG_STORAGE_KEY, key);
+  }
+
+  const bgSrc = DefaultBackgrounds[bgKey] ?? DefaultBackgrounds.barn;
 
   return (
-    <>
+    <div className="pv-root" style={{ backgroundImage: `url(${bgSrc})` }}>
       <nav className="pv-nav">
         <a className="pv-nav-logo" href="/">
           <span className="pv-nav-icon">🗳</span>
           <span className="pv-nav-wordmark">Popular <em>Vote</em></span>
         </a>
-        <a
-          href="#instructions"
-          className="pv-nav-instructions"
-          onClick={e => { e.preventDefault(); setShowInstructions(true); }}
-        >
-          Site Instructions
-        </a>
+        <div className="pv-nav-actions">
+          <a
+            href="#instructions"
+            className="pv-nav-instructions"
+            onClick={e => { e.preventDefault(); setShowInstructions(true); }}
+          >
+            How it works
+          </a>
+          <button className="pv-nav-settings" onClick={() => setShowBgPicker(true)} title="Change background">
+            <SettingsIcon />
+          </button>
+        </div>
       </nav>
+
+      <div className="pv-hero">
+        <h1 className="pv-hero-title">Let the room<br /><em>speak.</em></h1>
+        <p className="pv-hero-sub">Anonymous questions, collectively surfaced.</p>
+        <div className="pv-hero-rule" />
+      </div>
 
       <main className="pv-home">
         <YourSessions onRejoin={code => onNavigate?.("host", code)} />
@@ -258,6 +307,13 @@ export default function Home({ onNavigate }) {
       </main>
 
       {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
-    </>
+      {showBgPicker && (
+        <BackgroundPicker
+          current={bgKey}
+          onSelect={handleSelectBg}
+          onClose={() => setShowBgPicker(false)}
+        />
+      )}
+    </div>
   );
 }
