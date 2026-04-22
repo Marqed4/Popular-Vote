@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import './Chat.css';
 
 export default function Chat({ sessionContext = '' }) {
   const [messages, setMessages] = useState([]);
@@ -53,9 +52,11 @@ export default function Chat({ sessionContext = '' }) {
             {m.content}
           </div>
         ))}
+
         {loading && (
           <div className="chat-thinking">thinking...</div>
         )}
+
         <div ref={bottomRef} />
       </div>
 
@@ -68,7 +69,11 @@ export default function Chat({ sessionContext = '' }) {
           placeholder="Ask something..."
           rows={1}
         />
-        <button className="chat-send-btn" onClick={send} disabled={!input.trim() || loading}>
+        <button
+          className="chat-send-btn"
+          onClick={send}
+          disabled={!input.trim() || loading}
+        >
           Send
         </button>
       </div>
