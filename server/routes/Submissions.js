@@ -16,7 +16,8 @@ router.post('/sessions/:code/submit', submitLimiter, async (req, res) => {
     const session = sessionManager.getSession(req.params.code);
 
     if (!session) return res.status(404).json({ error: 'Session not found' });
-    if (session.phase !== 'OPEN') return res.status(400).json({ error: 'Submission window is closed' });
+    const submittablePhases = ['OPEN', 'RESULTS', 'EXPANDING'];
+    if (!submittablePhases.includes(session.phase)) return res.status(400).json({ error: 'Submission window is closed' });
     if (!content || content.trim() === '') return res.status(400).json({ error: 'Question is required' });
     if (content.length > 500) return res.status(400).json({ error: 'Question exceeds 500 character limit' });
 

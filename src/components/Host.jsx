@@ -15,6 +15,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
   const [tagInput, setTagInput] = useState("");
   const [participantCount, setParticipantCount] = useState(0);
   const [submissionCount, setSubmissionCount] = useState(0);
+  const [submissionsAtLastCluster, setSubmissionsAtLastCluster] = useState(0);
   const [clusters, setClusters] = useState([]);
   const [loading, setLoading] = useState(initialCode === "NEW");
   const [actionLoading, setActionLoading] = useState(false);
@@ -53,8 +54,9 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     socket.on("submission:count", ({ count }) => setSubmissionCount(count));
     socket.on("session:closed", () => setPhase("CLOSED"));
     socket.on("session:clustering", () => setPhase("CLUSTERING"));
-    socket.on("session:results", ({ clusters }) => {
+    socket.on("session:results", ({ clusters, submissionsAtLastCluster }) => {
       setClusters(clusters);
+      if (submissionsAtLastCluster !== undefined) setSubmissionsAtLastCluster(submissionsAtLastCluster);
       setPhase("RESULTS");
     });
 
@@ -127,6 +129,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       setPhase(data.phase);
       setTags(data.tags ?? []);
       setSubmissionCount(data.submissionCount ?? 0);
+      setSubmissionsAtLastCluster(data.submissionsAtLastCluster ?? 0);
       setParticipantCount(data.participantCount ?? 0);
       setClusters(data.clusters ?? []);
       setCurators(data.curators ?? []);
@@ -383,6 +386,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
             onTagInput={setTagInput}
             onAddTag={addTag}
             onRemoveTag={removeTag}
+            canRecluster={submissionCount > submissionsAtLastCluster}
             onClose={closeSubmissions}
             onCluster={triggerClustering}
             onPreviewExpansion={fetchExpansionPreview}

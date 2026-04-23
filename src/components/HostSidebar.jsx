@@ -9,6 +9,7 @@ export default function HostSidebar({
   actionLoading,
   previewLoading,
   expandLoading,
+  canRecluster,
   onTagInput,
   onAddTag,
   onRemoveTag,
@@ -69,7 +70,11 @@ export default function HostSidebar({
         )}
 
         {(phase === "OPEN" || phase === "CLOSED") && (
-          <button className="hd-btn-primary" onClick={onCluster} disabled={actionLoading}>
+          <button
+            className={phase === "OPEN" ? "hd-btn-ghost hd-btn-ghost--full" : "hd-btn-primary"}
+            onClick={onCluster}
+            disabled={actionLoading}
+          >
             {actionLoading ? "Clustering…" : "Trigger Clustering"}
           </button>
         )}
@@ -83,6 +88,9 @@ export default function HostSidebar({
 
         {phase === "RESULTS" && (
           <>
+            <button className="hd-btn-primary" onClick={onCluster} disabled={actionLoading || !canRecluster}>
+              {actionLoading ? "Clustering…" : "Re-cluster"}
+            </button>
             <button
               className="hd-btn-primary"
               onClick={onPreviewExpansion}

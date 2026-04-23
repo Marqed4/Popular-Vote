@@ -47,7 +47,8 @@ export class SessionManager {
           participantCount: 0,
           expansionRound: s.expansion_round ?? 0,
           curators: s.curators ?? [],
-          contextualFacts: clusters.flatMap(c => c.contextual_facts ?? [])
+          contextualFacts: clusters.flatMap(c => c.contextual_facts ?? []),
+          submissionsAtLastCluster: clusters.length > 0 ? submissions.length : 0,
         });
       }
       console.log(`[SessionManager] hydrated ${sessions.length} session(s) from Supabase`);
@@ -67,7 +68,8 @@ export class SessionManager {
       participantCount: 0,
       expansionRound: 0,
       curators: [],
-      contextualFacts: []
+      contextualFacts: [],
+      submissionsAtLastCluster: 0,
     };
     this.sessions.set(code, session);
     await SessionStore.createSession(code, tags);
@@ -131,7 +133,8 @@ export class SessionManager {
   async addSubmission(code, content) {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
-    if (session.phase !== PHASES.OPEN) throw new Error('Submission window is closed');
+    const submittablePhases = [PHASES.OPEN, PHASES.RESULTS, PHASES.EXPANDING];
+    if (!submittablePhases.includes(session.phase)) throw new Error('Submission window is closed');
 
     const saved = await SessionStore.addSubmission(code, content);
     session.submissions.push(saved);
