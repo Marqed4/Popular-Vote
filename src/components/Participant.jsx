@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 
 import ParticipantHeader from "./ParticipantHeader";
 import ParticipantInput from "./ParticipantInput";
-import ParticipantClusterList from "./ParticipantClusterList";
+import ParticipantClusterList from "./ParticipantCluster";
 
 import "./Participant.css";
 
@@ -86,7 +86,7 @@ export default function Participant({ code, onBack }) {
       const res = await fetch(`/api/sessions/${code}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ content: text }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -113,7 +113,7 @@ export default function Participant({ code, onBack }) {
       const res = await fetch(`/api/sessions/${code}/clusters/${clusterId}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ content: text }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -195,6 +195,18 @@ export default function Participant({ code, onBack }) {
             </div>
           )}
           {error && <div className="pd-error">{error}</div>}
+          {phase === "RESULTS" && (
+            <ParticipantInput
+              phase="OPEN"
+              submissions={submissions}
+              submittedCount={submissions.length}
+              inClusterCount={inClusterCount}
+              submitLoading={submitLoading}
+              error={null}
+              onSubmit={submitQuestion}
+              onDelete={deleteSubmission}
+            />
+          )}
           <ParticipantClusterList
             phase={phase}
             clusters={clusters}

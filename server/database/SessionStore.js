@@ -183,7 +183,7 @@ export const SessionStore = {
       .from('sessions')
       .select('*')
       .neq('phase', 'ENDED');
-    if (error) throw error;s
+    if (error) throw error;
     return data;
   },
 
