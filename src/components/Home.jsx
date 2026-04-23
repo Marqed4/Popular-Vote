@@ -148,7 +148,15 @@ function YourSessions({ onRejoin }) {
           </>
         )}
         <div className="pv-divider">or</div>
-        <button className="pv-btn-create" onClick={() => onRejoin("NEW")}>
+        <button className="pv-btn-create" onClick={async () => {
+          const res = await fetch('/api/sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tags: [] })
+          });
+          const data = await res.json();
+          onRejoin(data.code);
+        }}>
           Create New Session
         </button>
       </div>
