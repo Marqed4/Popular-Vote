@@ -49,7 +49,14 @@ export default function HostDashboard({ code: initialCode, onBack }) {
 
     const socket = io("http://localhost:2167");
     socketRef.current = socket;
-    socket.emit("join:room", { code });
+
+    socket.on("connect", () => {
+      socket.emit("join:room", { code });
+    });
+
+    socket.on("reconnect", () => {
+      fetchSession();
+    });
 
     socket.on("submission:count", ({ count }) => setSubmissionCount(count));
     socket.on("session:closed", () => setPhase("CLOSED"));
