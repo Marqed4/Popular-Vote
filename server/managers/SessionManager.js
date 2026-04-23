@@ -72,7 +72,10 @@ export class SessionManager {
       submissionsAtLastCluster: 0,
     };
     this.sessions.set(code, session);
-    await SessionStore.createSession(code, tags);
+    // write to DB in background — don't block the response
+    SessionStore.createSession(code, tags).catch(err =>
+      console.error('[SessionManager] failed to persist session:', err)
+    );
     return session;
   }
 
@@ -183,7 +186,8 @@ export class SessionManager {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
 
-    const cluster = session.clusters.find(c => c.id === clusterId);
+    // clusterId from URL params is a string; cluster.id from DB may be a number
+    const cluster = session.clusters.find(c => String(c.id) === String(clusterId));
     if (!cluster) throw new Error('Cluster not found');
     cluster.answer = answer;
     await SessionStore.updateClusterAnswer(clusterId, answer);
@@ -195,7 +199,7 @@ export class SessionManager {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
 
-    const cluster = session.clusters.find(c => c.id === clusterId);
+    const cluster = session.clusters.find(c => String(c.id) === String(clusterId));
     if (!cluster) throw new Error('Cluster not found');
 
     cluster.participant_answers = [...(cluster.participant_answers ?? []), answer];
@@ -232,7 +236,7 @@ export class SessionManager {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
 
-    const cluster = session.clusters.find(c => c.id === clusterId);
+    const cluster = session.clusters.find(c => String(c.id) === String(clusterId));
     if (!cluster) throw new Error('Cluster not found');
 
     const current = cluster.selected_questions ?? [];

@@ -23,7 +23,7 @@ router.post('/sessions/:code/join', async (req, res) => {
     const session = await sessionManager.getSessionAsync(req.params.code);
 
     if (!session) return res.status(404).json({ error: 'Session not found' });
-    if (session.phase !== 'OPEN') return res.status(400).json({ error: 'Session is no longer accepting submissions' });
+    if (session.phase === 'ENDED') return res.status(400).json({ error: 'Session has ended' });
 
     const count = sessionManager.incrementParticipants(req.params.code);
     res.json({ code: session.code, phase: session.phase, participantCount: count });
@@ -85,9 +85,11 @@ router.post('/sessions/:code/cluster', async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    // back to OPEN so host can retry
+    // roll back phase and notify everyone so participants don't stay stuck
     const sessionManager = req.app.locals.sessionManager;
-    await sessionManager.transitionPhase(req.params.code, 'OPEN');
+    const wsManager = req.app.locals.wsManager;
+    await sessionManager.transitionPhase(req.params.code, 'CLOSED');
+    wsManager.toSession(req.params.code, 'session:closed');
     res.status(500).json({ error: 'Clustering failed. You can retry.' });
   }
 });
@@ -189,7 +191,7 @@ router.post('/sessions/:code/clusters/:clusterId/submit', async (req, res) => {
   }
 });
 
-// host or participant adds a participant answer to a cluster
+// host sets the main answer for a cluster
 router.post('/sessions/:code/clusters/:clusterId/answer', async (req, res) => {
   try {
     const { code, clusterId } = req.params;
@@ -197,9 +199,8 @@ router.post('/sessions/:code/clusters/:clusterId/answer', async (req, res) => {
     const sessionManager = req.app.locals.sessionManager;
     const wsManager = req.app.locals.wsManager;
 
-    const cluster = await sessionManager.addParticipantAnswerToCluster(code, clusterId, answer);
+    const cluster = await sessionManager.updateClusterAnswer(code, clusterId, answer);
 
-    // broadcast new participant answer to all clients
     wsManager.toSession(code, 'cluster:answered', { clusterId, answer });
 
     res.json(cluster);

@@ -29,10 +29,15 @@ export default function Participant({ code, onBack }) {
 
     const socket = io("http://localhost:2167");
     socketRef.current = socket;
-    socket.emit("join:room", { code });
 
     socket.on("connect", () => {
       socketIdRef.current = socket.id;
+      socket.emit("join:room", { code });
+    });
+
+    // on reconnect, re-fetch current session state to catch any events missed
+    socket.on("reconnect", () => {
+      fetchSession();
     });
 
     socket.on("submission:count", ({ count }) => setSubmissionCount(count));
