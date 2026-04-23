@@ -25,7 +25,9 @@ export class WebSocketManager {
           tags: session.tags,
           participantCount: session.participantCount,
           submissionCount: session.submissions.length,
-          clusters: session.clusters
+          clusters: session.clusters,
+          curators: session.curators,
+          contextualFacts: session.contextualFacts
         });
       });
 

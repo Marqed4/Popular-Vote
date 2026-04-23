@@ -5,6 +5,7 @@ export const PHASES = {
   CLOSED: 'CLOSED',
   CLUSTERING: 'CLUSTERING',
   RESULTS: 'RESULTS',
+  EXPANDING: 'EXPANDING',
   ENDED: 'ENDED'
 };
 
@@ -30,6 +31,31 @@ export class SessionManager {
     return code;
   }
 
+  // hydrate all non-ended sessions from supabase on server startup
+  async hydrate() {
+    try {
+      const sessions = await SessionStore.getUnclosedSessions();
+      for (const s of sessions) {
+        const submissions = await SessionStore.getSubmissions(s.code);
+        const clusters = await SessionStore.getClusters(s.code);
+        this.sessions.set(s.code, {
+          code: s.code,
+          phase: s.phase,
+          tags: s.tags ?? [],
+          submissions: submissions ?? [],
+          clusters: clusters ?? [],
+          participantCount: 0,
+          expansionRound: s.expansion_round ?? 0,
+          curators: s.curators ?? [],
+          contextualFacts: clusters.flatMap(c => c.contextual_facts ?? [])
+        });
+      }
+      console.log(`[SessionManager] hydrated ${sessions.length} session(s) from Supabase`);
+    } catch (err) {
+      console.error('[SessionManager] hydration failed:', err);
+    }
+  }
+
   async createSession(tags = []) {
     const code = this.generateUniqueCode();
     const session = {
@@ -38,15 +64,46 @@ export class SessionManager {
       tags,
       submissions: [],
       clusters: [],
-      participantCount: 0
+      participantCount: 0,
+      expansionRound: 0,
+      curators: [],
+      contextualFacts: []
     };
     this.sessions.set(code, session);
     await SessionStore.createSession(code, tags);
     return session;
   }
 
+  // sync version — works after hydrate or during active session
   getSession(code) {
     return this.sessions.get(code) || null;
+  }
+
+  // async version — falls back to Supabase if not in memory after server restart
+  async getSessionAsync(code) {
+    if (this.sessions.has(code)) return this.sessions.get(code);
+
+    try {
+      const s = await SessionStore.getSession(code);
+      if (!s) return null;
+      const submissions = await SessionStore.getSubmissions(code);
+      const clusters = await SessionStore.getClusters(code);
+      const session = {
+        code: s.code,
+        phase: s.phase,
+        tags: s.tags ?? [],
+        submissions: submissions ?? [],
+        clusters: clusters ?? [],
+        participantCount: 0,
+        expansionRound: s.expansion_round ?? 0,
+        curators: s.curators ?? [],
+        contextualFacts: clusters.flatMap(c => c.contextual_facts ?? [])
+      };
+      this.sessions.set(code, session);
+      return session;
+    } catch {
+      return null;
+    }
   }
 
   async transitionPhase(code, newPhase) {
@@ -89,6 +146,19 @@ export class SessionManager {
     await SessionStore.deleteSubmission(submissionId);
   }
 
+  // add a participant answer to a specific submission
+  async answerSubmission(code, submissionId, answer) {
+    const session = this.getSession(code);
+    if (!session) throw new Error('Session not found');
+
+    const submission = session.submissions.find(s => s.id === submissionId);
+    if (!submission) throw new Error('Submission not found');
+
+    submission.participant_answer = answer;
+    await SessionStore.updateSubmissionAnswer(submissionId, answer);
+    return submission;
+  }
+
   async saveClusters(code, clusters) {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
@@ -117,6 +187,90 @@ export class SessionManager {
     return cluster;
   }
 
+  // add a participant answer to a cluster
+  async addParticipantAnswerToCluster(code, clusterId, answer) {
+    const session = this.getSession(code);
+    if (!session) throw new Error('Session not found');
+
+    const cluster = session.clusters.find(c => c.id === clusterId);
+    if (!cluster) throw new Error('Cluster not found');
+
+    cluster.participant_answers = [...(cluster.participant_answers ?? []), answer];
+    await SessionStore.addParticipantAnswerToCluster(clusterId, answer);
+    return cluster;
+  }
+
+  // save ai-previewed questions to clusters after expansion preview
+  async saveExpansionPreview(code, clusterPreviews, contextualFacts) {
+    const session = this.getSession(code);
+    if (!session) throw new Error('Session not found');
+
+    // attach contextual facts to session
+    session.contextualFacts = [...(session.contextualFacts ?? []), ...contextualFacts];
+
+    for (const preview of clusterPreviews) {
+      // find by actual cluster UUID — not array index
+      const cluster = session.clusters.find(c => c.id === preview.clusterId);
+      if (!cluster) {
+        console.warn(`[saveExpansionPreview] no cluster found for id: ${preview.clusterId}`);
+        continue;
+      }
+
+      cluster.previewed_questions = preview.previewedQuestions;
+      await SessionStore.updateClusterPreviewedQuestions(cluster.id, preview.previewedQuestions);
+      await SessionStore.updateClusterContextualFacts(cluster.id, contextualFacts);
+    }
+
+    return session;
+  }
+
+  // toggle a selected previewed question for a cluster
+  async toggleSelectedQuestion(code, clusterId, question) {
+    const session = this.getSession(code);
+    if (!session) throw new Error('Session not found');
+
+    const cluster = session.clusters.find(c => c.id === clusterId);
+    if (!cluster) throw new Error('Cluster not found');
+
+    const current = cluster.selected_questions ?? [];
+    const alreadySelected = current.includes(question);
+
+    // toggle on or off
+    cluster.selected_questions = alreadySelected
+      ? current.filter(q => q !== question)
+      : [...current, question];
+
+    await SessionStore.updateClusterSelectedQuestions(clusterId, cluster.selected_questions);
+    return cluster;
+  }
+
+  // promote or demote a participant as curator by socket id
+  async promoteCurator(code, socketId) {
+    const session = this.getSession(code);
+    if (!session) throw new Error('Session not found');
+
+    const already = session.curators.includes(socketId);
+
+    // toggle curator status
+    session.curators = already
+      ? session.curators.filter(id => id !== socketId)
+      : [...session.curators, socketId];
+
+    await SessionStore.updateCurators(code, session.curators);
+    return session.curators;
+  }
+
+  // trigger expansion — increments round and transitions to EXPANDING
+  async triggerExpansion(code) {
+    const session = this.getSession(code);
+    if (!session) throw new Error('Session not found');
+
+    session.expansionRound = (session.expansionRound ?? 0) + 1;
+    await SessionStore.incrementExpansionRound(code);
+    await this.transitionPhase(code, PHASES.EXPANDING);
+    return session;
+  }
+
   async endSession(code) {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
@@ -132,7 +286,10 @@ export class SessionManager {
       tags,
       submissions,
       clusters,
-      participantCount: 0
+      participantCount: 0,
+      expansionRound: 0,
+      curators: [],
+      contextualFacts: []
     });
   }
 }

@@ -30,11 +30,21 @@ function PhaseBadge({ phase }) {
   return <span className={`pv-phase-badge ${cls}`}>{label}</span>;
 }
 
+//https://www.svgviewer.dev/s/468559/download download icon
+//https://www.svgviewer.dev/s/
 function SettingsIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/>
     </svg>
   );
 }
@@ -111,6 +121,16 @@ function YourSessions({ onRejoin }) {
     }
   }
 
+  async function deleteSession(e, code) {
+    e.stopPropagation();
+
+    const { error } = await supabase
+      .from("sessions")
+      .delete()
+      .eq("code", code);
+    if (!error) setSessions(prev => prev.filter(s => s.code !== code));
+  }
+
   return (
     <div className="pv-panel">
       <div className="pv-panel-header">
@@ -136,6 +156,13 @@ function YourSessions({ onRejoin }) {
                   <div className="pv-session-meta">
                     <PhaseBadge phase={s.phase} />
                     <span className="pv-session-date">{formatDate(s.created_at)}</span>
+                    <button
+                      className="pv-btn-delete"
+                      onClick={(e) => deleteSession(e, s.code)}
+                      title="Delete session"
+                    >
+                      <svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/></svg>
+                    </button>
                   </div>
                 </li>
               ))}

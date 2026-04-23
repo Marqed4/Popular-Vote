@@ -5,7 +5,7 @@ export const SessionStore = {
   async createSession(code, tags = []) {
     const { error } = await supabase
       .from('sessions')
-      .insert({ code, phase: 'OPEN', tags });
+      .insert({ code, phase: 'OPEN', tags, expansion_round: 0, curators: [] });
     if (error) throw error;
   },
 
@@ -38,7 +38,7 @@ export const SessionStore = {
   async addSubmission(sessionCode, content) {
     const { data, error } = await supabase
       .from('submissions')
-      .insert({ session_code: sessionCode, content })
+      .insert({ session_code: sessionCode, content, participant_answer: null, is_curator: false })
       .select()
       .single();
     if (error) throw error;
@@ -62,6 +62,15 @@ export const SessionStore = {
     return data;
   },
 
+  // save participant answer to a specific submission
+  async updateSubmissionAnswer(id, participantAnswer) {
+    const { error } = await supabase
+      .from('submissions')
+      .update({ participant_answer: participantAnswer })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
   async saveClusters(sessionCode, clusters) {
     const { error: deleteError } = await supabase
       .from('clusters')
@@ -75,7 +84,12 @@ export const SessionStore = {
       submission_count: c.submissionCount,
       questions: c.questions,
       answer: c.answer ?? null,
-      upvote_count: c.upvoteCount ?? 0
+      upvote_count: c.upvoteCount ?? 0,
+      // expansion fields
+      previewed_questions: c.previewedQuestions ?? [],
+      selected_questions: c.selectedQuestions ?? [],
+      contextual_facts: c.contextualFacts ?? [],
+      participant_answers: c.participantAnswers ?? []
     }));
 
     const { data, error } = await supabase
@@ -110,6 +124,50 @@ export const SessionStore = {
     if (error) throw error;
   },
 
+  // save ai-previewed follow-up questions to a cluster
+  async updateClusterPreviewedQuestions(id, previewedQuestions) {
+    const { error } = await supabase
+      .from('clusters')
+      .update({ previewed_questions: previewedQuestions })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  // save host/participant selected questions from the previewed list
+  async updateClusterSelectedQuestions(id, selectedQuestions) {
+    const { error } = await supabase
+      .from('clusters')
+      .update({ selected_questions: selectedQuestions })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  // save contextual facts extracted by ai during expansion
+  async updateClusterContextualFacts(id, contextualFacts) {
+    const { error } = await supabase
+      .from('clusters')
+      .update({ contextual_facts: contextualFacts })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  // append a participant answer to a cluster's participant_answers array
+  async addParticipantAnswerToCluster(id, answer) {
+    const { data: cluster, error: fetchError } = await supabase
+      .from('clusters')
+      .select('participant_answers')
+      .eq('id', id)
+      .single();
+    if (fetchError) throw fetchError;
+
+    const updated = [...(cluster.participant_answers ?? []), answer];
+    const { error } = await supabase
+      .from('clusters')
+      .update({ participant_answers: updated })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
   async getClusters(sessionCode) {
     const { data, error } = await supabase
       .from('clusters')
@@ -125,7 +183,32 @@ export const SessionStore = {
       .from('sessions')
       .select('*')
       .neq('phase', 'ENDED');
-    if (error) throw error;
+    if (error) throw error;s
     return data;
+  },
+
+  // promote a participant to curator by socket id
+  async updateCurators(code, curators) {
+    const { error } = await supabase
+      .from('sessions')
+      .update({ curators })
+      .eq('code', code);
+    if (error) throw error;
+  },
+
+  // increment expansion round counter
+  async incrementExpansionRound(code) {
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('expansion_round')
+      .eq('code', code)
+      .single();
+    if (error) throw error;
+
+    const { error: updateError } = await supabase
+      .from('sessions')
+      .update({ expansion_round: (data.expansion_round ?? 0) + 1 })
+      .eq('code', code);
+    if (updateError) throw updateError;
   }
 };

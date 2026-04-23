@@ -8,6 +8,7 @@ import { WebSocketManager } from './managers/WebSocketManager.js';
 import chatRouter from './routes/Chat.js';
 import sessionsRouter from './routes/Sessions.js';
 import submissionsRouter from './routes/Submissions.js';
+import expandRouter from './routes/Expand.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -19,31 +20,28 @@ app.use(express.json());
 
 // make sessionManager and wsManager available to all route handlers
 const sessionManager = new SessionManager();
+/*
+Google: hydration generally refers to the process of filling a "dry" 
+or empty structure with data or behavior to make it functional.
+*/
+await sessionManager.hydrate();
+
 const wsManager = new WebSocketManager(io);
 wsManager.register(sessionManager);
+
 app.locals.sessionManager = sessionManager;
 app.locals.wsManager = wsManager;
 app.locals.io = io;
 
 // routes
 app.use('/api', chatRouter);
+app.use('/api', expandRouter);
 app.use('/api', sessionsRouter);
 app.use('/api', submissionsRouter);
 
-// recovery via Supabase for resilience
-async function recoverSessions() {
-  const sessions = await SessionStore.getUnclosedSessions();
-  for (const s of sessions) {
-    const submissions = await SessionStore.getSubmissions(s.code);
-    const clusters = await SessionStore.getClusters(s.code);
-    sessionManager.restoreSession(s.code, s.phase, s.tags, submissions, clusters);
-  }
-  console.log(`Recovered ${sessions.length} active session(s) from Supabase`);
-}
-
+// backend port
 const PORT = process.env.PORT || 2167;
 
-httpServer.listen(PORT, async () => {
-  await recoverSessions();
+httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -567,3 +567,27 @@ body {
   font-size: 1.1rem;
   width: 26px
 }
+
+.pv-btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: currentColor;
+  opacity: 0.4;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: opacity 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.pv-btn-delete svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+.pv-btn-delete:hover {
+  opacity: 1;
+  color: #e53e3e;
+}

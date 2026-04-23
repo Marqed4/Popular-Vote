@@ -1,0 +1,120 @@
+import "./HostSidebar.css";
+
+export default function HostSidebar({
+  code,
+  phase,
+  tags,
+  tagInput,
+  error,
+  actionLoading,
+  previewLoading,
+  expandLoading,
+  onTagInput,
+  onAddTag,
+  onRemoveTag,
+  onClose,
+  onCluster,
+  onPreviewExpansion,
+  onTriggerExpansion,
+  onEndSession,
+}) {
+  function copyCode() { navigator.clipboard.writeText(code); }
+  function copyLink() { navigator.clipboard.writeText(`${window.location.origin}?code=${code}`); }
+
+  const sessionUrl = `${window.location.origin}?code=${code}`;
+
+  return (
+    <aside className="hd-sidebar">
+      <section className="hd-card">
+        <div className="hd-card-title">Session Code</div>
+        <div className="hd-code">{code}</div>
+        <div className="hd-code-actions">
+          <button className="hd-btn-ghost" onClick={copyCode}>Copy code</button>
+          <button className="hd-btn-ghost" onClick={copyLink}>Copy link</button>
+        </div>
+        <div className="hd-url">{sessionUrl}</div>
+      </section>
+
+      <section className="hd-card">
+        <div className="hd-card-title">Tags</div>
+        <div className="hd-tags">
+          {tags.map(t => (
+            <span key={t} className="hd-tag">
+              {t}
+              {phase === "OPEN" && (
+                <button className="hd-tag-remove" onClick={() => onRemoveTag(t)}>×</button>
+              )}
+            </span>
+          ))}
+        </div>
+        {phase === "OPEN" && (
+          <input
+            className="hd-tag-input"
+            placeholder="Add tag, press Enter…"
+            value={tagInput}
+            onChange={e => onTagInput(e.target.value)}
+            onKeyDown={onAddTag}
+          />
+        )}
+      </section>
+
+      <section className="hd-card hd-actions">
+        <div className="hd-card-title">Actions</div>
+        {error && <div className="hd-error">{error}</div>}
+
+        {phase === "OPEN" && (
+          <button className="hd-btn-primary" onClick={onClose} disabled={actionLoading}>
+            {actionLoading ? "Closing…" : "Close Submissions"}
+          </button>
+        )}
+
+        {(phase === "OPEN" || phase === "CLOSED") && (
+          <button className="hd-btn-primary" onClick={onCluster} disabled={actionLoading}>
+            {actionLoading ? "Clustering…" : "Trigger Clustering"}
+          </button>
+        )}
+
+        {phase === "CLUSTERING" && (
+          <div className="hd-clustering-status">
+            <div className="hd-spinner" />
+            <span>Clustering in progress…</span>
+          </div>
+        )}
+
+        {phase === "RESULTS" && (
+          <>
+            <button
+              className="hd-btn-primary"
+              onClick={onPreviewExpansion}
+              disabled={previewLoading || expandLoading}
+            >
+              {previewLoading ? "Loading suggestions…" : "Preview Expansion"}
+            </button>
+            <button
+              className="hd-btn-primary hd-btn-expand"
+              onClick={onTriggerExpansion}
+              disabled={expandLoading || previewLoading}
+            >
+              {expandLoading ? "Expanding…" : "Trigger Expansion"}
+            </button>
+            <button className="hd-btn-end" onClick={onEndSession} disabled={actionLoading}>
+              {actionLoading ? "Ending…" : "End Session"}
+            </button>
+          </>
+        )}
+
+        {phase === "EXPANDING" && (
+          <div className="hd-clustering-status">
+            <div className="hd-spinner" />
+            <span>Expansion in progress…</span>
+          </div>
+        )}
+
+        {phase === "ENDED" && (
+          <div className="hd-ended-msg">Session has ended.</div>
+        )}
+      </section>
+
+    </aside>
+  );
+}

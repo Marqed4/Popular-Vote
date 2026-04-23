@@ -4,16 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "dev": "concurrently \"vite\" \"node server/Index.js\"",
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview"
+    "dev": "concurrently \"vite\" \"node server/Index.js\"",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.104.0",
+    "concurrently": "^9.2.1",
     "dotenv": "^17.4.2",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

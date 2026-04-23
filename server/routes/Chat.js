@@ -1,8 +1,9 @@
 import express from 'express';
 import { GoogleGenAI } from '@google/genai';
+import 'dotenv/config'
 
 const router = express.Router();
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'YOUR_API_KEY_HERE' });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 router.post('/chat', async (req, res) => {
   const { messages, sessionCode, sessionManager } = req.body;

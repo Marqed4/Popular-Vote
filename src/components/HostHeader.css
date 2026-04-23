@@ -1,0 +1,94 @@
+.hd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2.5rem;
+  background: rgba(245, 240, 232, 0.95);
+  border-bottom: 2px solid #1a1714;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+}
+
+.hd-header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+
+.hd-back {
+  background: none;
+  border: none;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #9a9490;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.hd-back:hover { color: #1a1714; }
+
+.hd-header-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.hd-header-label {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #1a1714;
+}
+
+.hd-phase {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border: 1px solid;
+}
+
+.hd-phase--open       { color: #3a6b45; border-color: #3a6b45; background: rgba(58,107,69,0.06); }
+.hd-phase--closed     { color: #9a9490; border-color: #c8c2bc; background: transparent; }
+.hd-phase--clustering { color: #2a4f7a; border-color: #2a4f7a; background: rgba(42,79,122,0.06); }
+.hd-phase--results    { color: #2a4f7a; border-color: #2a4f7a; background: rgba(42,79,122,0.06); }
+.hd-phase--expanding  { color: #8b4a2a; border-color: #8b4a2a; background: rgba(139,74,42,0.06); }
+.hd-phase--ended      { color: #c8c2bc; border-color: #c8c2bc; background: transparent; }
+
+.hd-header-right {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.hd-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.hd-stat-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #1a1714;
+  line-height: 1;
+}
+
+.hd-stat-label {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #9a9490;
+}
+
+@media (max-width: 760px) {
+  .hd-header { padding: 1rem 1.25rem; }
+}

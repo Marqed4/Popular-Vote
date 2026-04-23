@@ -52,4 +52,29 @@ router.delete('/sessions/:code/submit/:id', async (req, res) => {
   }
 });
 
+// participant answers a specific submission
+router.post('/sessions/:code/submit/:id/answer', submitLimiter, async (req, res) => {
+  try {
+    const { code, id } = req.params;
+    const { answer } = req.body;
+    const sessionManager = req.app.locals.sessionManager;
+    const wsManager = req.app.locals.wsManager;
+    const session = sessionManager.getSession(code);
+
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (!answer || answer.trim() === '') return res.status(400).json({ error: 'Answer is required' });
+    if (answer.length > 500) return res.status(400).json({ error: 'Answer exceeds 500 character limit' });
+
+    const submission = await sessionManager.answerSubmission(code, id, answer.trim());
+
+    // broadcast the answered submission to all clients
+    wsManager.toSession(code, 'submission:answered', { submissionId: id, answer: answer.trim() });
+
+    res.json({ id: submission.id, answer: submission.participant_answer });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to save answer' });
+  }
+});
+
 export default router;
