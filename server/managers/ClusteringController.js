@@ -55,7 +55,13 @@ Respond ONLY with a valid JSON array, no markdown, no explanation, just the arra
         throw new Error('Gemini did not return anything');
       }
 
-      return clusters;
+      // normalize questions to objects so all downstream code works consistently
+      return clusters.map(c => ({
+        ...c,
+        questions: (c.questions ?? []).map(q =>
+          typeof q === 'string' ? { text: q, upvoteCount: 0 } : q
+        ),
+      }));
 
     } catch (err) {
       console.error('ClusteringEngine error:', err);
