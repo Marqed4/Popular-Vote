@@ -57,6 +57,17 @@
   line-height: 1.4;
 }
 
+/* ─── QR Code ─────────────────────────────────────────────────────────────── */
+
+.hd-qr-canvas {
+  display: block;
+  margin: 0 auto;
+  border: 1px solid #e5e4e1;
+  border-radius: 8px;
+  padding: 6px;
+  background: #ffffff;
+}
+
 /* ─── Tags ────────────────────────────────────────────────────────────────── */
 
 .hd-tags {

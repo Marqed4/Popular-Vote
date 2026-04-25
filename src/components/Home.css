@@ -622,21 +622,25 @@ body {
 
 /* ─── QR area ───────────────────────────────────────────────────────────────── */
 
-.pv-qr-area {
+.pv-qr-scanner {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
 }
 
-.pv-qr-box {
-  width: 120px;
-  height: 120px;
-  background: var(--surface-sub);
+.pv-qr-reader {
+  width: 100% !important;
+  border-radius: 10px;
+  overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 8px;
 }
+
+/* hide html5-qrcode's own UI chrome we don't need */
+.pv-qr-reader > img { display: none; }
+#pv-qr-reader__scan_region { border-radius: 8px; overflow: hidden; }
+#pv-qr-reader__dashboard { display: none !important; }
 
 .pv-qr-hint {
   font-family: var(--font-serif);
