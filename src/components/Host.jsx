@@ -52,7 +52,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      socket.emit("join:room", { code });
+      socket.emit("join:room", { code, role: "host" });
     });
 
     socket.on("reconnect", () => {

@@ -32,7 +32,7 @@ export default function Participant({ code, onBack }) {
 
     socket.on("connect", () => {
       socketIdRef.current = socket.id;
-      socket.emit("join:room", { code });
+      socket.emit("join:room", { code, role: "participant" });
     });
 
     // on reconnect, re-fetch current session state to catch any events missed
