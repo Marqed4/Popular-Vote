@@ -47,7 +47,8 @@ export class SessionManager {
           participantCount: 0,
           expansionRound: s.expansion_round ?? 0,
           curators: s.curators ?? [],
-          contextualFacts: clusters.flatMap(c => c.contextual_facts ?? [])
+          contextualFacts: clusters.flatMap(c => c.contextual_facts ?? []),
+          submissionsAtLastCluster: clusters.length > 0 ? submissions.length : 0,
         });
       }
       console.log(`[SessionManager] hydrated ${sessions.length} session(s) from Supabase`);
@@ -67,10 +68,14 @@ export class SessionManager {
       participantCount: 0,
       expansionRound: 0,
       curators: [],
-      contextualFacts: []
+      contextualFacts: [],
+      submissionsAtLastCluster: 0,
     };
     this.sessions.set(code, session);
-    await SessionStore.createSession(code, tags);
+    // write to DB in background — don't block the response
+    SessionStore.createSession(code, tags).catch(err =>
+      console.error('[SessionManager] failed to persist session:', err)
+    );
     return session;
   }
 
@@ -131,7 +136,8 @@ export class SessionManager {
   async addSubmission(code, content) {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
-    if (session.phase !== PHASES.OPEN) throw new Error('Submission window is closed');
+    const submittablePhases = [PHASES.OPEN, PHASES.RESULTS, PHASES.EXPANDING];
+    if (!submittablePhases.includes(session.phase)) throw new Error('Submission window is closed');
 
     const saved = await SessionStore.addSubmission(code, content);
     session.submissions.push(saved);
@@ -180,7 +186,8 @@ export class SessionManager {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
 
-    const cluster = session.clusters.find(c => c.id === clusterId);
+    // clusterId from URL params is a string; cluster.id from DB may be a number
+    const cluster = session.clusters.find(c => String(c.id) === String(clusterId));
     if (!cluster) throw new Error('Cluster not found');
     cluster.answer = answer;
     await SessionStore.updateClusterAnswer(clusterId, answer);
@@ -192,7 +199,7 @@ export class SessionManager {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
 
-    const cluster = session.clusters.find(c => c.id === clusterId);
+    const cluster = session.clusters.find(c => String(c.id) === String(clusterId));
     if (!cluster) throw new Error('Cluster not found');
 
     cluster.participant_answers = [...(cluster.participant_answers ?? []), answer];
@@ -229,7 +236,7 @@ export class SessionManager {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
 
-    const cluster = session.clusters.find(c => c.id === clusterId);
+    const cluster = session.clusters.find(c => String(c.id) === String(clusterId));
     if (!cluster) throw new Error('Cluster not found');
 
     const current = cluster.selected_questions ?? [];

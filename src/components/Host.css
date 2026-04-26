@@ -2,16 +2,16 @@
 
 .hd-root {
   min-height: 100vh;
-  background: #f5f0e8;
+  background: #f8f8f7;
   font-family: 'EB Garamond', Georgia, serif;
-  color: #1a1714;
+  color: #1c1917;
 }
 
 .hd-body {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 260px 1fr;
   gap: 0;
-  min-height: calc(100vh - 65px);
+  min-height: calc(100vh - 56px);
 }
 
 @media (max-width: 760px) {
@@ -23,18 +23,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f0e8;
+  background: #f8f8f7;
 }
 
 .hd-loading-text {
   font-family: 'EB Garamond', serif;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-style: italic;
-  color: #9a9490;
+  color: #a8a29e;
   animation: pulse 1.5s ease infinite;
 }
 
-@keyframes spin    { to { transform: rotate(360deg); } }
-@keyframes pulse   { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-@keyframes fadeUp  { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes spin  { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }

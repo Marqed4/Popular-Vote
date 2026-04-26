@@ -15,6 +15,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
   const [tagInput, setTagInput] = useState("");
   const [participantCount, setParticipantCount] = useState(0);
   const [submissionCount, setSubmissionCount] = useState(0);
+  const [submissionsAtLastCluster, setSubmissionsAtLastCluster] = useState(0);
   const [clusters, setClusters] = useState([]);
   const [loading, setLoading] = useState(initialCode === "NEW");
   const [actionLoading, setActionLoading] = useState(false);
@@ -48,13 +49,21 @@ export default function HostDashboard({ code: initialCode, onBack }) {
 
     const socket = io("http://localhost:2167");
     socketRef.current = socket;
-    socket.emit("join:room", { code });
+
+    socket.on("connect", () => {
+      socket.emit("join:room", { code });
+    });
+
+    socket.on("reconnect", () => {
+      fetchSession();
+    });
 
     socket.on("submission:count", ({ count }) => setSubmissionCount(count));
     socket.on("session:closed", () => setPhase("CLOSED"));
     socket.on("session:clustering", () => setPhase("CLUSTERING"));
-    socket.on("session:results", ({ clusters }) => {
+    socket.on("session:results", ({ clusters, submissionsAtLastCluster }) => {
       setClusters(clusters);
+      if (submissionsAtLastCluster !== undefined) setSubmissionsAtLastCluster(submissionsAtLastCluster);
       setPhase("RESULTS");
     });
 
@@ -127,6 +136,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       setPhase(data.phase);
       setTags(data.tags ?? []);
       setSubmissionCount(data.submissionCount ?? 0);
+      setSubmissionsAtLastCluster(data.submissionsAtLastCluster ?? 0);
       setParticipantCount(data.participantCount ?? 0);
       setClusters(data.clusters ?? []);
       setCurators(data.curators ?? []);
@@ -337,18 +347,36 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     }
   }
 
-  function addTag(e) {
-    if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
-      e.preventDefault();
-      const t = tagInput.trim().replace(/,$/, "");
-      if (t && !tags.includes(t)) setTags(prev => [...prev, t]);
-      setTagInput("");
-    }
+async function saveTags(updatedTags) {
+  try {
+    await fetch(`/api/sessions/${code}/tags`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tags: updatedTags }),
+    });
+  } catch (err) {
+    console.error('Failed to save tags:', err);
   }
+}
 
-  function removeTag(t) {
-    setTags(prev => prev.filter(x => x !== t));
+function addTag(e) {
+  if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
+    e.preventDefault();
+    const t = tagInput.trim().replace(/,$/, "");
+    if (t && !tags.includes(t)) {
+      const updated = [...tags, t];
+      setTags(updated);
+      saveTags(updated);
+    }
+    setTagInput("");
   }
+}
+
+function removeTag(t) {
+  const updated = tags.filter(x => x !== t);
+  setTags(updated);
+  saveTags(updated);
+}
 
   const isHost = true;
 
@@ -383,6 +411,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
             onTagInput={setTagInput}
             onAddTag={addTag}
             onRemoveTag={removeTag}
+            canRecluster={submissionCount > submissionsAtLastCluster}
             onClose={closeSubmissions}
             onCluster={triggerClustering}
             onPreviewExpansion={fetchExpansionPreview}

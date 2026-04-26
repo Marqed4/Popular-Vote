@@ -27,6 +27,14 @@ export const SessionStore = {
     if (error) throw error;
   },
 
+  async updateTags(code, tags) {
+    const { error } = await supabase
+      .from('sessions')
+      .update({ tags })
+      .eq('code', code);
+    if (error) throw error;
+  },
+
   async deleteSession(code) {
     const { error } = await supabase
       .from('sessions')
@@ -183,7 +191,7 @@ export const SessionStore = {
       .from('sessions')
       .select('*')
       .neq('phase', 'ENDED');
-    if (error) throw error;s
+    if (error) throw error;
     return data;
   },
 

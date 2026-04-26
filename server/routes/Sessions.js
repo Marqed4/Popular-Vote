@@ -1,5 +1,6 @@
 import express from 'express';
 import { ClusteringController } from '../managers/ClusteringController.js';
+import { SessionStore } from '../database/SessionStore.js';
 
 const router = express.Router();
 const clusteringEngine = new ClusteringController();
@@ -23,7 +24,7 @@ router.post('/sessions/:code/join', async (req, res) => {
     const session = await sessionManager.getSessionAsync(req.params.code);
 
     if (!session) return res.status(404).json({ error: 'Session not found' });
-    if (session.phase !== 'OPEN') return res.status(400).json({ error: 'Session is no longer accepting submissions' });
+    if (session.phase === 'ENDED') return res.status(400).json({ error: 'Session has ended' });
 
     const count = sessionManager.incrementParticipants(req.params.code);
     res.json({ code: session.code, phase: session.phase, participantCount: count });
@@ -64,7 +65,8 @@ router.post('/sessions/:code/cluster', async (req, res) => {
 
     if (!session) return res.status(404).json({ error: 'Session not found' });
     if (session.submissions.length === 0) return res.status(400).json({ error: 'No submissions to cluster' });
-    if (session.phase !== 'OPEN' && session.phase !== 'CLOSED') return res.status(400).json({ error: 'Session is not in a clusterable state' });
+    const clusterablePhases = ['OPEN', 'CLOSED', 'RESULTS'];
+    if (!clusterablePhases.includes(session.phase)) return res.status(400).json({ error: 'Session is not in a clusterable state' });
 
     // transition to clustering phase and notify all
     await sessionManager.transitionPhase(code, 'CLUSTERING');
@@ -74,18 +76,21 @@ router.post('/sessions/:code/cluster', async (req, res) => {
 
     // save and transition to results
     const saved = await sessionManager.saveClusters(code, clusters);
+    session.submissionsAtLastCluster = session.submissions.length;
     await sessionManager.transitionPhase(code, 'RESULTS');
 
     // broadcast results
-    wsManager.toSession(code, 'session:results', { clusters: saved });
+    wsManager.toSession(code, 'session:results', { clusters: saved, submissionsAtLastCluster: session.submissions.length });
 
     res.json({ clusters: saved });
 
   } catch (err) {
     console.error(err);
-    // back to OPEN so host can retry
+    // roll back phase and notify everyone so participants don't stay stuck
     const sessionManager = req.app.locals.sessionManager;
-    await sessionManager.transitionPhase(req.params.code, 'OPEN');
+    const wsManager = req.app.locals.wsManager;
+    await sessionManager.transitionPhase(req.params.code, 'CLOSED');
+    wsManager.toSession(req.params.code, 'session:closed');
     res.status(500).json({ error: 'Clustering failed. You can retry.' });
   }
 });
@@ -161,7 +166,33 @@ router.post('/sessions/:code/clusters/:clusterId/select', async (req, res) => {
   }
 });
 
-// host or participant adds a participant answer to a cluster
+// participant submits a question targeted at a specific cluster (during RESULTS phase)
+router.post('/sessions/:code/clusters/:clusterId/submit', async (req, res) => {
+  try {
+    const { code, clusterId } = req.params;
+    const { content } = req.body;
+    const sessionManager = req.app.locals.sessionManager;
+    const io = req.app.locals.io;
+    const session = sessionManager.getSession(code);
+
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (!content || !content.trim()) return res.status(400).json({ error: 'Question is required' });
+    if (content.length > 500) return res.status(400).json({ error: 'Question exceeds 500 character limit' });
+
+    const { SessionStore } = await import('../database/SessionStore.js');
+    const saved = await SessionStore.addSubmission(code, content.trim());
+    session.submissions.push(saved);
+
+    io.to(code).emit('submission:count', { count: session.submissions.length });
+
+    res.json({ id: saved.id, content: saved.content });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to submit to cluster' });
+  }
+});
+
+// host sets the main answer for a cluster
 router.post('/sessions/:code/clusters/:clusterId/answer', async (req, res) => {
   try {
     const { code, clusterId } = req.params;
@@ -169,9 +200,8 @@ router.post('/sessions/:code/clusters/:clusterId/answer', async (req, res) => {
     const sessionManager = req.app.locals.sessionManager;
     const wsManager = req.app.locals.wsManager;
 
-    const cluster = await sessionManager.addParticipantAnswerToCluster(code, clusterId, answer);
+    const cluster = await sessionManager.updateClusterAnswer(code, clusterId, answer);
 
-    // broadcast new participant answer to all clients
     wsManager.toSession(code, 'cluster:answered', { clusterId, answer });
 
     res.json(cluster);
@@ -201,6 +231,58 @@ router.post('/sessions/:code/curators', async (req, res) => {
   }
 });
 
+// participant upvotes or un-upvotes a question within a cluster
+router.post('/sessions/:code/upvote', async (req, res) => {
+  try {
+    const { code } = req.params;
+    const { questionText, undo } = req.body;
+    const sessionManager = req.app.locals.sessionManager;
+    const wsManager = req.app.locals.wsManager;
+    const session = sessionManager.getSession(code);
+
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (!questionText) return res.status(400).json({ error: 'questionText is required' });
+
+    let updatedCount = 0;
+    for (const cluster of session.clusters) {
+      const question = (cluster.questions ?? []).find(q => q.text === questionText);
+      if (question) {
+        question.upvoteCount = Math.max(0, (question.upvoteCount ?? 0) + (undo ? -1 : 1));
+        updatedCount = question.upvoteCount;
+        break;
+      }
+    }
+
+    wsManager.toSession(code, 'cluster:upvote', { questionText, upvoteCount: updatedCount });
+    res.json({ questionText, upvoteCount: updatedCount });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to record upvote' });
+  }
+});
+
+router.patch('/sessions/:code/tags', async (req, res) => {
+  try {
+    const sessionManager = req.app.locals.sessionManager;
+    const { code } = req.params;
+    const { tags } = req.body;
+
+    if (!Array.isArray(tags)) return res.status(400).json({ error: 'tags must be an array' });
+
+    const session = await sessionManager.getSessionAsync(code);
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (session.phase !== 'OPEN') return res.status(400).json({ error: 'Tags can only be updated while session is open' });
+
+    session.tags = tags;
+    await SessionStore.updateTags(code, tags);
+
+    res.json({ tags: session.tags });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update tags' });
+  }
+});
+
 router.get('/sessions/:code', async (req, res) => {
   try {
     const sessionManager = req.app.locals.sessionManager;
@@ -214,6 +296,8 @@ router.get('/sessions/:code', async (req, res) => {
       phase: session.phase,
       tags: session.tags,
       clusters: session.clusters ?? [],
+      submissionCount: session.submissions?.length ?? 0,
+      submissionsAtLastCluster: session.submissionsAtLastCluster ?? 0,
       participantCount: session.participantCount ?? 0,
       expansionRound: session.expansionRound ?? 0,
       curators: session.curators ?? [],

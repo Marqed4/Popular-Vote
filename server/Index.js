@@ -24,7 +24,8 @@ const sessionManager = new SessionManager();
 Google: hydration generally refers to the process of filling a "dry" 
 or empty structure with data or behavior to make it functional.
 */
-await sessionManager.hydrate();
+// hydrate in background — don't block server startup
+sessionManager.hydrate().catch(err => console.error('[startup] hydration failed:', err));
 
 const wsManager = new WebSocketManager(io);
 wsManager.register(sessionManager);
