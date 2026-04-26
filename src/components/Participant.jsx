@@ -63,6 +63,17 @@ export default function Participant({ code, onBack }) {
       })))
     );
 
+    socket.on("cluster:submission:added", ({ clusterId, question, submissionCount }) => {
+      setClusters(prev => prev.map(c => {
+        if (String(c.id) !== String(clusterId)) return c;
+        return {
+          ...c,
+          submission_count: submissionCount,
+          questions: [...(c.questions ?? []), question],
+        };
+      }));
+    });
+
     return () => socket.disconnect();
   }, [code]);
 

@@ -4,11 +4,15 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: join(__dirname, '../.env') });
+dotenv.config({ path: join(__dirname, '.env'), override: true });
+
+// console.log('CLIENT URL:', process.env.SUPABASE_URL);
+// console.log('CLIENT KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 20));
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  { db: { schema: 'public' } }
 );
 
 export default supabase;

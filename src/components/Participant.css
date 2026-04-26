@@ -1,15 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap');
 
-/* ─── Root ─────────────────────────────────────────────────────────────────── */
-
 .pd-root {
   min-height: 100vh;
   background: #f8f8f7;
   font-family: 'EB Garamond', serif;
   color: #1c1917;
 }
-
-/* ─── Header ────────────────────────────────────────────────────────────────── */
 
 .pd-header {
   display: flex;
@@ -122,8 +118,6 @@
   color: #a8a29e;
 }
 
-/* ─── Body ──────────────────────────────────────────────────────────────────── */
-
 .pd-body {
   max-width: 680px;
   margin: 0 auto;
@@ -132,8 +126,6 @@
   flex-direction: column;
   gap: 0.875rem;
 }
-
-/* ─── Cards ─────────────────────────────────────────────────────────────────── */
 
 .pd-card {
   background: #ffffff;
@@ -201,8 +193,6 @@
   background: #e5e4e1;
 }
 
-/* ─── Textarea ───────────────────────────────────────────────────────────────── */
-
 .pd-textarea {
   width: 100%;
   box-sizing: border-box;
@@ -240,8 +230,6 @@
 }
 .pd-charcount--warn { color: #c2410c; }
 
-/* ─── Buttons ────────────────────────────────────────────────────────────────── */
-
 .pd-btn-primary {
   font-family: 'EB Garamond', serif;
   font-size: 0.95rem;
@@ -271,8 +259,6 @@
 }
 .pd-btn-ghost:hover { color: #1c1917; border-color: #1c1917; }
 
-/* ─── Closed message / errors ────────────────────────────────────────────────── */
-
 .pd-closed-msg {
   font-style: italic;
   color: #a8a29e;
@@ -291,8 +277,6 @@
   padding: 0.5rem 0.75rem;
   margin-top: 0.625rem;
 }
-
-/* ─── Submissions list ───────────────────────────────────────────────────────── */
 
 .pd-submissions-list {
   list-style: none;
@@ -331,8 +315,6 @@
 }
 .pd-delete-btn:hover { color: #dc2626; background: rgba(220,38,38,0.07); }
 
-/* ─── Waiting / Clustering ───────────────────────────────────────────────────── */
-
 .pd-waiting {
   text-align: center;
   padding: 5rem 0;
@@ -366,8 +348,6 @@
   line-height: 1.6;
 }
 
-/* ─── Ended banner ───────────────────────────────────────────────────────────── */
-
 .pd-ended-banner {
   font-family: 'DM Mono', monospace;
   font-size: 0.65rem;
@@ -380,8 +360,6 @@
   padding: 0.75rem 1rem;
   text-align: center;
 }
-
-/* ─── Cluster list ───────────────────────────────────────────────────────────── */
 
 .pd-clusters-header {
   display: flex;
@@ -397,8 +375,6 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
-
-/* ─── Cluster cards ──────────────────────────────────────────────────────────── */
 
 .pd-cluster {
   background: #ffffff;
@@ -478,8 +454,6 @@
   margin: 0;
 }
 
-/* ─── Questions expand ───────────────────────────────────────────────────────── */
-
 .pd-expand-btn {
   background: none;
   border: none;
@@ -557,7 +531,6 @@
   flex-shrink: 0;
 }
 
-/* ─── Add to cluster ─────────────────────────────────────────────────────────── */
 
 .pd-add-q-btn {
   font-family: 'EB Garamond', serif;
@@ -577,8 +550,6 @@
 
 .pd-cluster-input-area { margin-top: 0.5rem; }
 
-/* ─── Empty state ────────────────────────────────────────────────────────────── */
-
 .pd-empty {
   text-align: center;
   padding: 4rem 0;
@@ -591,15 +562,11 @@
   color: #a8a29e;
 }
 
-/* ─── Input shell ────────────────────────────────────────────────────────────── */
-
 .pd-input-shell {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
-
-/* ─── Responsive ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
   .pd-header { padding: 0 1rem; }
