@@ -347,18 +347,36 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     }
   }
 
-  function addTag(e) {
-    if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
-      e.preventDefault();
-      const t = tagInput.trim().replace(/,$/, "");
-      if (t && !tags.includes(t)) setTags(prev => [...prev, t]);
-      setTagInput("");
-    }
+async function saveTags(updatedTags) {
+  try {
+    await fetch(`/api/sessions/${code}/tags`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tags: updatedTags }),
+    });
+  } catch (err) {
+    console.error('Failed to save tags:', err);
   }
+}
 
-  function removeTag(t) {
-    setTags(prev => prev.filter(x => x !== t));
+function addTag(e) {
+  if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
+    e.preventDefault();
+    const t = tagInput.trim().replace(/,$/, "");
+    if (t && !tags.includes(t)) {
+      const updated = [...tags, t];
+      setTags(updated);
+      saveTags(updated);
+    }
+    setTagInput("");
   }
+}
+
+function removeTag(t) {
+  const updated = tags.filter(x => x !== t);
+  setTags(updated);
+  saveTags(updated);
+}
 
   const isHost = true;
 

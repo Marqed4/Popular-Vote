@@ -1,5 +1,6 @@
 import express from 'express';
 import { ClusteringController } from '../managers/ClusteringController.js';
+import { SessionStore } from '../database/SessionStore.js';
 
 const router = express.Router();
 const clusteringEngine = new ClusteringController();
@@ -257,6 +258,28 @@ router.post('/sessions/:code/upvote', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to record upvote' });
+  }
+});
+
+router.patch('/sessions/:code/tags', async (req, res) => {
+  try {
+    const sessionManager = req.app.locals.sessionManager;
+    const { code } = req.params;
+    const { tags } = req.body;
+
+    if (!Array.isArray(tags)) return res.status(400).json({ error: 'tags must be an array' });
+
+    const session = await sessionManager.getSessionAsync(code);
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (session.phase !== 'OPEN') return res.status(400).json({ error: 'Tags can only be updated while session is open' });
+
+    session.tags = tags;
+    await SessionStore.updateTags(code, tags);
+
+    res.json({ tags: session.tags });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update tags' });
   }
 });
 
