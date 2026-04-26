@@ -1,4 +1,19 @@
+import { useEffect, useRef } from "react";
+import QRCode from "qrcode";
 import "./HostSidebar.css";
+
+function QRDisplay({ url }) {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    if (!canvasRef.current || !url) return;
+    QRCode.toCanvas(canvasRef.current, url, {
+      width: 160,
+      margin: 1,
+      color: { dark: "#1c1917", light: "#ffffff" },
+    });
+  }, [url]);
+  return <canvas ref={canvasRef} className="hd-qr-canvas" />;
+}
 
 export default function HostSidebar({
   code,
@@ -9,6 +24,7 @@ export default function HostSidebar({
   actionLoading,
   previewLoading,
   expandLoading,
+  canRecluster,
   onTagInput,
   onAddTag,
   onRemoveTag,
@@ -32,6 +48,7 @@ export default function HostSidebar({
           <button className="hd-btn-ghost" onClick={copyCode}>Copy code</button>
           <button className="hd-btn-ghost" onClick={copyLink}>Copy link</button>
         </div>
+        <QRDisplay url={sessionUrl} />
         <div className="hd-url">{sessionUrl}</div>
       </section>
 
@@ -69,7 +86,11 @@ export default function HostSidebar({
         )}
 
         {(phase === "OPEN" || phase === "CLOSED") && (
-          <button className="hd-btn-primary" onClick={onCluster} disabled={actionLoading}>
+          <button
+            className={phase === "OPEN" ? "hd-btn-ghost hd-btn-ghost--full" : "hd-btn-primary"}
+            onClick={onCluster}
+            disabled={actionLoading}
+          >
             {actionLoading ? "Clustering…" : "Trigger Clustering"}
           </button>
         )}
@@ -83,6 +104,9 @@ export default function HostSidebar({
 
         {phase === "RESULTS" && (
           <>
+            <button className="hd-btn-primary" onClick={onCluster} disabled={actionLoading || !canRecluster}>
+              {actionLoading ? "Clustering…" : "Re-cluster"}
+            </button>
             <button
               className="hd-btn-primary"
               onClick={onPreviewExpansion}
