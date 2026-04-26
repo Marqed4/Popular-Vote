@@ -8,7 +8,7 @@ export class WebSocketManager {
       console.log(`Socket connected: ${socket.id}`);
 
       // participant/host joins a session room
-      socket.on('join:room', ({ code }) => {
+      socket.on('join:room', ({ code, role }) => {
         const session = sessionManager.getSession(code);
         if (!session) {
           socket.emit('error', { message: 'Session not found' });
@@ -16,7 +16,14 @@ export class WebSocketManager {
         }
         socket.join(code);
         socket.sessionCode = code;
-        console.log(`Socket ${socket.id} joined room ${code}`);
+        socket.sessionRole = role;
+        console.log(`Socket ${socket.id} joined room ${code} as ${role}`);
+
+        if (role === 'participant') {
+          const count = this._participantCount(code);
+          session.participantCount = count;
+          this.io.to(code).emit('participant:joined', { socketId: socket.id, count });
+        }
 
         // send current state to the joining client
         socket.emit('session:sync', {
@@ -41,11 +48,28 @@ export class WebSocketManager {
       socket.on('disconnect', () => {
         console.log(`Socket disconnected: ${socket.id}`);
         if (socket.sessionCode) {
-          const count = sessionManager.decrementParticipants(socket.sessionCode);
-          this.io.to(socket.sessionCode).emit('participant:left', { count });
+          const session = sessionManager.getSession(socket.sessionCode);
+          if (session) {
+            const count = this._participantCount(socket.sessionCode, socket.id);
+            session.participantCount = count;
+            this.io.to(socket.sessionCode).emit('participant:left', { count });
+          }
         }
       });
     });
+  }
+
+  // count only participant sockets in a room, optionally excluding one socket id
+  _participantCount(code, excludeSocketId = null) {
+    const room = this.io.sockets.adapter.rooms.get(code);
+    if (!room) return 0;
+    let count = 0;
+    for (const socketId of room) {
+      if (socketId === excludeSocketId) continue;
+      const s = this.io.sockets.sockets.get(socketId);
+      if (s && s.sessionRole === 'participant') count++;
+    }
+    return count;
   }
 
   // broadcast to everyone in a session room
