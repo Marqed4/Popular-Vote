@@ -179,11 +179,24 @@ router.post('/sessions/:code/clusters/:clusterId/submit', async (req, res) => {
     if (!content || !content.trim()) return res.status(400).json({ error: 'Question is required' });
     if (content.length > 500) return res.status(400).json({ error: 'Question exceeds 500 character limit' });
 
-    const { SessionStore } = await import('../database/SessionStore.js');
     const saved = await SessionStore.addSubmission(code, content.trim());
     session.submissions.push(saved);
 
+    // add question to cluster's questions array
+    const cluster = session.clusters.find(c => String(c.id) === String(clusterId));
+    if (cluster) {
+      cluster.questions = [...(cluster.questions ?? []), { text: content.trim(), upvoteCount: 0 }];
+      cluster.submission_count = (cluster.submission_count ?? 0) + 1;
+      await SessionStore.updateClusterQuery(clusterId, cluster.representative_query, cluster.submission_count, cluster.questions);
+    }
+
+    // emit to all clients with the new question
     io.to(code).emit('submission:count', { count: session.submissions.length });
+    io.to(code).emit('cluster:submission:added', {
+      clusterId,
+      question: { text: content.trim(), upvoteCount: 0 },
+      submissionCount: cluster?.submission_count ?? 0
+    });
 
     res.json({ id: saved.id, content: saved.content });
   } catch (err) {
