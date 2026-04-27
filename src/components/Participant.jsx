@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
+import ParticipantClusterList from "./ParticipantCluster";
 import ParticipantHeader from "./ParticipantHeader";
 import ParticipantInput from "./ParticipantInput";
-import ParticipantClusterList from "./ParticipantCluster";
+import Summary from "./Summary";
 
 import "./Participant.css";
 
@@ -12,7 +13,7 @@ export default function Participant({ code, onBack }) {
   const [submissions, setSubmissions] = useState([]);
   const [clusters, setClusters] = useState([]);
   const [answers, setAnswers] = useState({});
-  const [upvotes, setUpvotes] = useState({});       // { questionText: true }
+  const [upvotes, setUpvotes] = useState({});
   const [submissionCount, setSubmissionCount] = useState(0);
   const [error, setError] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -163,6 +164,22 @@ export default function Participant({ code, onBack }) {
     }))
   ).length;
 
+  if (phase === "ENDED") {
+    return (
+      <div className="pd-root">
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} />
+        <div className="pd-body">
+          <Summary
+            clusters={clusters}
+            answers={answers}
+            tags={[]}
+            submissionCount={submissionCount}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (phase === "OPEN" || phase === "CLOSED") {
     return (
       <div className="pd-root">
@@ -198,7 +215,7 @@ export default function Participant({ code, onBack }) {
     );
   }
 
-  if (phase === "RESULTS" || phase === "ENDED") {
+  if (phase === "RESULTS") {
     return (
       <div className="pd-root">
         <ParticipantHeader
@@ -209,24 +226,17 @@ export default function Participant({ code, onBack }) {
           inClusterCount={inClusterCount}
         />
         <div className="pd-body">
-          {phase === "ENDED" && (
-            <div className="pd-ended-banner">
-              Session has ended — here's the full summary.
-            </div>
-          )}
           {error && <div className="pd-error">{error}</div>}
-          {phase === "RESULTS" && (
-            <ParticipantInput
-              phase="OPEN"
-              submissions={submissions}
-              submittedCount={submissions.length}
-              inClusterCount={inClusterCount}
-              submitLoading={submitLoading}
-              error={null}
-              onSubmit={submitQuestion}
-              onDelete={deleteSubmission}
-            />
-          )}
+          <ParticipantInput
+            phase="OPEN"
+            submissions={submissions}
+            submittedCount={submissions.length}
+            inClusterCount={inClusterCount}
+            submitLoading={submitLoading}
+            error={null}
+            onSubmit={submitQuestion}
+            onDelete={deleteSubmission}
+          />
           <ParticipantClusterList
             phase={phase}
             clusters={clusters}
