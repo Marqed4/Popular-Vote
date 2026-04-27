@@ -108,6 +108,31 @@ export const SessionStore = {
     return data;
   },
 
+  // insert new clusters without deleting existing ones (used for incremental re-clustering)
+  async saveNewClusters(sessionCode, clusters) {
+    if (!clusters.length) return [];
+
+    const rows = clusters.map(c => ({
+      session_code: sessionCode,
+      representative_query: c.representativeQuery,
+      submission_count: c.submissionCount,
+      questions: c.questions,
+      answer: null,
+      upvote_count: 0,
+      previewed_questions: [],
+      selected_questions: [],
+      contextual_facts: [],
+      participant_answers: []
+    }));
+
+    const { data, error } = await supabase
+      .from('clusters')
+      .insert(rows)
+      .select();
+    if (error) throw error;
+    return data;
+  },
+
   async deleteCluster(id) {
     const { error } = await supabase
       .from('clusters')

@@ -108,20 +108,6 @@ export default function HostSidebar({
             <button className="hd-btn-primary" onClick={onCluster} disabled={actionLoading || !canRecluster}>
               {actionLoading ? "Clustering…" : "Re-cluster"}
             </button>
-            <button
-              className="hd-btn-primary"
-              onClick={onPreviewExpansion}
-              disabled={previewLoading || expandLoading}
-            >
-              {previewLoading ? "Loading suggestions…" : "Preview Expansion"}
-            </button>
-            <button
-              className="hd-btn-primary hd-btn-expand"
-              onClick={onTriggerExpansion}
-              disabled={expandLoading || previewLoading}
-            >
-              {expandLoading ? "Expanding…" : "Trigger Expansion"}
-            </button>
             <button className="hd-btn-end" onClick={onEndSession} disabled={actionLoading}>
               {actionLoading ? "Ending…" : "End Session"}
             </button>
@@ -129,10 +115,14 @@ export default function HostSidebar({
         )}
 
         {phase === "EXPANDING" && (
-          <div className="hd-clustering-status">
-            <div className="hd-spinner" />
-            <span>Expansion in progress…</span>
-          </div>
+          <>
+            <button className="hd-btn-primary" onClick={onClose} disabled={actionLoading}>
+              {actionLoading ? "Closing…" : "Close Submissions"}
+            </button>
+            <button className="hd-btn-primary" onClick={onCluster} disabled={actionLoading}>
+              {actionLoading ? "Clustering…" : "Trigger Clustering"}
+            </button>
+          </>
         )}
 
         {phase === "ENDED" && (
