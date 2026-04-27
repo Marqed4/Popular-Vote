@@ -42,7 +42,7 @@ router.post('/sessions/:code/close', async (req, res) => {
     const session = await sessionManager.getSessionAsync(req.params.code);
 
     if (!session) return res.status(404).json({ error: 'Session not found' });
-    if (session.phase !== 'OPEN') return res.status(400).json({ error: 'Session is not open' });
+    if (session.phase !== 'OPEN' && session.phase !== 'EXPANDING') return res.status(400).json({ error: 'Session is not accepting submissions' });
 
     await sessionManager.transitionPhase(req.params.code, 'CLOSED');
 
@@ -72,6 +72,42 @@ router.post('/sessions/:code/cluster', async (req, res) => {
     await sessionManager.transitionPhase(code, 'CLUSTERING');
     wsManager.toSession(code, 'session:clustering');
 
+    // --- incremental mode: answered clusters exist + new submissions since last cluster ---
+    const answeredClusters = (session.clusters ?? []).filter(c => c.answer);
+    const lastClusterIdx = session.submissionsAtLastCluster ?? 0;
+    const newSubs = session.submissions.slice(lastClusterIdx);
+
+    if (answeredClusters.length > 0 && newSubs.length > 0) {
+      // ask Gemini to assign new submissions to existing clusters OR form new ones
+      const { updatedClusters, newClusters } = await clusteringEngine.incrementalCluster(
+        newSubs, answeredClusters, session.tags
+      );
+
+      // update existing clusters that received new questions
+      for (const { clusterId, addedQuestions } of updatedClusters) {
+        const cluster = session.clusters.find(c => String(c.id) === String(clusterId));
+        if (!cluster) continue;
+        cluster.questions = [...(cluster.questions ?? []), ...addedQuestions];
+        cluster.submission_count = (cluster.submission_count ?? 0) + addedQuestions.length;
+        // persist to Supabase (fire-and-forget — don't block the response)
+        SessionStore.updateClusterQuery(clusterId, cluster.representative_query, cluster.submission_count, cluster.questions)
+          .catch(err => console.error('[incremental] failed to update cluster', clusterId, err));
+      }
+
+      // insert brand-new clusters (no answer yet)
+      let savedNew = [];
+      if (newClusters.length > 0) {
+        savedNew = await SessionStore.saveNewClusters(code, newClusters);
+        session.clusters.push(...savedNew);
+      }
+
+      session.submissionsAtLastCluster = session.submissions.length;
+      await sessionManager.transitionPhase(code, 'RESULTS');
+      wsManager.toSession(code, 'session:results', { clusters: session.clusters, submissionsAtLastCluster: session.submissions.length });
+      return res.json({ clusters: session.clusters });
+    }
+
+    // --- full cluster mode (first time, or no answered clusters yet) ---
     const clusters = await clusteringEngine.cluster(session.submissions, session.tags);
 
     // save and transition to results
@@ -95,7 +131,7 @@ router.post('/sessions/:code/cluster', async (req, res) => {
   }
 });
 
-// host triggers expansion — generates ai previewed questions and contextual facts
+// host opens a second round — participants submit new follow-up questions
 router.post('/sessions/:code/expand', async (req, res) => {
   try {
     const { code } = req.params;
@@ -104,42 +140,32 @@ router.post('/sessions/:code/expand', async (req, res) => {
     const session = sessionManager.getSession(code);
 
     if (!session) return res.status(404).json({ error: 'Session not found' });
-    if (session.phase !== 'RESULTS') return res.status(400).json({ error: 'Can only expand from RESULTS phase' });
-    if (session.clusters.length === 0) return res.status(400).json({ error: 'No clusters to expand' });
+    if (session.phase !== 'RESULTS') return res.status(400).json({ error: 'Can only open a second round from RESULTS phase' });
 
-    // transition to expanding and notify all
+    // transition to EXPANDING (submissions reopen) and notify everyone immediately
     await sessionManager.triggerExpansion(code);
     wsManager.toSession(code, 'session:expanding', { expansionRound: session.expansionRound });
+    res.json({ phase: 'EXPANDING', expansionRound: session.expansionRound });
 
-    // generate previewed questions and contextual facts from current cluster state
-    const preview = await clusteringEngine.generateExpansionPreview(
-      session.clusters,
-      session.tags,
-      session.contextualFacts
-    );
-
-    // save previews to clusters and contextual facts to session
-    await sessionManager.saveExpansionPreview(code, preview.clusterPreviews, preview.contextualFacts);
-
-    // broadcast previews to all clients so everyone can select
-    wsManager.toSession(code, 'expansion:preview', {
-      clusterPreviews: preview.clusterPreviews,
-      contextualFacts: preview.contextualFacts,
-      expansionRound: session.expansionRound
-    });
-
-    res.json({
-      clusterPreviews: preview.clusterPreviews,
-      contextualFacts: preview.contextualFacts,
-      expansionRound: session.expansionRound
-    });
+    // generate AI prompt suggestions async — push to participants when ready
+    clusteringEngine.generateExpansionPreview(session.clusters, session.tags, session.contextualFacts)
+      .then(preview => {
+        wsManager.toSession(code, 'expansion:prompts', {
+          prompts: preview.clusterPreviews.map(cp => ({
+            clusterId: cp.clusterId,
+            questions: cp.previewedQuestions,
+          }))
+        });
+      })
+      .catch(err => console.error('[expand] AI prompt generation failed:', err));
 
   } catch (err) {
     console.error(err);
-    // back to RESULTS so host can retry
     const sessionManager = req.app.locals.sessionManager;
-    await sessionManager.transitionPhase(req.params.code, 'RESULTS');
-    res.status(500).json({ error: 'Expansion failed. You can retry.' });
+    if (!res.headersSent) {
+      await sessionManager.transitionPhase(req.params.code, 'RESULTS');
+      res.status(500).json({ error: 'Failed to open second round. You can retry.' });
+    }
   }
 });
 
@@ -216,8 +242,16 @@ router.post('/sessions/:code/clusters/:clusterId/answer', async (req, res) => {
     const cluster = await sessionManager.updateClusterAnswer(code, clusterId, answer);
 
     wsManager.toSession(code, 'cluster:answered', { clusterId, answer });
-
     res.json(cluster);
+
+    // generate follow-up suggestions async — push to participants when ready
+    clusteringEngine.generateFollowupSuggestions(cluster.representative_query, answer, cluster.questions ?? [])
+      .then(suggestions => {
+        if (suggestions.length) {
+          wsManager.toSession(code, 'cluster:followups', { clusterId, suggestions });
+        }
+      })
+      .catch(err => console.error('[followups] generation failed:', err));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to save answer' });

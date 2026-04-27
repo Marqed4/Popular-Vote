@@ -94,6 +94,127 @@ Respond with ONLY the query string, nothing else.`;
 
   // generates previewed follow-up questions and contextual facts per cluster
   // takes current clusters with answers, participant answers, and any facts already in session
+  async generateFollowupSuggestions(clusterQuery, answer, questions = []) {
+    const questionList = questions.slice(0, 10).map(q => `- ${q.text ?? q}`).join('\n');
+
+    const prompt = `A group Q&A session just produced this answer from the host.
+
+Topic/question cluster: "${clusterQuery}"
+Host's answer: "${answer}"
+${questionList ? `\nSome of the questions that were asked:\n${questionList}` : ''}
+
+Generate exactly 3 short, natural follow-up questions a participant might want to ask after reading this answer. They should:
+- Build directly on what was answered, not repeat it
+- Be specific and concrete, not vague
+- Sound like something a real person would ask
+- Be under 15 words each
+
+Respond ONLY with a valid JSON array of 3 strings, no markdown, no explanation:
+["follow-up 1", "follow-up 2", "follow-up 3"]`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+      });
+      const raw = response.text.trim()
+        .replace(/^```json\n?/, '').replace(/^```\n?/, '').replace(/```$/, '').trim();
+      const result = JSON.parse(raw);
+      if (!Array.isArray(result)) throw new Error('Expected array');
+      return result.slice(0, 3);
+    } catch (err) {
+      console.error('generateFollowupSuggestions error:', err);
+      return [];
+    }
+  }
+
+  // incremental clustering: assign new submissions to existing answered clusters OR create new ones
+  // returns { updatedClusters: [{ clusterId, addedQuestions }], newClusters: [{ representativeQuery, submissionCount, questions }] }
+  async incrementalCluster(newSubmissions, existingClusters, tags = []) {
+    const tagContext = tags.length ? `The session topic is: ${tags.join(', ')}.` : '';
+
+    const existingList = existingClusters
+      .map(c => `- Cluster ID "${c.id}": "${c.representative_query}"`)
+      .join('\n');
+
+    const submissionList = newSubmissions
+      .map((s, i) => `${i}: "${s.content}"`)
+      .join('\n');
+
+    const prompt = `You are helping organize new questions submitted during a live Q&A session.
+${tagContext}
+
+These clusters already exist and have been answered by the host. Do NOT change them — only add new questions to them if they fit:
+${existingList}
+
+These are NEW submissions that just came in (indexed 0 to ${newSubmissions.length - 1}):
+${submissionList}
+
+Your task:
+- For each new submission, either assign it to an existing cluster (if it fits semantically) OR group it with other unassigned submissions into a new cluster
+- If assigning to an existing cluster, use the exact Cluster ID string shown above
+- New clusters should only be created for questions that don't fit any existing cluster
+- For new clusters, write a clear representative query capturing the theme
+
+Respond ONLY with a valid JSON object, no markdown, no explanation:
+{
+  "assignments": [
+    { "submissionIndex": 0, "clusterId": "exact-uuid-from-above" }
+  ],
+  "newClusters": [
+    { "representativeQuery": "theme of new questions", "submissionIndices": [1, 2] }
+  ]
+}`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+      });
+
+      const raw = response.text.trim()
+        .replace(/^```json\n?/, '').replace(/^```\n?/, '').replace(/```$/, '').trim();
+      const result = JSON.parse(raw);
+
+      if (!result.assignments || !result.newClusters) {
+        throw new Error('Gemini returned unexpected shape');
+      }
+
+      // build updatedClusters: map clusterId → questions to add
+      const addedMap = {}; // clusterId → submission[]
+      for (const { submissionIndex, clusterId } of result.assignments) {
+        const sub = newSubmissions[submissionIndex];
+        if (!sub) continue;
+        if (!addedMap[clusterId]) addedMap[clusterId] = [];
+        addedMap[clusterId].push({ text: sub.content, upvoteCount: 0 });
+      }
+
+      const updatedClusters = Object.entries(addedMap).map(([clusterId, addedQuestions]) => ({
+        clusterId,
+        addedQuestions,
+      }));
+
+      // build newClusters: format same as regular cluster() output
+      const newClusters = result.newClusters.map(nc => {
+        const questions = nc.submissionIndices
+          .map(i => newSubmissions[i])
+          .filter(Boolean)
+          .map(s => ({ text: s.content, upvoteCount: 0 }));
+        return {
+          representativeQuery: nc.representativeQuery,
+          submissionCount: questions.length,
+          questions,
+        };
+      });
+
+      return { updatedClusters, newClusters };
+
+    } catch (err) {
+      console.error('incrementalCluster error:', err);
+      throw new Error('Incremental clustering failed: ' + err.message);
+    }
+  }
+
   async generateExpansionPreview(clusters, tags = [], existingFacts = []) {
     const clusterSummary = clusters.map((c) => {
       const participantAnswers = (c.participant_answers ?? []).length
