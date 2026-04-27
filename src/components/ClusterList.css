@@ -212,6 +212,40 @@
 
 .hd-btn-cancel:hover { border-color: #1c1917; color: #1c1917; }
 
-.hd-questions-list {
-  text-align: left;
+.hd-cluster-questions {
+  margin-top: 0.5rem;
+}
+
+.hd-cluster-toggle {
+  background: none;
+  border: none;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #a8a29e;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.hd-cluster-toggle:hover { color: #57534e; }
+
+.hd-question-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.75rem;
+  background: #f8f8f7;
+  border-left: 2px solid #e5e4e1;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.875rem;
+  color: #57534e;
+}
+
+.hd-question-upvotes {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: #2a4f7a;
+  white-space: nowrap;
+  margin-left: 0.75rem;
 }
