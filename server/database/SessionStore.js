@@ -186,11 +186,19 @@ export const SessionStore = {
     return data;
   },
 
-  async getUnclosedSessions() {
+    async getUnclosedSessions() {
     const { data, error } = await supabase
       .from('sessions')
       .select('*')
-      .neq('phase', 'ENDED');
+      
+      /*
+      Use a new DELETED phase instead of ENDED.
+      I want to keep the session around long enough
+      for it be viewable by people who aren't actively
+      participating in the session.
+      */
+
+      .neq('phase', 'DELETED');
     if (error) throw error;
     return data;
   },

@@ -1,4 +1,5 @@
 import ExpansionPanel from "./ExpansionPanel";
+import Summary from "./Summary";
 import "./ClusterList.css";
 
 export default function ClusterList({
@@ -19,6 +20,18 @@ export default function ClusterList({
   onManualSubmit,
 }) {
   const hasAnyPreview = Object.keys(expansionPreviews).length > 0;
+  
+  // Check if the session has ended. Display Summary if it has.
+  if (phase === "ENDED" && clusters.length > 0) {
+    return (
+      <Summary
+        clusters={clusters}
+        answers={answers}
+        tags={[]}
+        submissionCount={submissionCount}
+      />
+    );
+  }
 
   if (phase === "OPEN" || phase === "CLOSED") {
     return (

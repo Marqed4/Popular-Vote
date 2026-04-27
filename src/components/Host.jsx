@@ -121,6 +121,11 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       }));
     });
 
+    // host triggered delete — navigate away
+    socket.on("session:deleted", () => {
+      onBack();
+    });
+
     return () => socket.disconnect();
   }, [code]);
 
@@ -260,6 +265,12 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     } finally {
       setActionLoading(false);
     }
+  }
+
+  // emit delete over socket — server transitions phase to DELETED and evicts from memory
+  function deleteSession() {
+    if (!socketRef.current) return;
+    socketRef.current.emit("host:delete_session", { code });
   }
 
   // call ./components/ExpansionPanel.jsx to transition phase & get AI previewed questions back
@@ -447,6 +458,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
             onPreviewExpansion={fetchExpansionPreview}
             onTriggerExpansion={triggerExpansion}
             onEndSession={endSession}
+            onDeleteSession={deleteSession}
           />
           <ParticipantList
             participants={participants}
