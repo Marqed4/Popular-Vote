@@ -69,7 +69,7 @@ function ClusterCard({ cluster, answer, myTexts, upvotes, phase, onUpvote, onSub
                         onClick={() => onUpvote(q.text)}
                         title={voted ? "Remove upvote" : "Upvote"}
                       >
-                        ▲ {(q.upvoteCount ?? 0) + (voted ? 0 : 0)}
+                        ▲ {(q.upvoteCount ?? 0) + (voted ? 1 : 0)}
                       </button>
                     )}
                     {isEnded && q.upvoteCount > 0 && (
