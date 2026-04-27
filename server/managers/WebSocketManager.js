@@ -7,6 +7,20 @@ export class WebSocketManager {
     this.io.on('connection', (socket) => {
       console.log(`Socket connected: ${socket.id}`);
 
+      socket.on('host:delete_session', async ({ code }) => {
+        if (socket.sessionRole !== 'host') {
+          socket.emit('error', { message: 'Unauthorized' });
+          return;
+        }
+
+        try {
+          await sessionManager.deleteSession(code);
+          this.io.to(code).emit('session:deleted');
+        } catch (err) {
+          socket.emit('error', { message: err.message });
+        }
+      });
+
       // participant/host joins a session room
       socket.on('join:room', ({ code, role }) => {
         const session = sessionManager.getSession(code);

@@ -6,7 +6,8 @@ export const PHASES = {
   CLUSTERING: 'CLUSTERING',
   RESULTS: 'RESULTS',
   EXPANDING: 'EXPANDING',
-  ENDED: 'ENDED'
+  ENDED: 'ENDED',
+  DELETED: 'DELETED'
 };
 
 function generateCode() {
@@ -79,12 +80,12 @@ export class SessionManager {
     return session;
   }
 
-  // sync version — works after hydrate or during active session
+  // sync version:  works after hydrate or during active session
   getSession(code) {
     return this.sessions.get(code) || null;
   }
 
-  // async version — falls back to Supabase if not in memory after server restart
+  // async version:  falls back to Supabase if not in memory after server restart
   async getSessionAsync(code) {
     if (this.sessions.has(code)) return this.sessions.get(code);
 
@@ -150,6 +151,15 @@ export class SessionManager {
 
     session.submissions = session.submissions.filter(s => s.id !== submissionId);
     await SessionStore.deleteSubmission(submissionId);
+  }
+
+  // Trying to move session from server 's memory
+  async deleteSession(code) {
+    const session = this.getSession(code);
+    if (!session) throw new Error('Session not found');
+
+    await this.transitionPhase(code, PHASES.DELETED);
+    this.sessions.delete(code);
   }
 
   // add a participant answer to a specific submission
@@ -267,7 +277,7 @@ export class SessionManager {
     return session.curators;
   }
 
-  // trigger expansion — increments round and transitions to EXPANDING
+  // trigger expansion: increments round and transitions to EXPANDING
   async triggerExpansion(code) {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
@@ -282,8 +292,8 @@ export class SessionManager {
     const session = this.getSession(code);
     if (!session) throw new Error('Session not found');
 
-    await SessionStore.deleteSession(code);
-    this.sessions.delete(code);
+    // transition to ENDED instead of deleting so summary is still accessible
+    await this.transitionPhase(code, PHASES.ENDED); 
   }
 
   restoreSession(code, phase, tags, submissions, clusters) {

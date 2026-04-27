@@ -33,6 +33,7 @@ export default function HostSidebar({
   onPreviewExpansion,
   onTriggerExpansion,
   onEndSession,
+  onDeleteSession,
 }) {
   function copyCode() { navigator.clipboard.writeText(code); }
   function copyLink() { navigator.clipboard.writeText(`${window.location.origin}?code=${code}`); }
@@ -135,7 +136,12 @@ export default function HostSidebar({
         )}
 
         {phase === "ENDED" && (
-          <div className="hd-ended-msg">Session has ended.</div>
+          <>
+            <div className="hd-ended-msg">Session has ended.</div>
+            <button className="hd-btn-end" onClick={onDeleteSession}>
+              Delete Session
+            </button>
+          </>
         )}
       </section>
 
