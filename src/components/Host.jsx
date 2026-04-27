@@ -17,6 +17,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
   const [submissionCount, setSubmissionCount] = useState(0);
   const [submissionsAtLastCluster, setSubmissionsAtLastCluster] = useState(0);
   const [clusters, setClusters] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(initialCode === "NEW");
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
@@ -59,6 +60,9 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     });
 
     socket.on("submission:count", ({ count }) => setSubmissionCount(count));
+    socket.on("submission:new", ({ id, content }) => {
+      setSubmissions(prev => [...prev, { id, content }]);
+    });
     socket.on("session:closed", () => setPhase("CLOSED"));
     socket.on("session:clustering", () => setPhase("CLUSTERING"));
     socket.on("session:results", ({ clusters, submissionsAtLastCluster }) => {
@@ -105,6 +109,18 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       setPhase("RESULTS");
     });
 
+    socket.on("cluster:submission:added", ({ clusterId, question, submissionCount }) => {
+      console.log("[cluster:submission:added]", { clusterId, question, submissionCount });
+      setClusters(prev => prev.map(c => {
+        if (String(c.id) !== String(clusterId)) return c;
+        return {
+          ...c,
+          submission_count: submissionCount,
+          questions: [...(c.questions ?? []), question],
+        };
+      }));
+    });
+
     return () => socket.disconnect();
   }, [code]);
 
@@ -135,6 +151,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       const data = await res.json();
       setPhase(data.phase);
       setTags(data.tags ?? []);
+      setSubmissions(data.submissions ?? []);
       setSubmissionCount(data.submissionCount ?? 0);
       setSubmissionsAtLastCluster(data.submissionsAtLastCluster ?? 0);
       setParticipantCount(data.participantCount ?? 0);
@@ -198,26 +215,39 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     }
   }
 
-  // if URI Componenet doesn't work switch back to regex and try to sanitize it
+  async function submitManualQuestion(clusterId, question) {
+    try {
+      await fetch(`/api/sessions/${code}/clusters/${clusterId}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: question }),
+      });
+      setManualQuestions(prev => ({ ...prev, [clusterId]: "" }));
+    } catch {
+      setError("Failed to submit manual question.");
+    }
+  }
+
+  // if URI Component doesn't work switch back to regex and try to sanitize it
   async function saveAnswer(answerId) {
     const answer = answers[answerId] ?? "";
-    const [clusterId, question] = answerId.includes("::") 
-        ? answerId.split("::") 
-        : [answerId, null];
+    const [clusterId, question] = answerId.includes("::")
+      ? answerId.split("::")
+      : [answerId, null];
     try {
-        const url = question
+      const url = question
         ? `/api/sessions/${code}/clusters/${clusterId}/answer?question=${encodeURIComponent(question)}`
         : `/api/sessions/${code}/clusters/${clusterId}/answer`;
-        await fetch(url, {
+      await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answer }),
-        });
-        setEditingAnswer(null);
+      });
+      setEditingAnswer(null);
     } catch {
-        setError("Failed to save answer.");
+      setError("Failed to save answer.");
     }
-    }
+  }
 
   async function endSession() {
     setActionLoading(true);
@@ -294,39 +324,39 @@ export default function HostDashboard({ code: initialCode, onBack }) {
   }
 
   // trigger expansion because it sends selected & manual questions are included in the transitions phase
-    async function triggerExpansion() {
-        setExpandLoading(true);
-        setError("");
-        try {
-            const expansionData = clusters.map(c => ({
-            clusterId: c.id,
-            selectedQuestions: [...(selectedQuestions[c.id] ?? [])],
-            manualQuestion: (manualQuestions[c.id] ?? "").trim(),
-            }));
-            const res = await fetch(`/api/sessions/${code}/expand`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ expansionData }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
+  async function triggerExpansion() {
+    setExpandLoading(true);
+    setError("");
+    try {
+      const expansionData = clusters.map(c => ({
+        clusterId: c.id,
+        selectedQuestions: [...(selectedQuestions[c.id] ?? [])],
+        manualQuestion: (manualQuestions[c.id] ?? "").trim(),
+      }));
+      const res = await fetch(`/api/sessions/${code}/expand`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expansionData }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
 
-            // fon't wait for sockets
-            if (data.clusterPreviews) {
-            const next = {};
-            data.clusterPreviews.forEach(({ clusterId, previewedQuestions }) => {
-                const cluster = clusters.find(c => c.id === clusterId);
-                if (cluster) next[cluster.id] = { questions: previewedQuestions, loading: false };
-            });
-            setExpansionPreviews(next);
-            }
-            setPhase("RESULTS");
-        } catch (err) {
-            setError(err.message ?? "Failed to trigger expansion.");
-        } finally {
-            setExpandLoading(false);
-        }
+      // don't wait for sockets
+      if (data.clusterPreviews) {
+        const next = {};
+        data.clusterPreviews.forEach(({ clusterId, previewedQuestions }) => {
+          const cluster = clusters.find(c => c.id === clusterId);
+          if (cluster) next[cluster.id] = { questions: previewedQuestions, loading: false };
+        });
+        setExpansionPreviews(next);
+      }
+      setPhase("RESULTS");
+    } catch (err) {
+      setError(err.message ?? "Failed to trigger expansion.");
+    } finally {
+      setExpandLoading(false);
     }
+  }
 
   // promote or demote a participant as curator
   async function toggleCurator(socketId) {
@@ -347,36 +377,36 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     }
   }
 
-async function saveTags(updatedTags) {
-  try {
-    await fetch(`/api/sessions/${code}/tags`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tags: updatedTags }),
-    });
-  } catch (err) {
-    console.error('Failed to save tags:', err);
-  }
-}
-
-function addTag(e) {
-  if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
-    e.preventDefault();
-    const t = tagInput.trim().replace(/,$/, "");
-    if (t && !tags.includes(t)) {
-      const updated = [...tags, t];
-      setTags(updated);
-      saveTags(updated);
+  async function saveTags(updatedTags) {
+    try {
+      await fetch(`/api/sessions/${code}/tags`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tags: updatedTags }),
+      });
+    } catch (err) {
+      console.error('Failed to save tags:', err);
     }
-    setTagInput("");
   }
-}
 
-function removeTag(t) {
-  const updated = tags.filter(x => x !== t);
-  setTags(updated);
-  saveTags(updated);
-}
+  function addTag(e) {
+    if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
+      e.preventDefault();
+      const t = tagInput.trim().replace(/,$/, "");
+      if (t && !tags.includes(t)) {
+        const updated = [...tags, t];
+        setTags(updated);
+        saveTags(updated);
+      }
+      setTagInput("");
+    }
+  }
+
+  function removeTag(t) {
+    const updated = tags.filter(x => x !== t);
+    setTags(updated);
+    saveTags(updated);
+  }
 
   const isHost = true;
 
@@ -429,6 +459,7 @@ function removeTag(t) {
           <ClusterList
             phase={phase}
             clusters={clusters}
+            submissions={submissions}
             submissionCount={submissionCount}
             answers={answers}
             editingAnswer={editingAnswer}
@@ -441,6 +472,7 @@ function removeTag(t) {
             onSaveAnswer={saveAnswer}
             onToggleQuestion={toggleQuestion}
             onManualChange={(id, val) => setManualQuestions(prev => ({ ...prev, [id]: val }))}
+            onManualSubmit={submitManualQuestion}
           />
         </main>
       </div>
