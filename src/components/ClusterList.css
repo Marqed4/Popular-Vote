@@ -249,3 +249,32 @@
   white-space: nowrap;
   margin-left: 0.75rem;
 }
+/* ─── Round 2 banner (host EXPANDING view) ──────────────────────────────── */
+
+.hd-round2-banner {
+  background: #f0f4ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.hd-round2-title {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 0.25rem;
+}
+
+.hd-round2-sub {
+  font-size: 0.9rem;
+  color: #3730a3;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.hd-cluster--readonly {
+  opacity: 0.65;
+  pointer-events: none;
+}

@@ -3,11 +3,14 @@ import "./Participant.css";
 
 const MAX_CHARS = 500;
 
-function ClusterCard({ cluster, answer, myTexts, upvotes, phase, onUpvote, onSubmitToCluster }) {
+function ClusterCard({ cluster, answer, myTexts, upvotes, followups, phase, onUpvote, onSubmitToCluster }) {
   const [expanded, setExpanded] = useState(false);
   const [addingQuestion, setAddingQuestion] = useState(false);
   const [clusterInput, setClusterInput] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
+  // chip feedback: track which chips are loading or confirmed
+  const [loadingChip, setLoadingChip] = useState(null);   // chip text currently submitting
+  const [submittedChips, setSubmittedChips] = useState(new Set()); // chips already submitted
 
   const questions = cluster.questions ?? [];
   const isEnded = phase === "ENDED";
@@ -21,6 +24,14 @@ function ClusterCard({ cluster, answer, myTexts, upvotes, phase, onUpvote, onSub
     setClusterInput("");
     setAddingQuestion(false);
     setSubmitLoading(false);
+  }
+
+  async function handleChipClick(q) {
+    if (loadingChip || submittedChips.has(q)) return;
+    setLoadingChip(q);
+    await onSubmitToCluster(cluster.id, q);
+    setSubmittedChips(prev => new Set([...prev, q]));
+    setLoadingChip(null);
   }
 
   return (
@@ -40,6 +51,29 @@ function ClusterCard({ cluster, answer, myTexts, upvotes, phase, onUpvote, onSub
         <div className="pd-cluster-answer">
           <span className="pd-answer-label">Host response</span>
           <p className="pd-answer-text">{answer}</p>
+        </div>
+      )}
+
+      {answer && followups?.length > 0 && !isEnded && (
+        <div className="pd-followups">
+          <div className="pd-followups-label">Want to dig deeper? Tap a question to ask it:</div>
+          <ul className="pd-followups-list">
+            {followups.map((q, i) => {
+              const isLoading = loadingChip === q;
+              const isSubmitted = submittedChips.has(q);
+              return (
+                <li key={i}>
+                  <button
+                    className={`pd-followup-chip ${isSubmitted ? "pd-followup-chip--done" : ""} ${isLoading ? "pd-followup-chip--loading" : ""}`}
+                    onClick={() => handleChipClick(q)}
+                    disabled={isLoading || isSubmitted}
+                  >
+                    {isLoading ? "Submitting…" : isSubmitted ? "✓ Submitted" : q}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
 
@@ -130,6 +164,7 @@ export default function ParticipantClusterList({
   answers,
   myTexts,
   upvotes,
+  followups,
   onUpvote,
   onSubmitToCluster,
 }) {
@@ -155,6 +190,7 @@ export default function ParticipantClusterList({
           answer={answers[cluster.id]}
           myTexts={myTexts}
           upvotes={upvotes}
+          followups={followups?.[cluster.id]}
           phase={phase}
           onUpvote={onUpvote}
           onSubmitToCluster={onSubmitToCluster}
