@@ -110,6 +110,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     });
 
     socket.on("cluster:submission:added", ({ clusterId, question, submissionCount }) => {
+      console.log("[cluster:submission:added]", { clusterId, question, submissionCount });
       setClusters(prev => prev.map(c => {
         if (String(c.id) !== String(clusterId)) return c;
         return {
@@ -211,6 +212,19 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       setClusters(prev => prev.filter(c => c.id !== clusterId));
     } catch {
       setError("Failed to delete cluster.");
+    }
+  }
+
+  async function submitManualQuestion(clusterId, question) {
+    try {
+      await fetch(`/api/sessions/${code}/clusters/${clusterId}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: question }),
+      });
+      setManualQuestions(prev => ({ ...prev, [clusterId]: "" }));
+    } catch {
+      setError("Failed to submit manual question.");
     }
   }
 
@@ -458,6 +472,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
             onSaveAnswer={saveAnswer}
             onToggleQuestion={toggleQuestion}
             onManualChange={(id, val) => setManualQuestions(prev => ({ ...prev, [id]: val }))}
+            onManualSubmit={submitManualQuestion}
           />
         </main>
       </div>
