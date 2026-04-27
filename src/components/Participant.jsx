@@ -15,6 +15,7 @@ export default function Participant({ code, onBack }) {
   const [answers, setAnswers] = useState({});
   const [upvotes, setUpvotes] = useState({});
   const [submissionCount, setSubmissionCount] = useState(0);
+  const [followups, setFollowups] = useState({}); // { [clusterId]: string[] }
   const [error, setError] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -48,7 +49,11 @@ export default function Participant({ code, onBack }) {
       setClusters(clusters);
       setPhase("RESULTS");
     });
-    socket.on("session:ended",     () => setPhase("ENDED"));
+    socket.on("session:expanding",  () => setPhase("EXPANDING"));
+    socket.on("cluster:followups",  ({ clusterId, suggestions }) =>
+      setFollowups(prev => ({ ...prev, [clusterId]: suggestions }))
+    );
+    socket.on("session:ended",      () => setPhase("ENDED"));
     socket.on("cluster:deleted",   ({ clusterId }) =>
       setClusters(prev => prev.filter(c => c.id !== clusterId))
     );
@@ -243,8 +248,45 @@ export default function Participant({ code, onBack }) {
             answers={answers}
             myTexts={myTexts}
             upvotes={upvotes}
+            followups={followups}
             onUpvote={upvoteQuestion}
             onSubmitToCluster={submitToCluster}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "EXPANDING") {
+    return (
+      <div className="pd-root">
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} />
+        <div className="pd-body">
+          <div className="pd-round2-banner">
+            <div className="pd-round2-title">Round 2 — Dig deeper</div>
+            <p className="pd-round2-sub">The host has answered the first round. Now's your chance to ask follow-up questions.</p>
+          </div>
+
+          {expansionPrompts.length > 0 && (
+            <div className="pd-prompts">
+              <div className="pd-prompts-label">Need inspiration? Here are some areas to explore:</div>
+              <ul className="pd-prompts-list">
+                {expansionPrompts.flatMap(p => p.questions).map((q, i) => (
+                  <li key={i} className="pd-prompt-item">{q}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <ParticipantInput
+            phase="OPEN"
+            submissions={submissions}
+            submittedCount={submissions.length}
+            inClusterCount={0}
+            submitLoading={submitLoading}
+            error={error}
+            onSubmit={submitQuestion}
+            onDelete={deleteSubmission}
           />
         </div>
       </div>

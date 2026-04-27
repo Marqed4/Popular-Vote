@@ -284,97 +284,17 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     socketRef.current.emit("host:delete_session", { code });
   }
 
-  // call ./components/ExpansionPanel.jsx to transition phase & get AI previewed questions back
-  async function fetchExpansionPreview() {
-    console.log("[fetchExpansionPreview] called — clusters:", clusters.map(c => c.id));
-    setPreviewLoading(true);
-    setError("");
-    const loadingState = {};
-    clusters.forEach(c => { loadingState[c.id] = { questions: [], loading: true }; });
-    setExpansionPreviews(loadingState);
-
-    try {
-      const res = await fetch(`/api/sessions/${code}/expand`, { method: "POST" });
-      const data = await res.json();
-      console.log("[fetchExpansionPreview] expand response — ok:", res.ok, "data:", data);
-      if (!res.ok) throw new Error(data.error);
-
-      const next = {};
-      (data.clusterPreviews ?? []).forEach(({ clusterId, previewedQuestions }) => {
-        console.log("[fetchExpansionPreview] mapping clusterId:", clusterId, "— looking in clusters:", clusters.map(c => c.id));
-        // fix: find by id, not array index (because my index attempts would never increase on prompt)
-        const cluster = clusters.find(c => c.id === clusterId);
-        console.log("[fetchExpansionPreview] matched cluster:", cluster ?? "NOT FOUND");
-        if (cluster) next[cluster.id] = { questions: previewedQuestions, loading: false };
-      });
-
-      console.log("[fetchExpansionPreview] final expansionPreviews to set:", next);
-      setExpansionPreviews(next);
-      setPhase("RESULTS");
-    } catch (err) {
-      console.error("[fetchExpansionPreview] error:", err);
-      setError(err.message ?? "Failed to load AI suggestions.");
-      const cleared = {};
-      clusters.forEach(c => { cleared[c.id] = { questions: [], loading: false }; });
-      setExpansionPreviews(cleared);
-    } finally {
-      setPreviewLoading(false);
-    }
-  }
-
-  // toggle a previewed question selection for a cluster
-  async function toggleQuestion(clusterId, question) {
-    setSelectedQuestions(prev => {
-      const current = new Set(prev[clusterId] ?? []);
-      current.has(question) ? current.delete(question) : current.add(question);
-      return { ...prev, [clusterId]: current };
-    });
-    try {
-      await fetch(`/api/sessions/${code}/clusters/${clusterId}/select`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
-      });
-    } catch {
-      // revert optimistic update
-      setSelectedQuestions(prev => {
-        const current = new Set(prev[clusterId] ?? []);
-        current.has(question) ? current.delete(question) : current.add(question);
-        return { ...prev, [clusterId]: current };
-      });
-    }
-  }
-
-  // trigger expansion because it sends selected & manual questions are included in the transitions phase
-  async function triggerExpansion() {
+  // open a second round — participants get to submit new follow-up questions
+  async function openSecondRound() {
     setExpandLoading(true);
     setError("");
     try {
-      const expansionData = clusters.map(c => ({
-        clusterId: c.id,
-        selectedQuestions: [...(selectedQuestions[c.id] ?? [])],
-        manualQuestion: (manualQuestions[c.id] ?? "").trim(),
-      }));
-      const res = await fetch(`/api/sessions/${code}/expand`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ expansionData }),
-      });
+      const res = await fetch(`/api/sessions/${code}/expand`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-
-      // don't wait for sockets
-      if (data.clusterPreviews) {
-        const next = {};
-        data.clusterPreviews.forEach(({ clusterId, previewedQuestions }) => {
-          const cluster = clusters.find(c => c.id === clusterId);
-          if (cluster) next[cluster.id] = { questions: previewedQuestions, loading: false };
-        });
-        setExpansionPreviews(next);
-      }
-      setPhase("RESULTS");
+      setPhase("EXPANDING");
     } catch (err) {
-      setError(err.message ?? "Failed to trigger expansion.");
+      setError(err.message ?? "Failed to open second round.");
     } finally {
       setExpandLoading(false);
     }
@@ -458,7 +378,6 @@ export default function HostDashboard({ code: initialCode, onBack }) {
             tagInput={tagInput}
             error={error}
             actionLoading={actionLoading}
-            previewLoading={previewLoading}
             expandLoading={expandLoading}
             onTagInput={setTagInput}
             onAddTag={addTag}
@@ -466,8 +385,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
             canRecluster={submissionCount > submissionsAtLastCluster}
             onClose={closeSubmissions}
             onCluster={triggerClustering}
-            onPreviewExpansion={fetchExpansionPreview}
-            onTriggerExpansion={triggerExpansion}
+            onTriggerExpansion={openSecondRound}
             onEndSession={endSession}
             onDeleteSession={deleteSession}
           />
@@ -482,20 +400,13 @@ export default function HostDashboard({ code: initialCode, onBack }) {
           <ClusterList
             phase={phase}
             clusters={clusters}
-            submissions={submissions}
             submissionCount={submissionCount}
             answers={answers}
             editingAnswer={editingAnswer}
-            expansionPreviews={expansionPreviews}
-            selectedQuestions={selectedQuestions}
-            manualQuestions={manualQuestions}
             onDeleteCluster={deleteCluster}
             onSetEditingAnswer={setEditingAnswer}
             onAnswerChange={(id, val) => setAnswers(prev => ({ ...prev, [id]: val }))}
             onSaveAnswer={saveAnswer}
-            onToggleQuestion={toggleQuestion}
-            onManualChange={(id, val) => setManualQuestions(prev => ({ ...prev, [id]: val }))}
-            onManualSubmit={submitManualQuestion}
           />
         </main>
       </div>
