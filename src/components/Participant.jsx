@@ -156,7 +156,11 @@ export default function Participant({ code, onBack }) {
 
   const myTexts = new Set(submissions.map(s => s.text));
   const inClusterCount = submissions.filter(s =>
-    clusters.some(c => c.questions?.some(q => q.text === s.text))
+    clusters.some(c => c.questions?.some(q => {
+      const qText = (q.text ?? '').replace(/^\d+\.\s*/, '').trim().toLowerCase();
+      const sText = s.text.trim().toLowerCase();
+      return qText === sText || qText.includes(sText) || sText.includes(qText);
+    }))
   ).length;
 
   if (phase === "OPEN" || phase === "CLOSED") {
