@@ -23,9 +23,9 @@
 | | |
 |---|---|
 | <p align="center"><strong>Landing page</strong><br/>Create a new session or join one with a code, a link, or a QR scan.</p> | <p align="center"><strong>Open session - host view</strong><br/>Share the code. Watch submissions come in. Close when the room is ready.</p> |
-| <p align="center"><img src="src/assets/langing%20page.png" /></p> | <p align="center"><img src="src/assets/open%20session.png" /></p> |
+| <p align="center"><img src="src/assets/landing-page.png" /></p> | <p align="center"><img src="src/assets/open%20session.png" /></p> |
 | <p align="center"><strong>Results - host view</strong><br/>AI clusters similar questions together. Write a response to the ones that matter.</p> | <p align="center"><strong>Results - participant view</strong><br/>See your question land in a cluster, upvote others, and read the host's response.</p> |
-| <p align="center"><img src="src/assets/hosts%20view%20results%20phase.png" /></p> | <p align="center"><img src="src/assets/participants%20view%20results%20phase.png" /></p> |
+| <p align="center"><img src="src/assets/hosts-view-results-phase.png" /></p> | <p align="center"><img src="src/assets/participants-view-results-phase.png"/></p> |
 
 ---
 
