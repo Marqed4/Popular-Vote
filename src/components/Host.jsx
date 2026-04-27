@@ -36,9 +36,12 @@ export default function HostDashboard({ code: initialCode, onBack }) {
   const [curators, setCurators] = useState([]);
 
   const socketRef = useRef(null);
+  const createdRef = useRef(false);
 
   useEffect(() => {
     if (initialCode === "NEW") {
+      if (createdRef.current) return;
+      createdRef.current = true;
       createSession();
     } else {
       fetchSession();
