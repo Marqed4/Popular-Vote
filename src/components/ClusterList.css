@@ -8,8 +8,6 @@
   .hd-main { padding: 1.25rem 1rem; }
 }
 
-/* ─── Waiting states ──────────────────────────────────────────────────────── */
-
 .hd-waiting {
   padding-top: 4rem;
 }
@@ -31,10 +29,9 @@
   color: #a8a29e;
   max-width: 400px;
   line-height: 1.6;
-  margin: 0;
+  margin: 0 auto;
+  text-align: center;
 }
-
-/* ─── Cluster header ──────────────────────────────────────────────────────── */
 
 .hd-clusters {
   display: flex;
@@ -65,8 +62,6 @@
   font-style: italic;
   color: #a8a29e;
 }
-
-/* ─── Cluster card ────────────────────────────────────────────────────────── */
 
 .hd-cluster {
   background: #ffffff;
@@ -138,8 +133,6 @@
   margin-top: 2px;
 }
 .hd-cluster-delete:hover { border-color: #fca5a5; color: #dc2626; background: #fef2f2; }
-
-/* ─── Answer area ─────────────────────────────────────────────────────────── */
 
 .hd-answer-display {
   font-family: 'EB Garamond', serif;
@@ -216,4 +209,9 @@
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
+
 .hd-btn-cancel:hover { border-color: #1c1917; color: #1c1917; }
+
+.hd-questions-list {
+  text-align: left;
+}

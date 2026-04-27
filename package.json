@@ -13,6 +13,8 @@
     "@supabase/supabase-js": "^2.104.0",
     "concurrently": "^9.2.1",
     "dotenv": "^17.4.2",
+    "html5-qrcode": "^2.3.8",
+    "qrcode": "^1.5.4",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "socket.io-client": "^4.8.3"

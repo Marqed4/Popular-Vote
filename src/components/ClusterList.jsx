@@ -16,6 +16,7 @@ export default function ClusterList({
   onSaveAnswer,
   onToggleQuestion,
   onManualChange,
+  onManualSubmit,
 }) {
   const hasAnyPreview = Object.keys(expansionPreviews).length > 0;
 
@@ -72,6 +73,18 @@ export default function ClusterList({
           return (
             <div key={cluster.id} className="hd-cluster">
               <div className="hd-cluster-top">
+                {cluster.questions?.length > 0 && (
+                  <ul className="hd-questions-list">
+                    {cluster.questions.map((q, qi) => (
+                      <li key={qi} className="hd-question-item">
+                        {q.text}
+                        {q.upvoteCount > 0 && (
+                          <span className="hd-upvote-count">▲ {q.upvoteCount}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <div className="hd-cluster-left">
                   <span className="hd-cluster-num">{i + 1}</span>
                   <div className="hd-cluster-info">
@@ -119,12 +132,13 @@ export default function ClusterList({
 
               {phase === "RESULTS" && hasAnyPreview && (
                 <ExpansionPanel
-                    cluster={cluster}
-                    preview={preview}
-                    selected={selected}
-                    manualQuestion={manualQuestions[cluster.id]}
-                    onToggleQuestion={onToggleQuestion}
-                    onManualChange={onManualChange}
+                  cluster={cluster}
+                  preview={preview}
+                  selected={selected}
+                  manualQuestion={manualQuestions[cluster.id]}
+                  onToggleQuestion={onToggleQuestion}
+                  onManualChange={onManualChange}
+                  onManualSubmit={onManualSubmit}
                 />
                 )}
 

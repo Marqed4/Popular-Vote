@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 import { createClient } from "@supabase/supabase-js";
 import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
 import "./Home.css";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  { db: { schema: 'public' } }
 );
 
 const SESSIONS_PER_PAGE = 15;
@@ -183,6 +185,56 @@ function YourSessions({ onRejoin }) {
   );
 }
 
+function QRScanner({ onScan }) {
+  const [status, setStatus] = useState("starting"); // starting | scanning | error
+  const [errMsg, setErrMsg] = useState("");
+  const isRunningRef = useRef(false);
+  const scannerRef = useRef(null);
+  const doneRef = useRef(false); // prevent double-fire in strict mode
+
+  useEffect(() => {
+    const scanner = new Html5Qrcode("pv-qr-reader");
+    scannerRef.current = scanner;
+
+    scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 220, height: 220 } },
+      (decodedText) => {
+        if (doneRef.current) return;
+        let code = decodedText.trim().toUpperCase();
+        try {
+          const c = new URL(decodedText).searchParams.get("code");
+          if (c) code = c.toUpperCase();
+        } catch {}
+        if (/^[A-Z0-9]{6}$/.test(code)) {
+          doneRef.current = true;
+          // stop then callback
+          scanner.stop().catch(() => {}).finally(() => onScan(code));
+        }
+      },
+      () => {} // ignore per-frame decode failures
+    )
+    .then(() => { isRunningRef.current = true; setStatus("scanning"); })
+    .catch(() => { setStatus("error"); setErrMsg("Camera access denied. Please allow camera and try again."); });
+
+    return () => {
+      if (isRunningRef.current) {
+        isRunningRef.current = false;
+        scanner.stop().catch(() => {});
+      }
+    };
+  }, []);
+
+  return (
+    <div className="pv-qr-scanner">
+      <div id="pv-qr-reader" className="pv-qr-reader" />
+      {status === "starting" && <div className="pv-qr-hint">Starting camera…</div>}
+      {status === "scanning" && <div className="pv-qr-hint">Aim at the QR code on the host's screen.</div>}
+      {status === "error" && <div className="pv-error-msg">{errMsg}</div>}
+    </div>
+  );
+}
+
 function JoinSession({ onJoin }) {
   const [tab, setTab] = useState("type");
   const [code, setCode] = useState("");
@@ -277,12 +329,22 @@ function JoinSession({ onJoin }) {
         </div>
 
         <div className={`pv-join-panel ${tab === "qr" ? "active" : ""}`}>
-          <div className="pv-qr-area">
-            <div className="pv-qr-box">
-              Point your camera at a PopularVote QR code to join automatically
-            </div>
-            <p className="pv-qr-hint">QR codes are displayed on the host's dashboard.</p>
-          </div>
+          {tab === "qr" && (
+            <QRScanner onScan={async (scannedCode) => {
+              try {
+                const res = await fetch(`/api/sessions/${scannedCode}/join`, { method: "POST" });
+                if (!res.ok) {
+                  const body = await res.json().catch(() => ({}));
+                  setError(body.error ?? "Session not found or already closed.");
+                  return;
+                }
+                onJoin(scannedCode);
+              } catch {
+                setError("Could not reach server — please try again.");
+              }
+            }} />
+          )}
+          {error && <div className="pv-error-msg">{error}</div>}
         </div>
       </div>
     </div>

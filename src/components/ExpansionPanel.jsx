@@ -7,6 +7,7 @@ export default function ExpansionPanel({
   manualQuestion,
   onToggleQuestion,
   onManualChange,
+  onManualSubmit,
 }) {
   return (
     <div className="hd-expansion">
@@ -25,6 +26,13 @@ export default function ExpansionPanel({
             onChange={e => onManualChange(cluster.id, e.target.value)}
             rows={3}
           />
+          <button
+            className="hd-btn-save"
+            disabled={!manualQuestion?.trim()}
+            onClick={() => onManualSubmit(cluster.id, manualQuestion)}
+          >
+            Submit
+          </button>
         </div>
 
         <div className="hd-expansion-col hd-expansion-ai">

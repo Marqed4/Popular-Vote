@@ -1,4 +1,19 @@
+import { useEffect, useRef } from "react";
+import QRCode from "qrcode";
 import "./HostSidebar.css";
+
+function QRDisplay({ url }) {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    if (!canvasRef.current || !url) return;
+    QRCode.toCanvas(canvasRef.current, url, {
+      width: 160,
+      margin: 1,
+      color: { dark: "#1c1917", light: "#ffffff" },
+    });
+  }, [url]);
+  return <canvas ref={canvasRef} className="hd-qr-canvas" />;
+}
 
 export default function HostSidebar({
   code,
@@ -33,6 +48,7 @@ export default function HostSidebar({
           <button className="hd-btn-ghost" onClick={copyCode}>Copy code</button>
           <button className="hd-btn-ghost" onClick={copyLink}>Copy link</button>
         </div>
+        <QRDisplay url={sessionUrl} />
         <div className="hd-url">{sessionUrl}</div>
       </section>
 
