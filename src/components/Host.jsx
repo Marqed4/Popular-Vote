@@ -70,7 +70,15 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       if (submissionsAtLastCluster !== undefined) setSubmissionsAtLastCluster(submissionsAtLastCluster);
       setPhase("RESULTS");
     });
-
+    socket.on("cluster:upvote", ({ questionText, upvoteCount }) => {
+      setClusters(prev => prev.map(c => ({
+        ...c,
+        questions: c.questions?.map(q =>
+          q.text === questionText ? { ...q, upvoteCount } : q
+        ),
+      })));
+    });
+    
     socket.on("session:ended", () => setPhase("ENDED"));
     socket.on("cluster:deleted", ({ clusterId }) =>
       setClusters(prev => prev.filter(c => c.id !== clusterId))
