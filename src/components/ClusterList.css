@@ -209,4 +209,9 @@
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
+
 .hd-btn-cancel:hover { border-color: #1c1917; color: #1c1917; }
+
+.hd-questions-list {
+  text-align: left;
+}
