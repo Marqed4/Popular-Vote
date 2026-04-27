@@ -1,0 +1,150 @@
+.sv-root {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sv-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.sv-title {
+  font-family: 'EB Garamond', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1c1917;
+  margin-bottom: 0.5rem;
+}
+
+.sv-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.sv-tag {
+  background: #f5f0eb;
+  color: #78716c;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.sv-meta {
+  font-size: 0.85rem;
+  color: #a8a29e;
+}
+
+.sv-clusters {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sv-cluster {
+  background: #fff;
+  border: 1px solid #e7e5e4;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sv-cluster-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.sv-cluster-num {
+  background: #1c1917;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sv-cluster-query {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.sv-cluster-meta {
+  font-size: 0.8rem;
+  color: #a8a29e;
+  margin-top: 0.2rem;
+}
+
+.sv-answer {
+  background: #f9f7f5;
+  border-left: 3px solid #1c1917;
+  padding: 0.75rem 1rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.sv-answer-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a8a29e;
+  margin-bottom: 0.3rem;
+}
+
+.sv-answer-text {
+  font-size: 0.95rem;
+  color: #1c1917;
+  line-height: 1.6;
+}
+
+.sv-questions-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a8a29e;
+  margin-bottom: 0.5rem;
+}
+
+.sv-questions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sv-question-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #44403c;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #f5f0eb;
+}
+
+.sv-question-item:last-child {
+  border-bottom: none;
+}
+
+.sv-upvote {
+  font-size: 0.8rem;
+  color: #a8a29e;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
