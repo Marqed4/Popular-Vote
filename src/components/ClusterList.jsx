@@ -1,5 +1,34 @@
 import ExpansionPanel from "./ExpansionPanel";
 import "./ClusterList.css";
+import React from "react";
+
+function ExpandableQuestions({ questions }) {
+  const [expanded, setExpanded] = React.useState(false);
+  if (!questions?.length) return null;
+  return (
+    <div className="hd-cluster-questions">
+      <button className="hd-cluster-toggle" onClick={() => setExpanded(e => !e)}>
+        {expanded
+          ? `Hide ${questions.length} question${questions.length !== 1 ? 's' : ''} ▲`
+          : `Show ${questions.length} question${questions.length !== 1 ? 's' : ''} ▼`}
+      </button>
+      {expanded && (
+        <ul className="hd-questions-list">
+          {questions.map((q, qi) => {
+            const qText = typeof q === 'string' ? q : (q.text ?? '');
+            const qVotes = typeof q === 'string' ? 0 : (q.upvoteCount ?? 0);
+            return (
+              <li key={qi} className="hd-question-item">
+                <span className="hd-question-text">{qText}</span>
+                {qVotes > 0 && <span className="hd-question-upvotes">▲ {qVotes}</span>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function ClusterList({
   phase,
@@ -73,18 +102,6 @@ export default function ClusterList({
           return (
             <div key={cluster.id} className="hd-cluster">
               <div className="hd-cluster-top">
-                {cluster.questions?.length > 0 && (
-                  <ul className="hd-questions-list">
-                    {cluster.questions.map((q, qi) => (
-                      <li key={qi} className="hd-question-item">
-                        {q.text}
-                        {q.upvoteCount > 0 && (
-                          <span className="hd-upvote-count">▲ {q.upvoteCount}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
                 <div className="hd-cluster-left">
                   <span className="hd-cluster-num">{i + 1}</span>
                   <div className="hd-cluster-info">
@@ -102,6 +119,8 @@ export default function ClusterList({
                   >×</button>
                 )}
               </div>
+
+              <ExpandableQuestions questions={cluster.questions} />
 
               <div className="hd-cluster-answer-area">
                 {editingAnswer === cluster.id ? (
