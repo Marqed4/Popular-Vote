@@ -52,6 +52,41 @@
 
 ---
 
+<h2 align="center">Getting Started</h2>
+
+<div align="left">
+
+**1. Clone the repo**
+```bash
+git clone https://github.com/Marqed4/PopularVote.git
+cd PopularVote
+```
+
+**2. Install dependencies**
+```bash
+npm install
+```
+
+**3. Set up environment variables**
+
+Create a file at `server/database/.env` with the following:
+```
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+**4. Run the project**
+```bash
+npm run dev
+```
+
+This starts both the Vite frontend and the Node server concurrently. Open [http://localhost:6967](http://localhost:6967) in your browser.
+
+</div>
+
+---
+
 <h2 align="center">Tech Stack</h2>
 
 <div align="left">
