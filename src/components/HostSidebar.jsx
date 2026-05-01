@@ -39,6 +39,7 @@ export default function HostSidebar({
   function copyLink() { navigator.clipboard.writeText(`${window.location.origin}?code=${code}`); }
 
   const sessionUrl = `${window.location.origin}?code=${code}`;
+  const canEditTags = ["OPEN", "RESULTS", "ENDED"].includes(phase);
 
   return (
     <aside className="hd-sidebar">
@@ -58,14 +59,14 @@ export default function HostSidebar({
         <div className="hd-tags">
           {tags.map(t => (
             <span key={t} className="hd-tag">
-              {t}
-              {phase === "OPEN" && (
-                <button className="hd-tag-remove" onClick={() => onRemoveTag(t)}>×</button>
-              )}
+            {t}
+            {canEditTags && (
+              <button className="hd-tag-remove" onClick={() => onRemoveTag(t)}>×</button>
+            )}
             </span>
           ))}
         </div>
-        {phase === "OPEN" && (
+        {canEditTags && (
           <input
             className="hd-tag-input"
             placeholder="Add tag, press Enter…"
