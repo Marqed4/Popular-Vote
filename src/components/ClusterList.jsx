@@ -127,7 +127,9 @@ export default function ClusterList({
                 <div className="hd-cluster-left">
                   <span className="hd-cluster-num">{i + 1}</span>
                   <div className="hd-cluster-info">
-                    <div className="hd-cluster-query">{cluster.representative_query}</div>
+                    <div className="hd-cluster-query">
+                      <span className="hd-cluster-num">Q{i + 1}.</span> {cluster.representative_query}
+                    </div>
                     <div className="hd-cluster-count">
                       {cluster.submission_count} submission{cluster.submission_count !== 1 ? "s" : ""}
                     </div>
@@ -145,30 +147,44 @@ export default function ClusterList({
               <ExpandableQuestions questions={cluster.questions} />
 
               <div className="hd-cluster-answer-area">
-                {editingAnswer === cluster.id ? (
-                  <>
-                    <textarea
-                      className="hd-answer-input"
-                      placeholder="Write a response to this cluster…"
-                      value={answers[cluster.id] ?? ""}
-                      onChange={e => onAnswerChange(cluster.id, e.target.value)}
-                      rows={3}
-                    />
-                    <div className="hd-answer-btns">
-                      <button className="hd-btn-save" onClick={() => onSaveAnswer(cluster.id)}>Save</button>
-                      <button className="hd-btn-ghost" onClick={() => onSetEditingAnswer(null)}>Cancel</button>
+                  {answers[cluster.id] && (
+                    <div className="hd-answer-display has-answer">
+                      {answers[cluster.id]}
                     </div>
+                  )}
+
+                {phase === "RESULTS" && (
+                  <>
+                    {editingAnswer === cluster.id ? (
+                      <>
+                        <textarea
+                          className="hd-answer-input"
+                          placeholder="Add a follow-up response…"
+                          value={answers[cluster.id + "::followup"] ?? ""}
+                          onChange={e => onAnswerChange(cluster.id + "::followup", e.target.value)}
+                          rows={3}
+                        />
+                        <div className="hd-answer-btns">
+                          <button className="hd-btn-save" onClick={() => onSaveAnswer(cluster.id + "::followup")}>Save</button>
+                          <button className="hd-btn-cancel" onClick={() => onSetEditingAnswer(null)}>Cancel</button>
+                        </div>
+                      </>
+                    ) : (
+                      <button
+                        className="hd-btn-followup"
+                        onClick={() => onSetEditingAnswer(cluster.id)}
+                      >
+                        {answers[cluster.id] ? "+ Add follow-up response" : "Click to write a response…"}
+                      </button>
+                    )}
                   </>
-                ) : (
-                  <div
-                    className={`hd-answer-display ${answers[cluster.id] ? "has-answer" : "no-answer"}`}
-                    onClick={() => phase === "RESULTS" && onSetEditingAnswer(cluster.id)}
-                  >
-                    {answers[cluster.id]
-                      ? answers[cluster.id]
-                      : phase === "RESULTS" ? "Click to write a response…" : "No response written."}
-                  </div>
                 )}
+
+              {answers[cluster.id + "::followup"] && editingAnswer !== cluster.id && (
+                <div className="hd-answer-display has-answer hd-answer-followup">
+                  <span className="hd-answer-label">A{i + 1}b.</span> {answers[cluster.id + "::followup"]}
+                </div>
+              )}
               </div>
 
             </div>
