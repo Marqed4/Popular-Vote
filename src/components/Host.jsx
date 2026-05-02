@@ -89,6 +89,9 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     socket.on("cluster:answered", ({ clusterId, answer }) =>
       setAnswers(prev => ({ ...prev, [clusterId]: answer }))
     );
+    socket.on("cluster:followup:answered", ({ clusterId, answer }) =>
+      setAnswers(prev => ({ ...prev, [clusterId + "::followup"]: answer }))
+    );
     socket.on("participant:joined", ({ socketId, count }) => {
       setParticipantCount(count);
       setParticipants(prev => {
@@ -178,6 +181,9 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       const savedPreviews = {};
       (data.clusters ?? []).forEach(c => {
         if (c.answer) savedAnswers[c.id] = c.answer;
+        if (c.participant_answers?.length) {
+          savedAnswers[c.id + "::followup"] = c.participant_answers[c.participant_answers.length - 1];
+        }
         if (c.selected_questions?.length) savedSelected[c.id] = new Set(c.selected_questions);
         if (c.previewed_questions?.length) savedPreviews[c.id] = { questions: c.previewed_questions, loading: false };
       });
@@ -382,7 +388,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
             onTagInput={setTagInput}
             onAddTag={addTag}
             onRemoveTag={removeTag}
-            canRecluster={submissionCount > submissionsAtLastCluster}
+            canRecluster={phase === "RESULTS"}
             onClose={closeSubmissions}
             onCluster={triggerClustering}
             onTriggerExpansion={openSecondRound}
