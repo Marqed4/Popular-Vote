@@ -236,15 +236,22 @@ router.post('/sessions/:code/clusters/:clusterId/answer', async (req, res) => {
   try {
     const { code, clusterId } = req.params;
     const { answer } = req.body;
+    const { question } = req.query;
     const sessionManager = req.app.locals.sessionManager;
     const wsManager = req.app.locals.wsManager;
 
-    const cluster = await sessionManager.updateClusterAnswer(code, clusterId, answer);
+    // follow-up answer — appends to participant_answers, never touches main answer
+    if (question) {
+      const cluster = await sessionManager.addParticipantAnswerToCluster(code, clusterId, answer);
+      wsManager.toSession(code, 'cluster:followup:answered', { clusterId, answer });
+      return res.json(cluster);
+    }
 
+    // main answer
+    const cluster = await sessionManager.updateClusterAnswer(code, clusterId, answer);
     wsManager.toSession(code, 'cluster:answered', { clusterId, answer });
     res.json(cluster);
 
-    // generate follow-up suggestions async — push to participants when ready
     clusteringEngine.generateFollowupSuggestions(cluster.representative_query, answer, cluster.questions ?? [])
       .then(suggestions => {
         if (suggestions.length) {
@@ -318,7 +325,8 @@ router.patch('/sessions/:code/tags', async (req, res) => {
 
     const session = await sessionManager.getSessionAsync(code);
     if (!session) return res.status(404).json({ error: 'Session not found' });
-    if (session.phase !== 'OPEN') return res.status(400).json({ error: 'Tags can only be updated while session is open' });
+    const editableTagPhases = ['OPEN', 'RESULTS', 'ENDED'];
+    if (!editableTagPhases.includes(session.phase)) return res.status(400).json({ error: 'Tags can only be updated in OPEN, RESULTS, or ENDED phase' });
 
     session.tags = tags;
     await SessionStore.updateTags(code, tags);

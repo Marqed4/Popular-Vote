@@ -57,8 +57,13 @@ export default function Participant({ code, onBack }) {
     socket.on("cluster:deleted",   ({ clusterId }) =>
       setClusters(prev => prev.filter(c => c.id !== clusterId))
     );
-    socket.on("cluster:answered",  ({ clusterId, answer }) =>
-      setAnswers(prev => ({ ...prev, [clusterId]: answer }))
+    socket.on("cluster:answered", ({ clusterId, answer }) =>
+      /*
+      clusterId coming from the socket might be a number 
+      but cluster.id from the DB is a UUID string 
+      so answers[cluster.id] never matches.
+      */
+      setAnswers(prev => ({ ...prev, [String(clusterId)]: answer }))
     );
     socket.on("cluster:upvote",    ({ questionText, upvoteCount }) =>
       setClusters(prev => prev.map(c => ({
