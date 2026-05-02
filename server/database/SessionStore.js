@@ -80,25 +80,40 @@ export const SessionStore = {
   },
 
   async saveClusters(sessionCode, clusters) {
+    // fetch existing clusters so we can preserve their answers
+    const { data: existing } = await supabase
+      .from('clusters')
+      .select('*')
+      .eq('session_code', sessionCode);
+
+    // build a lookup: representative_query -> existing cluster
+    const existingByQuery = {};
+    for (const c of (existing ?? [])) {
+      existingByQuery[c.representative_query] = c;
+    }
+
     const { error: deleteError } = await supabase
       .from('clusters')
       .delete()
       .eq('session_code', sessionCode);
     if (deleteError) throw deleteError;
 
-    const rows = clusters.map(c => ({
-      session_code: sessionCode,
-      representative_query: c.representativeQuery,
-      submission_count: c.submissionCount,
-      questions: c.questions,
-      answer: c.answer ?? null,
-      upvote_count: c.upvoteCount ?? 0,
-      // expansion fields
-      previewed_questions: c.previewedQuestions ?? [],
-      selected_questions: c.selectedQuestions ?? [],
-      contextual_facts: c.contextualFacts ?? [],
-      participant_answers: c.participantAnswers ?? []
-    }));
+    const rows = clusters.map(c => {
+      const prev = existingByQuery[c.representativeQuery];
+      return {
+        session_code: sessionCode,
+        representative_query: c.representativeQuery,
+        submission_count: c.submissionCount,
+        questions: c.questions,
+        // carry over answer, participant_answers, contextual_facts if query matches
+        answer: c.answer ?? prev?.answer ?? null,
+        upvote_count: c.upvoteCount ?? prev?.upvote_count ?? 0,
+        previewed_questions: c.previewedQuestions ?? prev?.previewed_questions ?? [],
+        selected_questions: c.selectedQuestions ?? prev?.selected_questions ?? [],
+        contextual_facts: c.contextualFacts ?? prev?.contextual_facts ?? [],
+        participant_answers: c.participantAnswers ?? prev?.participant_answers ?? [],
+      };
+    });
 
     const { data, error } = await supabase
       .from('clusters')
