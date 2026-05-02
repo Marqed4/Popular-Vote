@@ -187,7 +187,12 @@ export default function ParticipantClusterList({
         <ClusterCard
           key={cluster.id}
           cluster={cluster}
-          answer={answers[cluster.id]}
+          /*This way answers from the socket will 
+          match cluster.id from the DB, even if one is a number and the other is a string.
+          This should let them appear instantly when the host answers a cluster, 
+          without needing to refresh or wait for another update.
+          */
+          answer={answers[String(cluster.id)]}
           myTexts={myTexts}
           upvotes={upvotes}
           followups={followups?.[cluster.id]}
