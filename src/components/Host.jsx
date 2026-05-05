@@ -9,6 +9,7 @@ import ClusterList from "./ClusterList";
 import "./Host.css";
 
 export default function HostDashboard({ code: initialCode, onBack }) {
+  // Core session state
   const [phase, setPhase] = useState("OPEN");
   const [code, setCode] = useState(initialCode);
   const [tags, setTags] = useState([]);
@@ -24,20 +25,21 @@ export default function HostDashboard({ code: initialCode, onBack }) {
   const [answers, setAnswers] = useState({});
   const [editingAnswer, setEditingAnswer] = useState(null);
 
-  // expansion state
+  // Expansion state
   const [expansionPreviews, setExpansionPreviews] = useState({});
   const [selectedQuestions, setSelectedQuestions] = useState({});
   const [manualQuestions, setManualQuestions] = useState({});
   const [expandLoading, setExpandLoading] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
 
-  // curator state
+  // Curator / participant state
   const [participants, setParticipants] = useState([]);
   const [curators, setCurators] = useState([]);
 
   const socketRef = useRef(null);
   const createdRef = useRef(false);
 
+  // Initialize session
   useEffect(() => {
     if (initialCode === "NEW") {
       if (createdRef.current) return;
@@ -48,6 +50,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     }
   }, []);
 
+  // Socket connection and real-time listeners
   useEffect(() => {
     if (!code || code === "NEW") return;
 
@@ -66,6 +69,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     socket.on("submission:new", ({ id, content }) => {
       setSubmissions(prev => [...prev, { id, content }]);
     });
+
     socket.on("session:closed", () => setPhase("CLOSED"));
     socket.on("session:clustering", () => setPhase("CLUSTERING"));
     socket.on("session:results", ({ clusters, submissionsAtLastCluster }) => {
@@ -73,25 +77,31 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       if (submissionsAtLastCluster !== undefined) setSubmissionsAtLastCluster(submissionsAtLastCluster);
       setPhase("RESULTS");
     });
+
     socket.on("cluster:upvote", ({ questionText, upvoteCount }) => {
-      setClusters(prev => prev.map(c => ({
-        ...c,
-        questions: c.questions?.map(q =>
-          q.text === questionText ? { ...q, upvoteCount } : q
-        ),
-      })));
+      setClusters(prev =>
+        prev.map(c => ({
+          ...c,
+          questions: c.questions?.map(q =>
+            q.text === questionText ? { ...q, upvoteCount } : q
+          ),
+        }))
+      );
     });
-    
+
     socket.on("session:ended", () => setPhase("ENDED"));
     socket.on("cluster:deleted", ({ clusterId }) =>
       setClusters(prev => prev.filter(c => c.id !== clusterId))
     );
+
     socket.on("cluster:answered", ({ clusterId, answer }) =>
       setAnswers(prev => ({ ...prev, [clusterId]: answer }))
     );
+
     socket.on("cluster:followup:answered", ({ clusterId, answer }) =>
       setAnswers(prev => ({ ...prev, [clusterId + "::followup"]: answer }))
     );
+
     socket.on("participant:joined", ({ socketId, count }) => {
       setParticipantCount(count);
       setParticipants(prev => {
@@ -99,18 +109,21 @@ export default function HostDashboard({ code: initialCode, onBack }) {
         return [...prev, { socketId, isCurator: false }];
       });
     });
+
     socket.on("participant:left", ({ socketId, count }) => {
       setParticipantCount(count);
       setParticipants(prev => prev.filter(p => p.socketId !== socketId));
     });
+
     socket.on("curator:updated", ({ curators: newCurators }) => {
       setCurators(newCurators);
       setParticipants(prev =>
         prev.map(p => ({ ...p, isCurator: newCurators.includes(p.socketId) }))
       );
     });
-    socket.on("expansion:preview", ({ clusterPreviews, contextualFacts }) => {
-      console.log("[socket] expansion:preview received", { clusterPreviews, contextualFacts });
+
+    socket.on("expansion:preview", ({ clusterPreviews }) => {
+      console.log("[socket] expansion:preview received", { clusterPreviews });
       setExpansionPreviews(prev => {
         const next = { ...prev };
         clusterPreviews.forEach(({ clusterId, previewedQuestions }) => {
@@ -125,23 +138,33 @@ export default function HostDashboard({ code: initialCode, onBack }) {
 
     socket.on("cluster:submission:added", ({ clusterId, question, submissionCount }) => {
       console.log("[cluster:submission:added]", { clusterId, question, submissionCount });
-      setClusters(prev => prev.map(c => {
-        if (String(c.id) !== String(clusterId)) return c;
-        return {
-          ...c,
-          submission_count: submissionCount,
-          questions: [...(c.questions ?? []), question],
-        };
-      }));
+      setClusters(prev =>
+        prev.map(c => {
+          if (String(c.id) !== String(clusterId)) return c;
+          return {
+            ...c,
+            submission_count: submissionCount,
+            questions: [...(c.questions ?? []), question],
+          };
+        })
+      );
     });
 
     // host triggered delete — navigate away
-    socket.on("session:deleted", () => {
-      onBack();
-    });
+    socket.on("session:deleted", () => onBack());
 
     return () => socket.disconnect();
   }, [code]);
+
+  // Theme setup
+  useEffect(() => {
+    const dark = localStorage.getItem("pv-dark") === "true";
+    const glass = localStorage.getItem("pv-glass") === "true";
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    document.documentElement.setAttribute("data-glass", glass ? "on" : "off");
+  }, []);
+
+  // ====================== API & Session Management ======================
 
   async function createSession() {
     setLoading(true);
@@ -153,6 +176,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+
       setCode(data.code);
       setPhase(data.phase);
       setTags(data.tags ?? []);
@@ -167,7 +191,9 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     try {
       const res = await fetch(`/api/sessions/${initialCode}`);
       if (!res.ok) throw new Error("Session not found");
+
       const data = await res.json();
+
       setPhase(data.phase);
       setTags(data.tags ?? []);
       setSubmissions(data.submissions ?? []);
@@ -176,17 +202,24 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       setParticipantCount(data.participantCount ?? 0);
       setClusters(data.clusters ?? []);
       setCurators(data.curators ?? []);
+
       const savedAnswers = {};
       const savedSelected = {};
       const savedPreviews = {};
+
       (data.clusters ?? []).forEach(c => {
         if (c.answer) savedAnswers[c.id] = c.answer;
         if (c.participant_answers?.length) {
           savedAnswers[c.id + "::followup"] = c.participant_answers[c.participant_answers.length - 1];
         }
-        if (c.selected_questions?.length) savedSelected[c.id] = new Set(c.selected_questions);
-        if (c.previewed_questions?.length) savedPreviews[c.id] = { questions: c.previewed_questions, loading: false };
+        if (c.selected_questions?.length) {
+          savedSelected[c.id] = new Set(c.selected_questions);
+        }
+        if (c.previewed_questions?.length) {
+          savedPreviews[c.id] = { questions: c.previewed_questions, loading: false };
+        }
       });
+
       setAnswers(savedAnswers);
       setSelectedQuestions(savedSelected);
       setExpansionPreviews(savedPreviews);
@@ -194,6 +227,8 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       setError("Could not load session.");
     }
   }
+
+  // ====================== Actions ======================
 
   async function closeSubmissions() {
     setActionLoading(true);
@@ -210,14 +245,19 @@ export default function HostDashboard({ code: initialCode, onBack }) {
   }
 
   async function triggerClustering() {
-    if (submissionCount === 0) { setError("No submissions yet."); return; }
+    if (submissionCount === 0) {
+      setError("No submissions yet.");
+      return;
+    }
     setActionLoading(true);
     setError("");
     setPhase("CLUSTERING");
+
     try {
       const res = await fetch(`/api/sessions/${code}/cluster`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+
       setClusters(data.clusters);
       setPhase("RESULTS");
     } catch (err) {
@@ -256,10 +296,12 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     const [clusterId, question] = answerId.includes("::")
       ? answerId.split("::")
       : [answerId, null];
+
     try {
       const url = question
         ? `/api/sessions/${code}/clusters/${clusterId}/answer?question=${encodeURIComponent(question)}`
         : `/api/sessions/${code}/clusters/${clusterId}/answer`;
+
       await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -306,7 +348,6 @@ export default function HostDashboard({ code: initialCode, onBack }) {
     }
   }
 
-  // promote or demote a participant as curator
   async function toggleCurator(socketId) {
     try {
       const res = await fetch(`/api/sessions/${code}/curators`, {
@@ -316,6 +357,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+
       setCurators(data.curators);
       setParticipants(prev =>
         prev.map(p => ({ ...p, isCurator: data.curators.includes(p.socketId) }))
@@ -328,14 +370,16 @@ export default function HostDashboard({ code: initialCode, onBack }) {
   async function saveTags(updatedTags) {
     try {
       await fetch(`/api/sessions/${code}/tags`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tags: updatedTags }),
       });
     } catch (err) {
-      console.error('Failed to save tags:', err);
+      console.error("Failed to save tags:", err);
     }
   }
+
+  // ====================== UI Handlers ======================
 
   function addTag(e) {
     if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
