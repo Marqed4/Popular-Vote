@@ -21,6 +21,31 @@
   --font-mono:    'DM Mono', monospace;
   --sh-sm:        0 1px 2px rgba(0,0,0,0.05);
   --sh-md:        0 1px 3px rgba(0,0,0,0.06), 0 4px 8px rgba(0,0,0,0.04);
+  --focus-ring:   rgba(28, 25, 23, 0.08);
+  --delete-hover-bg: rgba(220, 38, 38, 0.07);
+}
+
+[data-theme="dark"] {
+  --bg:           #111110;
+  --surface:      #1c1b1a;
+  --surface-sub:  #232220;
+  --border:       #2e2d2b;
+  --border-str:   #3d3c39;
+  --text:         #e8e6e3;
+  --text-2:       #a8a29e;
+  --text-3:       #57534e;
+  --accent:       #fb923c;
+  --green:        #4ade80;
+  --green-bg:     #052e16;
+  --green-bd:     #166534;
+  --blue:         #60a5fa;
+  --blue-bg:      #0c1a2e;
+  --blue-bd:      #1e3a5f;
+  --red:          #f87171;
+  --sh-sm:        0 1px 2px rgba(0,0,0,0.3);
+  --sh-md:        0 1px 3px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3);
+  --focus-ring:   rgba(232, 230, 227, 0.12);
+  --delete-hover-bg: rgba(248, 113, 113, 0.12);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,14 +57,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ─── Root ──────────────────────────────────────────────────────────────────── */
-
 .pv-root {
   min-height: 100vh;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-attachment: fixed;
 }
-
-/* ─── Nav ───────────────────────────────────────────────────────────────────── */
 
 .pv-nav {
   display: flex;
@@ -111,8 +136,6 @@ body {
 }
 .pv-nav-settings:hover { background: var(--surface-sub); border-color: var(--border-str); }
 
-/* ─── Hero ──────────────────────────────────────────────────────────────────── */
-
 .pv-hero {
   text-align: center;
   padding: 3rem 2rem 0;
@@ -145,8 +168,6 @@ body {
   display: none;
 }
 
-/* ─── Layout ────────────────────────────────────────────────────────────────── */
-
 .pv-home {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -161,8 +182,6 @@ body {
   .pv-home { grid-template-columns: 1fr; margin: 1.5rem auto; padding: 0 1rem; }
   .pv-hero { padding: 2rem 1rem 0; }
 }
-
-/* ─── Panels ────────────────────────────────────────────────────────────────── */
 
 .pv-panel {
   background: var(--surface);
@@ -204,8 +223,6 @@ body {
   gap: 0.75rem;
   flex: 1;
 }
-
-/* ─── Session list ──────────────────────────────────────────────────────────── */
 
 .pv-session-list {
   list-style: none;
@@ -266,8 +283,6 @@ body {
   color: var(--text-3);
 }
 
-/* ─── Phase badges ──────────────────────────────────────────────────────────── */
-
 .pv-phase-badge {
   font-family: var(--font-mono);
   font-size: 0.56rem;
@@ -296,8 +311,6 @@ body {
   from { background-position: 200% 0; }
   to   { background-position: -200% 0; }
 }
-
-/* ─── Empty / divider ───────────────────────────────────────────────────────── */
 
 .pv-empty {
   font-family: var(--font-serif);
@@ -338,8 +351,6 @@ body {
   background: var(--border);
 }
 
-/* ─── Buttons ───────────────────────────────────────────────────────────────── */
-
 .pv-btn-create {
   width: 100%;
   padding: 0.65rem 1rem;
@@ -350,10 +361,10 @@ body {
   border: none;
   border-radius: 8px;
   background: var(--text);
-  color: #ffffff;
+  color: var(--bg);
   transition: background 0.15s, transform 0.1s;
 }
-.pv-btn-create:hover { background: #2c2925; }
+.pv-btn-create:hover { background: var(--text-2); }
 .pv-btn-create:active { transform: scale(0.99); }
 
 .pv-btn-join {
@@ -372,8 +383,6 @@ body {
 .pv-btn-join:hover { background: var(--surface-sub); border-color: var(--text); }
 .pv-btn-join:active { transform: scale(0.99); }
 .pv-btn-join:disabled { opacity: 0.45; cursor: not-allowed; }
-
-/* ─── Join tabs ─────────────────────────────────────────────────────────────── */
 
 .pv-join-tabs {
   display: flex;
@@ -402,8 +411,6 @@ body {
   box-shadow: var(--sh-sm);
 }
 
-/* ─── Code input ────────────────────────────────────────────────────────────── */
-
 .pv-code-input {
   width: 100%;
   background: var(--surface);
@@ -422,7 +429,7 @@ body {
 }
 .pv-code-input:focus {
   border-color: var(--text);
-  box-shadow: 0 0 0 3px rgba(28, 25, 23, 0.08);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 .pv-code-input::placeholder { color: var(--text-3); letter-spacing: 0.1em; font-size: 1rem; }
 
@@ -440,7 +447,7 @@ body {
 }
 .pv-url-input:focus {
   border-color: var(--text);
-  box-shadow: 0 0 0 3px rgba(28, 25, 23, 0.08);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .pv-join-error {
@@ -449,8 +456,6 @@ body {
   color: var(--red);
   padding: 2px 0;
 }
-
-/* ─── Modal ─────────────────────────────────────────────────────────────────── */
 
 .pv-overlay {
   position: fixed;
@@ -515,8 +520,6 @@ body {
 }
 .pv-modal-close:hover { background: var(--border); color: var(--text); }
 
-/* ─── Background picker ─────────────────────────────────────────────────────── */
-
 .pv-bg-picker { max-width: 520px; }
 
 .pv-bg-grid {
@@ -554,8 +557,6 @@ body {
 .pv-bg-option:hover { border-color: var(--border-str); transform: scale(1.02); }
 .pv-bg-option.active { border-color: var(--text); }
 
-/* ─── Session delete ────────────────────────────────────────────────────────── */
-
 .pv-session-delete {
   background: none;
   border: none;
@@ -574,16 +575,12 @@ body {
 }
 .pv-session-delete svg { width: 12px; height: 12px; }
 .pv-session-item:hover .pv-session-delete { opacity: 1; }
-.pv-session-delete:hover { color: var(--red); background: rgba(220,38,38,0.07); }
-
-/* ─── Modal sections ────────────────────────────────────────────────────────── */
+.pv-session-delete:hover { color: var(--red); background: var(--delete-hover-bg); }
 
 .pv-modal-section {
   margin-bottom: 1rem;
 }
 .pv-modal-section:last-child { margin-bottom: 0; }
-
-/* ─── Join panels ───────────────────────────────────────────────────────────── */
 
 .pv-join-panel { display: none; }
 .pv-join-panel.active { display: flex; flex-direction: column; gap: 0.625rem; }
@@ -617,10 +614,8 @@ body {
 }
 .pv-link-input:focus {
   border-color: var(--text);
-  box-shadow: 0 0 0 3px rgba(28, 25, 23, 0.08);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
-
-/* ─── QR area ───────────────────────────────────────────────────────────────── */
 
 .pv-qr-scanner {
   display: flex;
@@ -651,8 +646,6 @@ body {
   line-height: 1.55;
 }
 
-/* ─── Session delete ────────────────────────────────────────────────────────── */
-
 .pv-btn-delete {
   background: none;
   border: none;
@@ -671,4 +664,46 @@ body {
 }
 .pv-btn-delete svg { width: 12px; height: 12px; }
 .pv-session-item:hover .pv-btn-delete { opacity: 1; }
-.pv-btn-delete:hover { color: var(--red); background: rgba(220,38,38,0.07); }
+.pv-btn-delete:hover { color: var(--red); background: var(--delete-hover-bg); }
+
+/* Glassy. */
+[data-glass="on"] .pv-nav {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+[data-glass="on"] .pv-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-glass="on"] .pv-nav-settings {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+[data-glass="on"] .pv-nav-settings:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+[data-glass="on"][data-theme="dark"] .pv-nav {
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-glass="on"][data-theme="dark"] .pv-panel {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-glass="on"][data-theme="dark"] .pv-nav-settings {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+[data-glass="on"][data-theme="dark"] .pv-nav-settings:hover {
+  background: rgba(0, 0, 0, 0.35);
+}

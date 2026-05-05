@@ -32,8 +32,14 @@ function PhaseBadge({ phase }) {
   return <span className={`pv-phase-badge ${cls}`}>{label}</span>;
 }
 
-//https://www.svgviewer.dev/s/468559/download download icon
-//https://www.svgviewer.dev/s/
+function TrashIcon() {
+  return (
+    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/>
+    </svg>
+  );
+}
+
 function SettingsIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -43,29 +49,63 @@ function SettingsIcon() {
   );
 }
 
-function TrashIcon() {
+function MoonIcon() {
   return (
-    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   );
 }
 
-function BackgroundPicker({ current, onSelect, onClose }) {
+function SunIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  );
+}
+
+function GlassIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+      <path d="M2 17l10 5 10-5"/>
+      <path d="M2 12l10 5 10-5"/>
+    </svg>
+  );
+}
+
+/*
+Separate available nighttime and daytime backgrounds since nighttime ones look odd in light mode and vice versa.
+The picker will show night options in dark mode, and day options in light mode.
+*/
+function BackgroundPicker({ current, onSelect, onClose, darkMode }) {
+  const filtered = Object.entries(DefaultBackgrounds).filter(([key]) =>
+    darkMode ? key.startsWith("night_") : key.startsWith("day_")
+  );
+
   return (
     <div className="pv-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="pv-modal pv-bg-picker">
         <button className="pv-modal-close" onClick={onClose}>×</button>
         <h2>Choose Background</h2>
         <div className="pv-bg-grid">
-          {Object.entries(DefaultBackgrounds).map(([key, src]) => (
+          {filtered.map(([key, src]) => (
             <button
               key={key}
               className={`pv-bg-option ${current === key ? "active" : ""}`}
               onClick={() => { onSelect(key); onClose(); }}
             >
               <img src={src} alt={key} />
-              <span>{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+              <span>{key.replace(/^day_/, '').replace(/^night_/, '').replace(/([A-Z])/g, ' $1').trim()}</span>
             </button>
           ))}
         </div>
@@ -82,15 +122,26 @@ function InstructionsModal({ onClose }) {
         <h2>How Popular Vote Works</h2>
         <div className="pv-modal-section">
           <h3>For Hosts</h3>
-          <p>Create a session and share the 6-character code or link. Close submissions when ready, control/trigger AI clustering, write responses to each cluster, and then end the session for a shareable summary.</p>
+          <p>
+            Create a session and share the 6-character code or link.
+            Close submissions when ready, control/trigger AI clustering,
+            write responses to each cluster,
+            and then end the session for a shareable summary.
+          </p>
         </div>
         <div className="pv-modal-section">
           <h3>For Participants</h3>
-          <p>Join via code, shared link, or QR scan. After clustering, upvote questions and view the host's answers.</p>
+          <p>
+            Join via code, shared link, or QR scan.
+            After clustering, upvote questions and view the host's answers.
+          </p>
         </div>
         <div className="pv-modal-section">
           <h3>Privacy</h3>
-          <p>All questions are anonymous. No accounts, no persistent data after a session ends.</p>
+          <p>
+            All questions are anonymous. No accounts,
+            no persistent data after a session ends.
+          </p>
         </div>
       </div>
     </div>
@@ -125,7 +176,6 @@ function YourSessions({ onRejoin }) {
 
   async function deleteSession(e, code) {
     e.stopPropagation();
-
     const { error } = await supabase
       .from("sessions")
       .delete()
@@ -163,7 +213,7 @@ function YourSessions({ onRejoin }) {
                       onClick={(e) => deleteSession(e, s.code)}
                       title="Delete session"
                     >
-                      <svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/></svg>
+                      <TrashIcon />
                     </button>
                   </div>
                 </li>
@@ -208,7 +258,6 @@ function QRScanner({ onScan }) {
         } catch {}
         if (/^[A-Z0-9]{6}$/.test(code)) {
           doneRef.current = true;
-          // stop then callback
           scanner.stop().catch(() => {}).finally(() => onScan(code));
         }
       },
@@ -355,6 +404,32 @@ export default function Home({ onNavigate }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showBgPicker, setShowBgPicker] = useState(false);
   const [bgKey, setBgKey] = useState(() => localStorage.getItem(BG_STORAGE_KEY) ?? "barn");
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("pv-dark") === "true");
+  const [glassMode, setGlassMode] = useState(() => localStorage.getItem("pv-glass") === "true");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+    document.documentElement.setAttribute("data-glass", glassMode ? "on" : "off");
+    localStorage.setItem("pv-dark", darkMode);
+    localStorage.setItem("pv-glass", glassMode);
+  }, [darkMode, glassMode]);
+
+  function handleToggleGlass() {
+    setGlassMode(prev => !prev);
+  }
+
+  function handleToggleDark() {
+    setDarkMode(prev => {
+      const next = !prev;
+      const prefix = next ? "night_" : "day_";
+      const firstMatch = Object.keys(DefaultBackgrounds).find(k => k.startsWith(prefix));
+      if (firstMatch) {
+        setBgKey(firstMatch);
+        localStorage.setItem(BG_STORAGE_KEY, firstMatch);
+      }
+      return next;
+    });
+  }
 
   function handleSelectBg(key) {
     setBgKey(key);
@@ -364,7 +439,10 @@ export default function Home({ onNavigate }) {
   const bgSrc = DefaultBackgrounds[bgKey] ?? DefaultBackgrounds.barn;
 
   return (
-    <div className="pv-root" style={{ backgroundImage: `url(${bgSrc})` }}>
+    <div
+      className="pv-root"
+      style={{ backgroundImage: `url(${bgSrc})` }}
+    >
       <nav className="pv-nav">
         <a className="pv-nav-logo" href="/">
           <span className="pv-nav-icon">🗳</span>
@@ -378,6 +456,14 @@ export default function Home({ onNavigate }) {
           >
             How it works
           </a>
+          <button className="pv-nav-settings" onClick={handleToggleDark}
+            title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
+            {darkMode ? <SunIcon /> : <MoonIcon />}
+          </button>
+          <button className="pv-nav-settings" onClick={handleToggleGlass}
+            title={glassMode ? "Disable glass" : "Enable glass"}>
+            <GlassIcon />
+          </button>
           <button className="pv-nav-settings" onClick={() => setShowBgPicker(true)} title="Change background">
             <SettingsIcon />
           </button>
@@ -401,6 +487,7 @@ export default function Home({ onNavigate }) {
           current={bgKey}
           onSelect={handleSelectBg}
           onClose={() => setShowBgPicker(false)}
+          darkMode={darkMode}
         />
       )}
     </div>
