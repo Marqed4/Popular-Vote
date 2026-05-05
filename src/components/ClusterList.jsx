@@ -30,6 +30,13 @@ function ExpandableQuestions({ questions }) {
   );
 }
 
+function getClusterUpvotes(cluster) {
+  if (!cluster.questions?.length) return 0;
+  return cluster.questions.reduce((sum, q) => {
+    return sum + (typeof q === 'string' ? 0 : (q.upvoteCount ?? 0));
+  }, 0);
+}
+
 export default function ClusterList({
   phase,
   clusters,
@@ -41,6 +48,7 @@ export default function ClusterList({
   onAnswerChange,
   onSaveAnswer,
 }) {
+  const [sortBy, setSortBy] = React.useState("original");
   
   // Check if the session has ended. Display Summary if it has.
   if (phase === "ENDED" && clusters.length > 0) {
@@ -109,18 +117,34 @@ export default function ClusterList({
   }
 
   if ((phase === "RESULTS" || phase === "ENDED") && clusters.length > 0) {
+    const sortedClusters = sortBy === "popular"
+      ? [...clusters].sort((a, b) => getClusterUpvotes(b) - getClusterUpvotes(a))
+      : clusters;
+
     return (
       <div className="hd-clusters">
         <div className="hd-clusters-header">
           <span className="hd-clusters-title">
             {clusters.length} cluster{clusters.length !== 1 ? "s" : ""}
           </span>
-          <span className="hd-clusters-sub">
-            {submissionCount} total submissions
-          </span>
+          <div className="hd-clusters-header-right">
+            <span className="hd-clusters-sub">
+              {submissionCount} total submissions
+            </span>
+            <div className="hd-sort-toggle">
+              <button
+                className={`hd-sort-btn${sortBy === "original" ? " hd-sort-btn--active" : ""}`}
+                onClick={() => setSortBy("original")}
+              >Original</button>
+              <button
+                className={`hd-sort-btn${sortBy === "popular" ? " hd-sort-btn--active" : ""}`}
+                onClick={() => setSortBy("popular")}
+              >By popularity</button>
+            </div>
+          </div>
         </div>
 
-        {clusters.map((cluster, i) => {
+        {sortedClusters.map((cluster, i) => {
           return (
             <div key={cluster.id} className="hd-cluster">
               <div className="hd-cluster-top">
