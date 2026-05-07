@@ -159,9 +159,16 @@ function YourSessions({ onRejoin }) {
   async function loadSessions() {
     setLoading(true);
     try {
+      const mine = JSON.parse(localStorage.getItem("pv-my-sessions") ?? "[]");
+      if (mine.length === 0) {
+        setSessions([]);
+        setHasMore(false);
+        return;
+      }
       const { data, error } = await supabase
         .from("sessions")
         .select("code, phase, tags, created_at")
+        .in("code", mine)
         .order("created_at", { ascending: false })
         .range(0, page * SESSIONS_PER_PAGE);
       if (error) throw error;
@@ -180,7 +187,12 @@ function YourSessions({ onRejoin }) {
       .from("sessions")
       .delete()
       .eq("code", code);
-    if (!error) setSessions(prev => prev.filter(s => s.code !== code));
+    if (!error) {
+      setSessions(prev => prev.filter(s => s.code !== code));
+      // ADD THIS:
+      const mine = JSON.parse(localStorage.getItem("pv-my-sessions") ?? "[]");
+      localStorage.setItem("pv-my-sessions", JSON.stringify(mine.filter(c => c !== code)));
+    }
   }
 
   return (
