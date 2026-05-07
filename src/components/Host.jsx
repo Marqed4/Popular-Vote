@@ -178,6 +178,8 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       if (!res.ok) throw new Error(data.error);
 
       setCode(data.code);
+      const mine = JSON.parse(localStorage.getItem("pv-my-sessions") ?? "[]");
+      if (!mine.includes(data.code)) localStorage.setItem("pv-my-sessions", JSON.stringify([data.code, ...mine]));
       setPhase(data.phase);
       setTags(data.tags ?? []);
     } catch (err) {
