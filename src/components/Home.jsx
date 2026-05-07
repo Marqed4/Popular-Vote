@@ -2,6 +2,73 @@ import { useState, useEffect, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { createClient } from "@supabase/supabase-js";
 import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
+
+function RecentSessionsDrawer({ open, onClose, onRejoin }) {
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    loadSessions();
+  }, [open]);
+
+  async function loadSessions() {
+    setLoading(true);
+    try {
+      const mine = JSON.parse(localStorage.getItem(JOINED_KEY) ?? "[]");
+      if (mine.length === 0) { setSessions([]); return; }
+      const codes = mine.map(s => s.code);
+      const { data, error } = await supabase
+        .from("sessions")
+        .select("code, phase, tags, created_at")
+        .in("code", codes);
+      if (error) throw error;
+      const byCode = Object.fromEntries((data ?? []).map(s => [s.code, s]));
+      setSessions(mine.map(m => byCode[m.code]).filter(Boolean));
+    } catch {
+      setSessions([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <>
+      {open && <div className="pv-drawer-backdrop" onClick={onClose} />}
+      <aside className={`pv-drawer ${open ? "pv-drawer--open" : ""}`}>
+        <div className="pv-drawer-header">
+          <span className="pv-drawer-title">Recent Sessions</span>
+          <button className="pv-drawer-close" onClick={onClose}>×</button>
+        </div>
+        <div className="pv-drawer-body">
+          {loading ? (
+            <>{[1, 2, 3].map(i => <div key={i} className="pv-skeleton" />)}</>
+          ) : sessions.length === 0 ? (
+            <div className="pv-empty">No sessions joined yet.</div>
+          ) : (
+            <ul className="pv-session-list">
+              {sessions.map(s => (
+                <li key={s.code} className="pv-session-item" onClick={() => { onRejoin(s.code); onClose(); }}>
+                  <div className="pv-session-left">
+                    <span className="pv-session-code">{s.code}</span>
+                    <span className="pv-session-tags">
+                      {s.tags?.length ? s.tags.join(", ") : "No tags"}
+                    </span>
+                  </div>
+                  <div className="pv-session-meta">
+                    <PhaseBadge phase={s.phase} />
+                    <span className="pv-session-date">{formatDate(s.created_at)}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </aside>
+    </>
+  );
+}
+
 import "./Home.css";
 
 const supabase = createClient(
@@ -12,6 +79,7 @@ const supabase = createClient(
 
 const SESSIONS_PER_PAGE = 15;
 const BG_STORAGE_KEY = "pv-background";
+const JOINED_KEY = "pv-joined-sessions";
 
 const PHASE_MAP = {
   OPEN:       ["pv-phase-open",    "Open"],
@@ -146,6 +214,15 @@ function InstructionsModal({ onClose }) {
       </div>
     </div>
   );
+}
+
+function saveJoinedSession(code) {
+  const prev = JSON.parse(localStorage.getItem(JOINED_KEY) ?? "[]");
+  const filtered = prev.filter(s => s.code !== code);
+  localStorage.setItem(JOINED_KEY, JSON.stringify([
+    { code, joinedAt: new Date().toISOString() },
+    ...filtered
+  ]));
 }
 
 function YourSessions({ onRejoin }) {
@@ -415,6 +492,7 @@ function JoinSession({ onJoin }) {
 export default function Home({ onNavigate }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showBgPicker, setShowBgPicker] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [bgKey, setBgKey] = useState(() => localStorage.getItem(BG_STORAGE_KEY) ?? "barn");
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("pv-dark") === "true");
   const [glassMode, setGlassMode] = useState(() => localStorage.getItem("pv-glass") === "true");
@@ -456,6 +534,11 @@ export default function Home({ onNavigate }) {
       style={{ backgroundImage: `url(${bgSrc})` }}
     >
       <nav className="pv-nav">
+        <button className="pv-nav-hamburger" onClick={() => setDrawerOpen(true)} title="Recent sessions">
+          <span /><span /><span />
+        </button>
+        <a className="pv-nav-logo" href="/"></a>
+
         <a className="pv-nav-logo" href="/">
           <span className="pv-nav-icon">🗳</span>
           <span className="pv-nav-wordmark">Popular <em>Vote</em></span>
@@ -490,7 +573,10 @@ export default function Home({ onNavigate }) {
 
       <main className="pv-home">
         <YourSessions onRejoin={code => onNavigate?.("host", code)} />
-        <JoinSession  onJoin={code  => onNavigate?.("participant", code)} />
+        <JoinSession onJoin={code => {
+          saveJoinedSession(code);
+          onNavigate?.("participant", code);
+        }} />
       </main>
 
       {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
@@ -502,6 +588,11 @@ export default function Home({ onNavigate }) {
           darkMode={darkMode}
         />
       )}
+      <RecentSessionsDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onRejoin={code => onNavigate?.("participant", code)}
+      />
     </div>
   );
 }
