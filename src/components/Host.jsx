@@ -8,7 +8,7 @@ import ClusterList from "./ClusterList";
 
 import "./Host.css";
 
-export default function HostDashboard({ code: initialCode, onBack }) {
+export default function HostDashboard({ code: initialCode, onBack, onSessionCreated }) {
   // Core session state
   const [phase, setPhase] = useState("OPEN");
   const [code, setCode] = useState(initialCode);
@@ -178,6 +178,7 @@ export default function HostDashboard({ code: initialCode, onBack }) {
       if (!res.ok) throw new Error(data.error);
 
       setCode(data.code);
+      onSessionCreated?.(data.code);
       const mine = JSON.parse(localStorage.getItem("pv-my-sessions") ?? "[]");
       if (!mine.includes(data.code)) localStorage.setItem("pv-my-sessions", JSON.stringify([data.code, ...mine]));
       setPhase(data.phase);
