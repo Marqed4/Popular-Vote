@@ -37,11 +37,16 @@ export default function HostSidebar({
   onEndSession,
   onDeleteSession,
 }) {
-  const [notesText, setNotesText] = useState(hostNotes ?? '');
+  const [notesText, setNotesText] = useState('');
   const [notesSaving, setNotesSaving] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
   const [notesError, setNotesError] = useState('');
   const fileInputRef = useRef(null);
+
+  // sync when hostNotes prop loads from the API (useState initial value only runs once)
+  useEffect(() => {
+    setNotesText(hostNotes ?? '');
+  }, [hostNotes]);
 
   function copyCode() { navigator.clipboard.writeText(code); }
   function copyLink() { navigator.clipboard.writeText(`${window.location.origin}?code=${code}`); }
@@ -82,10 +87,10 @@ export default function HostSidebar({
       const res = await fetch(`/api/sessions/${code}/notes`, { method: 'PATCH', body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      if (!data.extracted) throw new Error('Could not extract text from PDF');
       // append extracted text into the textarea so the host can add more docs before saving
       const separator = notesText.trim() ? '\n\n---\n\n' : '';
-      const appended = notesText + separator + data.extracted;
-      setNotesText(appended);
+      setNotesText(notesText + separator + data.extracted);
       setNotesError('');
       // show a gentle hint instead of "Saved" since we haven't saved yet
     } catch (e) {
