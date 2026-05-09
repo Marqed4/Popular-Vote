@@ -8,7 +8,7 @@ import ClusterList from "./ClusterList";
 
 import "./Host.css";
 
-export default function HostDashboard({ code: initialCode, initialTitle = '', initialDescription = '', onBack, onSessionCreated, onOpenSidebar }) {
+export default function HostDashboard({ code: initialCode, initialTitle = '', initialDescription = '', onBack, onSessionCreated, onOpenSidebar, darkMode, onToggleDark }) {
   // Core session state
   const [phase, setPhase] = useState("OPEN");
   const [code, setCode] = useState(initialCode);
@@ -440,6 +440,8 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
         submissionCount={submissionCount}
         onBack={onBack}
         onOpenSidebar={onOpenSidebar}
+        darkMode={darkMode}
+        onToggleDark={onToggleDark}
       />
 
       {(title || description) && (

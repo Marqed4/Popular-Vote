@@ -117,6 +117,30 @@
   color: var(--text-3);
 }
 
+.pv-nav-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pv-nav-icon-btn:hover {
+  background: var(--surface-sub);
+}
+
+[data-theme="light"] .pv-nav-icon-btn {
+  color: #1c1917;
+}
+
+[data-theme="dark"] .pv-nav-icon-btn {
+  color: #e5e3e0;
+}
+
 @media (max-width: 760px) {
   .hd-header { padding: 0 1rem; }
 }

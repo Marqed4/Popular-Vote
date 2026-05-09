@@ -21,7 +21,7 @@ function saveMySubmissions(code, submissions) {
   localStorage.setItem(mySubsKey(code), JSON.stringify(submissions));
 }
 
-export default function Participant({ code, onBack, user, onOpenSidebar }) {
+export default function Participant({ code, onBack, user, onOpenSidebar, darkMode, onToggleDark }) {
   const [phase, setPhase] = useState("OPEN");
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -260,7 +260,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar }) {
   if (phase === "ENDED") {
     return (
       <div className="pd-root">
-        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} />
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} darkMode={darkMode} onToggleDark={onToggleDark} />
         <div className="pd-body">
           <Summary
             clusters={clusters}
@@ -276,7 +276,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar }) {
   if (phase === "OPEN" || phase === "CLOSED") {
     return (
       <div className="pd-root">
-        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} />
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} darkMode={darkMode} onToggleDark={onToggleDark} />
         {(title || description) && (
           <div className="pd-session-context">
             {title && <div className="pd-session-title">{title}</div>}
@@ -302,7 +302,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar }) {
   if (phase === "CLUSTERING") {
     return (
       <div className="pd-root">
-        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} />
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} darkMode={darkMode} onToggleDark={onToggleDark} />
         <div className="pd-body">
           <div className="pd-waiting">
             <div className="pd-spinner" />
@@ -322,8 +322,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar }) {
           code={code}
           onBack={onBack}
           submittedCount={submissions.length}
-          inClusterCount={inClusterCount}
-        />
+          inClusterCount={inClusterCount} onOpenSidebar={onOpenSidebar} darkMode={darkMode} onToggleDark={onToggleDark} />
         <div className="pd-body">
           {error && <div className="pd-error">{error}</div>}
           <ParticipantInput
@@ -354,7 +353,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar }) {
   if (phase === "EXPANDING") {
     return (
       <div className="pd-root">
-        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} />
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} darkMode={darkMode} onToggleDark={onToggleDark} />
         <div className="pd-body">
           <div className="pd-round2-banner">
             <div className="pd-round2-title">Round 2 — Dig deeper</div>
@@ -389,3 +388,5 @@ export default function Participant({ code, onBack, user, onOpenSidebar }) {
 
   return null;
 }
+
+
