@@ -62,10 +62,7 @@ body {
 
 .pv-root {
   min-height: 100vh;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-attachment: fixed;
+  background: transparent; /* global bg from App.jsx shows through */
   display: flex;
   flex-direction: column;
 }
@@ -83,16 +80,11 @@ body {
   left: 0;
   right: 0;
   z-index: 100;
-  /* subtle glass so it sits on top of the bg */
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255,255,255,0.15);
-}
-
-[data-theme="dark"] .pv-nav {
-  background: rgba(0,0,0,0.25);
-  border-bottom-color: rgba(255,255,255,0.07);
+  /* dark glass nav — readable on any background image */
+  background: rgba(0,0,0,0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .pv-nav-hamburger {
@@ -207,7 +199,7 @@ body {
   line-height: 1.0;
   letter-spacing: -0.03em;
   color: #ffffff;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.25);
+  text-shadow: 0 2px 24px rgba(0,0,0,0.55), 0 1px 4px rgba(0,0,0,0.4);
   margin-bottom: 0.75rem;
 }
 
@@ -221,7 +213,7 @@ body {
   font-size: 1.05rem;
   font-style: italic;
   color: rgba(255,255,255,0.75);
-  text-shadow: 0 1px 6px rgba(0,0,0,0.2);
+  text-shadow: 0 1px 12px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.4);
   margin-bottom: 2.5rem;
 }
 
@@ -258,14 +250,16 @@ body {
 .pv-or-line {
   flex: 1;
   height: 1px;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.55);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 .pv-or-text {
   font-family: var(--font-serif);
   font-size: 0.875rem;
   font-style: italic;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
   white-space: nowrap;
 }
 
@@ -288,10 +282,10 @@ body {
 .pv-code-input {
   flex: 1;
   padding: 0.7rem 1rem;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.5);
   border-radius: 8px;
   font-family: var(--font-mono);
   font-size: 1.1rem;
@@ -303,7 +297,7 @@ body {
   outline: none;
   transition: border-color 0.15s, background 0.15s;
 }
-.pv-code-input::placeholder { color: rgba(255,255,255,0.4); letter-spacing: 0.08em; font-size: 0.875rem; }
+.pv-code-input::placeholder { color: rgba(255,255,255,0.65); letter-spacing: 0.08em; font-size: 0.875rem; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
 .pv-code-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.2); }
 .pv-code-input--error { border-color: rgba(255,100,100,0.7); }
 
@@ -321,7 +315,7 @@ body {
   outline: none;
   transition: border-color 0.15s, background 0.15s;
 }
-.pv-link-input::placeholder { color: rgba(255,255,255,0.4); }
+.pv-link-input::placeholder { color: rgba(255,255,255,0.65); }
 .pv-link-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.2); }
 
 .pv-btn-join {
@@ -330,16 +324,17 @@ body {
   font-size: 1rem;
   font-style: italic;
   cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 1.5px solid rgba(255,255,255,0.75);
   border-radius: 8px;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.32);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #ffffff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
   white-space: nowrap;
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
-.pv-btn-join:hover:not(:disabled) { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.6); }
+.pv-btn-join:hover:not(:disabled) { background: rgba(0,0,0,0.45); border-color: rgba(255,255,255,0.95); }
 .pv-btn-join:active:not(:disabled) { transform: scale(0.98); }
 .pv-btn-join:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -354,6 +349,11 @@ body {
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.25rem;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 4px 10px;
 }
 
 .pv-mode-btn {
@@ -362,17 +362,19 @@ body {
   font-family: var(--font-serif);
   font-size: 0.825rem;
   font-style: italic;
-  color: rgba(255,255,255,0.5);
+  color: #ffffff;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.65), 0 1px 2px rgba(0,0,0,0.5);
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 2px 6px;
   border-radius: 4px;
-  transition: color 0.15s;
+  transition: color 0.15s, background 0.15s;
 }
-.pv-mode-btn:hover { color: rgba(255,255,255,0.85); }
-.pv-mode-btn.active { color: rgba(255,255,255,0.9); text-decoration: underline; }
+.pv-mode-btn:hover { background: rgba(0,0,0,0.2); }
+.pv-mode-btn.active { color: #ffffff; text-decoration: underline; }
 
 .pv-mode-dot {
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
   font-size: 0.75rem;
 }
 

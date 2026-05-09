@@ -1,29 +1,21 @@
-.background-wrapper {
+/* ── Global fixed background — always behind every view ── */
+.app-global-bg {
   position: fixed;
   inset: 0;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: 0;
+  background-attachment: fixed;
+  z-index: -1; /* behind all normal-flow content */
 }
 
-.background-wrapper::after {
-  content: "";
+/* Subtle dark scrim so white text is readable on any image brightness.
+   Only visible on the home page — host/participant have opaque panels on top. */
+.app-global-bg::after {
+  content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.app-container {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  display: flex;
-  height: 100vh;
-  background: transparent;
-  color: white;
-  font-family: sans-serif;
-  overflow: hidden;
+  background: rgba(0, 0, 0, 0.22);
 }
 
 *, *::before, *::after {
