@@ -19,15 +19,32 @@ async function migrateLocalSessions(userId) {
       ...joined.filter(c => !created.includes(c)).map(code => ({ user_id: userId, session_code: code, role: "participant" })),
     ].filter(r => r.session_code);
 
-    if (!rows.length) return;
+    if (rows.length) {
+      await supabase
+        .from("user_sessions")
+        .upsert(rows, { onConflict: "user_id,session_code", ignoreDuplicates: true });
+      localStorage.removeItem(MY_SESSIONS_KEY);
+      localStorage.removeItem(JOINED_KEY);
+    }
 
-    await supabase
-      .from("user_sessions")
-      .upsert(rows, { onConflict: "user_id,session_code", ignoreDuplicates: true });
-
-    // clear localStorage — Supabase is now the source of truth
-    localStorage.removeItem(MY_SESSIONS_KEY);
-    localStorage.removeItem(JOINED_KEY);
+    // migrate any locally-stored "my questions" for each session
+    const allCodes = [...new Set([...created, ...joined])];
+    for (const code of allCodes) {
+      const key = `pv-my-subs-${code}`;
+      try {
+        const subs = JSON.parse(localStorage.getItem(key) ?? "[]");
+        if (!subs.length) continue;
+        const subRows = subs
+          .map(s => ({ user_id: userId, session_code: code, submission_id: s.id, content: s.text ?? s.content ?? "" }))
+          .filter(r => r.submission_id && r.content);
+        if (subRows.length) {
+          await supabase
+            .from("user_submissions")
+            .upsert(subRows, { onConflict: "user_id,submission_id", ignoreDuplicates: true });
+          localStorage.removeItem(key);
+        }
+      } catch {}
+    }
   } catch (err) {
     console.error('[migrateLocalSessions]', err);
   }
