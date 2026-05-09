@@ -119,6 +119,31 @@
   color: var(--text-3);
 }
 
+.pd-session-context {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pd-session-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2rem;
+}
+
+.pd-session-description {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
 .pd-body {
   max-width: 680px;
   margin: 0 auto;

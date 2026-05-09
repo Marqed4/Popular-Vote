@@ -227,10 +227,53 @@ function JoinFlow({ onJoin }) {
 
 /* ─── Home ───────────────────────────────────────────────────────────────── */
 
+/* ─── New Session Modal ──────────────────────────────────────────────────── */
+
+function NewSessionModal({ onStart, onClose }) {
+  const [title, setTitle]       = useState('');
+  const [description, setDescription] = useState('');
+
+  function handleStart() {
+    onStart(title.trim(), description.trim());
+  }
+
+  return (
+    <div className="pv-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="pv-modal pv-new-session-modal">
+        <button className="pv-modal-close" onClick={onClose}>×</button>
+        <h2>Start a session</h2>
+        <p className="pv-modal-hint">Give your session a topic so participants know what it's about. Both fields are optional.</p>
+        <label className="pv-field-label">Topic / title</label>
+        <input
+          className="pv-field-input"
+          placeholder="e.g. Town Hall Q&A, Team Retrospective…"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          maxLength={120}
+          autoFocus
+        />
+        <label className="pv-field-label">Description <span className="pv-field-optional">(optional)</span></label>
+        <textarea
+          className="pv-field-input pv-field-textarea"
+          placeholder="A sentence or two about the session…"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          maxLength={500}
+          rows={3}
+        />
+        <button className="pv-btn-create pv-btn-create--modal" onClick={handleStart}>
+          Create session →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Home({ onNavigate, user }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showBgPicker,     setShowBgPicker]     = useState(false);
   const [showAuth,         setShowAuth]          = useState(false);
+  const [showNewSession,   setShowNewSession]    = useState(false);
   const [sidebarOpen,      setSidebarOpen]       = useState(false);
   const [bgKey,     setBgKey]     = useState(() => localStorage.getItem(BG_STORAGE_KEY) ?? "barn");
   const [darkMode,  setDarkMode]  = useState(() => localStorage.getItem("pv-dark")  === "true");
@@ -299,7 +342,7 @@ export default function Home({ onNavigate, user }) {
           <p className="pv-tagline">Anonymous questions, collectively surfaced.</p>
 
           {/* Primary action */}
-          <button className="pv-btn-create" onClick={() => onNavigate?.("host", "NEW")}>
+          <button className="pv-btn-create" onClick={() => setShowNewSession(true)}>
             Start a session
           </button>
 
@@ -328,6 +371,15 @@ export default function Home({ onNavigate, user }) {
 
       {showAuth         && <AuthModal onClose={() => setShowAuth(false)} />}
       {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
+      {showNewSession   && (
+        <NewSessionModal
+          onClose={() => setShowNewSession(false)}
+          onStart={(title, description) => {
+            setShowNewSession(false);
+            onNavigate?.("host", "NEW", { title, description });
+          }}
+        />
+      )}
       {showBgPicker     && (
         <BackgroundPicker current={bgKey} onSelect={handleSelectBg}
           onClose={() => setShowBgPicker(false)} darkMode={darkMode} />
