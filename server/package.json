@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "react-scripts start",
-    "dev": "concurrently \"npm start\" \"open-cli http://localhost:6967\"",
+    "dev": "concurrently \"vite\" \"node server/Index.js\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

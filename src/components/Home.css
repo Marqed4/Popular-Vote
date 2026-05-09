@@ -1,10 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Mono:wght@300;400;500&display=swap');
 
-/* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
   --bg:           #f8f8f7;
   --surface:      #ffffff;
-  --surface-sub:  #f5f4f2;
+  --surface-sub:  #e8e6e3;
   --border:       #e5e4e1;
   --border-str:   #cccbc8;
   --text:         #1c1917;
@@ -58,16 +57,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ─── Root / background ──────────────────────────────────────────────────── */
-
 .pv-root {
   min-height: 100vh;
   background: transparent; /* global bg from App.jsx shows through */
   display: flex;
   flex-direction: column;
 }
-
-/* ─── Navbar ─────────────────────────────────────────────────────────────── */
 
 .pv-nav {
   display: flex;
@@ -143,8 +138,6 @@ body {
 }
 .pv-nav-icon-btn:hover { background: rgba(255,255,255,0.15); color: #ffffff; }
 
-/* ─── Main / center ──────────────────────────────────────────────────────── */
-
 .pv-home {
   flex: 1;
   display: flex;
@@ -163,8 +156,6 @@ body {
   width: 100%;
   max-width: 440px;
 }
-
-/* ─── Wordmark ───────────────────────────────────────────────────────────── */
 
 .pv-wordmark {
   display: flex;
@@ -189,8 +180,6 @@ body {
   font-style: italic;
   font-weight: 400;
 }
-
-/* ─── Headline ───────────────────────────────────────────────────────────── */
 
 .pv-headline {
   font-family: var(--font-serif);
@@ -217,8 +206,6 @@ body {
   margin-bottom: 2.5rem;
 }
 
-/* ─── Create button ──────────────────────────────────────────────────────── */
-
 .pv-btn-create {
   width: 100%;
   padding: 0.85rem 1.5rem;
@@ -236,8 +223,6 @@ body {
 }
 .pv-btn-create:hover  { background: #f5f4f2; box-shadow: 0 4px 24px rgba(0,0,0,0.22); }
 .pv-btn-create:active { transform: scale(0.99); }
-
-/* ─── Or divider ─────────────────────────────────────────────────────────── */
 
 .pv-or {
   display: flex;
@@ -262,8 +247,6 @@ body {
   text-shadow: 0 1px 8px rgba(0,0,0,0.5);
   white-space: nowrap;
 }
-
-/* ─── Join flow ──────────────────────────────────────────────────────────── */
 
 .pv-join-flow {
   width: 100%;
@@ -378,8 +361,6 @@ body {
   font-size: 0.75rem;
 }
 
-/* ─── QR Scanner ─────────────────────────────────────────────────────────── */
-
 .pv-qr-wrap {
   display: flex;
   flex-direction: column;
@@ -405,8 +386,6 @@ body {
 
 #pv-qr-reader__scan_region { border-radius: 8px; overflow: hidden; }
 #pv-qr-reader__dashboard { display: none !important; }
-
-/* ─── Overlay / Modal ────────────────────────────────────────────────────── */
 
 .pv-overlay {
   position: fixed;
@@ -480,8 +459,6 @@ body {
 }
 .pv-modal-close:hover { background: var(--border); color: var(--text); }
 
-/* ─── Background picker ──────────────────────────────────────────────────── */
-
 .pv-bg-picker { max-width: 520px; }
 
 .pv-bg-grid {
@@ -507,23 +484,17 @@ body {
 .pv-bg-option:hover { border-color: var(--border-str); transform: scale(1.02); }
 .pv-bg-option.active { border-color: var(--text); }
 
-/* ─── Phase badges (used in sidebar) ────────────────────────────────────── */
-
 .pv-phase-badge { font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; }
 .pv-phase-open    { background: var(--green-bg);    color: var(--green);  }
 .pv-phase-closed  { background: var(--surface-sub); color: var(--text-2); }
 .pv-phase-results { background: var(--blue-bg);     color: var(--blue);   }
 .pv-phase-ended   { background: var(--surface-sub); color: var(--text-3); }
 
-/* ─── Mobile ─────────────────────────────────────────────────────────────── */
-
 @media (max-width: 500px) {
   .pv-headline { font-size: 2.8rem; }
   .pv-center   { max-width: 100%; }
   .pv-modal    { padding: 1.5rem; }
 }
-
-/* ─── New session modal ──────────────────────────────────────────────────── */
 
 .pv-new-session-modal {
   max-width: 460px;
