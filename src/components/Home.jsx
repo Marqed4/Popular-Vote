@@ -3,8 +3,6 @@ import { Html5Qrcode } from "html5-qrcode";
 import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
 import "./Home.css";
 
-/* ─── Icons ──────────────────────────────────────────────────────────────── */
-
 function SettingsIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -32,8 +30,6 @@ function SunIcon() {
   );
 }
 
-/* ─── Background picker ───────────────────────────────────────────────────── */
-
 function BackgroundPicker({ current, onSelect, onClose, darkMode }) {
   const filtered = Object.entries(DefaultBackgrounds).filter(([key]) =>
     darkMode ? key.startsWith("night_") : key.startsWith("day_")
@@ -57,8 +53,6 @@ function BackgroundPicker({ current, onSelect, onClose, darkMode }) {
   );
 }
 
-/* ─── Instructions modal ─────────────────────────────────────────────────── */
-
 function InstructionsModal({ onClose }) {
   return (
     <div className="pv-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -81,8 +75,6 @@ function InstructionsModal({ onClose }) {
     </div>
   );
 }
-
-/* ─── QR Scanner ─────────────────────────────────────────────────────────── */
 
 function QRScanner({ onScan, onError }) {
   const [status, setStatus] = useState("starting");
@@ -119,8 +111,6 @@ function QRScanner({ onScan, onError }) {
     </div>
   );
 }
-
-/* ─── Join flow ──────────────────────────────────────────────────────────── */
 
 function JoinFlow({ onJoin }) {
   const [mode, setMode]   = useState("code"); // code | link | qr
@@ -213,10 +203,6 @@ function JoinFlow({ onJoin }) {
     </div>
   );
 }
-
-/* ─── Home ───────────────────────────────────────────────────────────────── */
-
-/* ─── New Session Modal ──────────────────────────────────────────────────── */
 
 function NewSessionModal({ onStart, onClose }) {
   const [title, setTitle]       = useState('');
