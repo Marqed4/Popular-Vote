@@ -40,7 +40,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
   const [participants, setParticipants] = useState([]);
   const [curators, setCurators] = useState([]);
 
-  const socketRef = useRef(null);
+  const socketRef  = useRef(null);
   const createdRef = useRef(false);
 
   // Initialize session

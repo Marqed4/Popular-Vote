@@ -23,9 +23,8 @@ router.post('/sessions/:code/submit', submitLimiter, async (req, res) => {
 
     const submission = await sessionManager.addSubmission(req.params.code, content.trim());
     const io = req.app.locals.io;
-    io.to(req.params.code).emit('submission:count', {
-      count: session.submissions.length
-    });
+    io.to(req.params.code).emit('submission:count', { count: session.submissions.length });
+    io.to(req.params.code).emit('submission:new', { id: submission.id, content: submission.content });
 
     res.json({ id: submission.id, content: submission.content });
   } catch (err) {

@@ -3,8 +3,6 @@ import { Html5Qrcode } from "html5-qrcode";
 import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
 import "./Home.css";
 
-const BG_STORAGE_KEY = "pv-background";
-
 /* ─── Icons ──────────────────────────────────────────────────────────────── */
 
 function SettingsIcon() {
@@ -30,13 +28,6 @@ function SunIcon() {
       <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
       <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
       <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-    </svg>
-  );
-}
-function GlassIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
     </svg>
   );
 }
@@ -267,39 +258,14 @@ function NewSessionModal({ onStart, onClose }) {
   );
 }
 
-export default function Home({ onNavigate, user, onOpenSidebar, onOpenAuth, onSignOut, sidebarOpen }) {
+export default function Home({ onNavigate, user, onOpenSidebar, onOpenAuth, onSignOut,
+  bgKey, darkMode, onToggleDark, onSelectBg }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showBgPicker,     setShowBgPicker]     = useState(false);
   const [showNewSession,   setShowNewSession]    = useState(false);
-  const [bgKey,     setBgKey]     = useState(() => localStorage.getItem(BG_STORAGE_KEY) ?? "barn");
-  const [darkMode,  setDarkMode]  = useState(() => localStorage.getItem("pv-dark")  === "true");
-  const [glassMode, setGlassMode] = useState(() => localStorage.getItem("pv-glass") === "true");
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", darkMode  ? "dark"  : "light");
-    document.documentElement.setAttribute("data-glass", glassMode ? "on"    : "off");
-    localStorage.setItem("pv-dark",  darkMode);
-    localStorage.setItem("pv-glass", glassMode);
-  }, [darkMode, glassMode]);
-
-  function handleToggleDark() {
-    setDarkMode(prev => {
-      const next = !prev;
-      const prefix = next ? "night_" : "day_";
-      const match = Object.keys(DefaultBackgrounds).find(k => k.startsWith(prefix));
-      if (match) { setBgKey(match); localStorage.setItem(BG_STORAGE_KEY, match); }
-      return next;
-    });
-  }
-
-  function handleSelectBg(key) { setBgKey(key); localStorage.setItem(BG_STORAGE_KEY, key); }
-
-
-
-  const bgSrc = DefaultBackgrounds[bgKey] ?? DefaultBackgrounds.barn;
 
   return (
-    <div className="pv-root" style={{ backgroundImage: `url(${bgSrc})` }}>
+    <div className="pv-root">
 
       {/* ── Navbar ── */}
       <nav className="pv-nav">
@@ -308,11 +274,8 @@ export default function Home({ onNavigate, user, onOpenSidebar, onOpenAuth, onSi
         </button>
         <div className="pv-nav-actions">
           <button className="pv-nav-btn" onClick={() => setShowInstructions(true)}>How it works</button>
-          <button className="pv-nav-icon-btn" onClick={handleToggleDark} title={darkMode ? "Light mode" : "Dark mode"}>
+          <button className="pv-nav-icon-btn" onClick={onToggleDark} title={darkMode ? "Light mode" : "Dark mode"}>
             {darkMode ? <SunIcon /> : <MoonIcon />}
-          </button>
-          <button className="pv-nav-icon-btn" onClick={() => setGlassMode(p => !p)} title="Toggle glass">
-            <GlassIcon />
           </button>
           <button className="pv-nav-icon-btn" onClick={() => setShowBgPicker(true)} title="Background">
             <SettingsIcon />
@@ -363,7 +326,7 @@ export default function Home({ onNavigate, user, onOpenSidebar, onOpenAuth, onSi
         />
       )}
       {showBgPicker     && (
-        <BackgroundPicker current={bgKey} onSelect={handleSelectBg}
+        <BackgroundPicker current={bgKey} onSelect={onSelectBg}
           onClose={() => setShowBgPicker(false)} darkMode={darkMode} />
       )}
     </div>

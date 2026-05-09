@@ -4,8 +4,11 @@ import HostView from './components/Host.jsx';
 import Participant from './components/Participant.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import AuthModal from './components/AuthModal.jsx';
+import { DefaultBackgrounds } from './assets/backgrounds/index.js';
 import { supabase } from './lib/supabase.js';
 import './App.css';
+
+const BG_STORAGE_KEY = "pv-background";
 
 const MY_SESSIONS_KEY = "pv-my-sessions";
 const JOINED_KEY      = "pv-joined-sessions";
@@ -57,6 +60,32 @@ export default function App() {
   const [user, setUser]         = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAuth, setShowAuth]       = useState(false);
+
+  // Global theme + background — available across all pages
+  const [bgKey,    setBgKey]    = useState(() => localStorage.getItem(BG_STORAGE_KEY) ?? "day_SummerForest");
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("pv-dark") === "true");
+
+  // Clean up removed feature keys so old localStorage values don't linger
+  useEffect(() => { localStorage.removeItem("pv-glass"); localStorage.removeItem("pv-sound"); }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+    localStorage.setItem("pv-dark", String(darkMode));
+  }, [darkMode]);
+
+  function handleToggleDark() {
+    setDarkMode(prev => {
+      const next = !prev;
+      const prefix = next ? "night_" : "day_";
+      const match = Object.keys(DefaultBackgrounds).find(k => k.startsWith(prefix));
+      if (match) { setBgKey(match); localStorage.setItem(BG_STORAGE_KEY, match); }
+      return next;
+    });
+  }
+
+  function handleSelectBg(key) { setBgKey(key); localStorage.setItem(BG_STORAGE_KEY, key); }
+
+  const bgSrc = DefaultBackgrounds[bgKey] ?? DefaultBackgrounds.day_SummerForest;
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -113,6 +142,12 @@ export default function App() {
     setView({ role, code, ...meta });
   }
 
+  const themeProps = {
+    bgKey, darkMode,
+    onToggleDark: handleToggleDark,
+    onSelectBg: handleSelectBg,
+  };
+
   const sidebar = (
     <Sidebar
       open={sidebarOpen}
@@ -124,9 +159,18 @@ export default function App() {
     />
   );
 
+  // Global fixed background — always behind everything
+  const globalBg = (
+    <div
+      className="app-global-bg"
+      style={{ backgroundImage: `url(${bgSrc})` }}
+    />
+  );
+
   if (view?.role === "host") {
     return (
       <>
+        {globalBg}
         <HostView
           code={view.code}
           initialTitle={view.title ?? ''}
@@ -135,6 +179,7 @@ export default function App() {
           onSessionCreated={code => saveSession(code, "host")}
           onBack={() => setView(null)}
           onOpenSidebar={() => setSidebarOpen(true)}
+          {...themeProps}
         />
         {sidebar}
         {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
@@ -145,11 +190,13 @@ export default function App() {
   if (view?.role === "participant") {
     return (
       <>
+        {globalBg}
         <Participant
           code={view.code}
           user={user}
           onBack={() => setView(null)}
           onOpenSidebar={() => setSidebarOpen(true)}
+          {...themeProps}
         />
         {sidebar}
         {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
@@ -159,13 +206,14 @@ export default function App() {
 
   return (
     <>
+      {globalBg}
       <Home
         onNavigate={handleNavigate}
         user={user}
         onOpenSidebar={() => setSidebarOpen(true)}
         onOpenAuth={() => setShowAuth(true)}
         onSignOut={handleSignOut}
-        sidebarOpen={sidebarOpen}
+        {...themeProps}
       />
       {sidebar}
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}

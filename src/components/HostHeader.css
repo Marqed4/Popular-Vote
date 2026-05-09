@@ -4,8 +4,8 @@
   justify-content: space-between;
   padding: 0 2rem;
   height: 56px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e4e1;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -31,12 +31,12 @@
   border-radius: 6px;
   flex-shrink: 0;
 }
-.hd-hamburger:hover { background: #f5f4f2; }
+.hd-hamburger:hover { background: var(--surface-sub); }
 .hd-hamburger span {
   display: block;
   width: 18px;
   height: 2px;
-  background: #1c1917;
+  background: var(--text);
   border-radius: 2px;
 }
 
@@ -45,12 +45,12 @@
   border: none;
   font-family: 'EB Garamond', serif;
   font-size: 0.9rem;
-  color: #a8a29e;
+  color: var(--text-3);
   cursor: pointer;
   padding: 0;
   transition: color 0.15s;
 }
-.hd-back:hover { color: #1c1917; }
+.hd-back:hover { color: var(--text); }
 
 .hd-header-meta {
   display: flex;
@@ -62,7 +62,7 @@
   font-family: 'EB Garamond', serif;
   font-size: 1rem;
   font-weight: 700;
-  color: #1c1917;
+  color: var(--text);
 }
 
 .hd-phase {
@@ -76,12 +76,12 @@
   border: none;
 }
 
-.hd-phase--open       { background: #f0fdf4; color: #15803d; }
-.hd-phase--closed     { background: #f5f4f2; color: #57534e; }
-.hd-phase--clustering { background: #eff6ff; color: #1d4ed8; animation: hd-pulse 1.5s ease-in-out infinite; }
-.hd-phase--expanding  { background: #fff7ed; color: #c2410c; animation: hd-pulse 1.5s ease-in-out infinite; }
-.hd-phase--results    { background: #eff6ff; color: #1d4ed8; }
-.hd-phase--ended      { background: #f5f4f2; color: #a8a29e; }
+.hd-phase--open       { background: var(--green-bg);    color: var(--green); }
+.hd-phase--closed     { background: var(--surface-sub); color: var(--text-2); }
+.hd-phase--clustering { background: var(--blue-bg);     color: var(--blue); animation: hd-pulse 1.5s ease-in-out infinite; }
+.hd-phase--expanding  { background: #fff7ed;            color: #c2410c;     animation: hd-pulse 1.5s ease-in-out infinite; }
+.hd-phase--results    { background: var(--blue-bg);     color: var(--blue); }
+.hd-phase--ended      { background: var(--surface-sub); color: var(--text-3); }
 
 @keyframes hd-pulse {
   0%, 100% { opacity: 1; }
@@ -91,8 +91,9 @@
 .hd-header-right {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
 }
+
 
 .hd-stat {
   display: flex;
@@ -105,7 +106,7 @@
   font-family: 'DM Mono', monospace;
   font-size: 1.1rem;
   font-weight: 500;
-  color: #1c1917;
+  color: var(--text);
   line-height: 1;
 }
 
@@ -113,7 +114,7 @@
   font-family: 'EB Garamond', serif;
   font-size: 0.68rem;
   font-style: italic;
-  color: #a8a29e;
+  color: var(--text-3);
 }
 
 @media (max-width: 760px) {
