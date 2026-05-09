@@ -8,11 +8,24 @@ import Summary from "./Summary";
 
 import "./Participant.css";
 
+// localStorage key scoped to this session code so multiple sessions don't collide
+function mySubsKey(code) { return `pv-my-subs-${code}`; }
+
+function loadMySubmissions(code) {
+  try { return JSON.parse(localStorage.getItem(mySubsKey(code)) ?? "[]"); }
+  catch { return []; }
+}
+
+function saveMySubmissions(code, submissions) {
+  localStorage.setItem(mySubsKey(code), JSON.stringify(submissions));
+}
+
 export default function Participant({ code, onBack }) {
   const [phase, setPhase] = useState("OPEN");
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [submissions, setSubmissions] = useState([]);
+  // "my" submissions — restored from localStorage on return so questions stay identified as mine
+  const [submissions, setSubmissions] = useState(() => loadMySubmissions(code));
   const [clusters, setClusters] = useState([]);
   const [answers, setAnswers] = useState({});
   const [upvotes, setUpvotes] = useState({});
@@ -121,7 +134,11 @@ export default function Participant({ code, onBack }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setSubmissions(prev => [...prev, { id: data.id, text }]);
+      setSubmissions(prev => {
+        const next = [...prev, { id: data.id, text }];
+        saveMySubmissions(code, next);
+        return next;
+      });
     } catch (err) {
       setError(err.message ?? "Failed to submit question.");
     } finally {
@@ -132,7 +149,11 @@ export default function Participant({ code, onBack }) {
   async function deleteSubmission(submissionId) {
     try {
       await fetch(`/api/sessions/${code}/submit/${submissionId}`, { method: "DELETE" });
-      setSubmissions(prev => prev.filter(s => s.id !== submissionId));
+      setSubmissions(prev => {
+        const next = prev.filter(s => s.id !== submissionId);
+        saveMySubmissions(code, next);
+        return next;
+      });
     } catch {
       setError("Failed to delete submission.");
     }
@@ -148,7 +169,11 @@ export default function Participant({ code, onBack }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setSubmissions(prev => [...prev, { id: data.id, text, clusterId }]);
+      setSubmissions(prev => {
+        const next = [...prev, { id: data.id, text, clusterId }];
+        saveMySubmissions(code, next);
+        return next;
+      });
     } catch (err) {
       setError(err.message ?? "Failed to submit to cluster.");
     }
