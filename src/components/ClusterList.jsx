@@ -43,10 +43,12 @@ export default function ClusterList({
   submissionCount,
   answers,
   editingAnswer,
+  suggestedAnswers = {},
   onDeleteCluster,
   onSetEditingAnswer,
   onAnswerChange,
   onSaveAnswer,
+  onUseSuggestion,
 }) {
   const [sortBy, setSortBy] = React.useState("original");
   
@@ -169,6 +171,19 @@ export default function ClusterList({
               </div>
 
               <ExpandableQuestions questions={cluster.questions} />
+
+              {suggestedAnswers[cluster.id] && !answers[cluster.id] && phase === "RESULTS" && (
+                <div className="hd-suggestion">
+                  <div className="hd-suggestion-label">✦ Suggested answer <span className="hd-suggestion-source">grounded in your notes</span></div>
+                  <div className="hd-suggestion-text">{suggestedAnswers[cluster.id]}</div>
+                  <div className="hd-suggestion-actions">
+                    <button className="hd-btn-use-suggestion" onClick={() => onUseSuggestion?.(cluster.id, suggestedAnswers[cluster.id])}>
+                      Use this
+                    </button>
+                    <span className="hd-suggestion-hint">or write your own below</span>
+                  </div>
+                </div>
+              )}
 
               <div className="hd-cluster-answer-area">
                 {editingAnswer === cluster.id ? (

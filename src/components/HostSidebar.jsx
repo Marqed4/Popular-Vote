@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import "./HostSidebar.css";
 
@@ -25,6 +25,8 @@ export default function HostSidebar({
   previewLoading,
   expandLoading,
   canRecluster,
+  hostNotes,
+  onNotesChange,
   onTagInput,
   onAddTag,
   onRemoveTag,
@@ -35,11 +37,64 @@ export default function HostSidebar({
   onEndSession,
   onDeleteSession,
 }) {
+  const [notesText, setNotesText] = useState(hostNotes ?? '');
+  const [notesSaving, setNotesSaving] = useState(false);
+  const [notesSaved, setNotesSaved] = useState(false);
+  const [notesError, setNotesError] = useState('');
+  const fileInputRef = useRef(null);
+
   function copyCode() { navigator.clipboard.writeText(code); }
   function copyLink() { navigator.clipboard.writeText(`${window.location.origin}?code=${code}`); }
 
   const sessionUrl = `${window.location.origin}?code=${code}`;
   const canEditTags = ["OPEN", "RESULTS", "ENDED"].includes(phase);
+
+  async function saveNotes(text) {
+    setNotesSaving(true);
+    setNotesError('');
+    setNotesSaved(false);
+    try {
+      const res = await fetch(`/api/sessions/${code}/notes`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hostNotes: text }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      onNotesChange?.(text);
+      setNotesSaved(true);
+      setTimeout(() => setNotesSaved(false), 2000);
+    } catch (e) {
+      setNotesError(e.message ?? 'Failed to save notes');
+    } finally {
+      setNotesSaving(false);
+    }
+  }
+
+  async function handlePdfUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setNotesSaving(true);
+    setNotesError('');
+    setNotesSaved(false);
+    try {
+      const form = new FormData();
+      form.append('pdf', file);
+      const res = await fetch(`/api/sessions/${code}/notes`, { method: 'PATCH', body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      // append extracted text into the textarea so the host can add more docs before saving
+      const separator = notesText.trim() ? '\n\n---\n\n' : '';
+      const appended = notesText + separator + data.extracted;
+      setNotesText(appended);
+      setNotesError('');
+      // show a gentle hint instead of "Saved" since we haven't saved yet
+    } catch (e) {
+      setNotesError(e.message ?? 'Failed to upload PDF');
+    } finally {
+      setNotesSaving(false);
+      e.target.value = '';
+    }
+  }
 
   return (
     <aside className="hd-sidebar">
@@ -76,6 +131,30 @@ export default function HostSidebar({
           />
         )}
       </section>
+
+      {phase !== 'ENDED' && phase !== 'DELETED' && (
+        <section className="hd-card">
+          <div className="hd-card-title">Host Notes <span className="hd-notes-private">private</span></div>
+          <p className="hd-notes-hint">Paste notes or add PDFs — each PDF is appended below. Hit Save when done. Participants never see this.</p>
+          <textarea
+            className="hd-notes-textarea"
+            placeholder="Paste speaker notes, context, FAQs…"
+            value={notesText}
+            onChange={e => setNotesText(e.target.value)}
+            rows={5}
+          />
+          <div className="hd-notes-actions">
+            <button className="hd-btn-ghost" onClick={() => fileInputRef.current?.click()} disabled={notesSaving}>
+              {notesSaving ? 'Extracting…' : '↑ Add PDF'}
+            </button>
+            <button className="hd-btn-ghost" onClick={() => saveNotes(notesText)} disabled={notesSaving}>
+              {notesSaving ? 'Saving…' : notesSaved ? '✓ Saved' : 'Save notes'}
+            </button>
+          </div>
+          <input ref={fileInputRef} type="file" accept="application/pdf" className="hd-notes-file-input" onChange={handlePdfUpload} />
+          {notesError && <div className="hd-notes-error">{notesError}</div>}
+        </section>
+      )}
 
       <section className="hd-card hd-actions">
         <div className="hd-card-title">Actions</div>

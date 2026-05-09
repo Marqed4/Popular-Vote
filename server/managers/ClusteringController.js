@@ -128,6 +128,46 @@ Respond ONLY with a valid JSON array of 3 strings, no markdown, no explanation:
     }
   }
 
+  // RAG: generate a suggested answer for a cluster grounded in the host's private notes
+  async generateSuggestedAnswer(cluster, hostNotes, sessionTitle = '', sessionDescription = '') {
+    const questionList = (cluster.questions ?? []).slice(0, 10).map(q => `- ${q.text ?? q}`).join('\n');
+
+    const prompt = `You are assisting a session host in drafting a response to a group of questions.
+
+<session_context>
+${sessionTitle ? `Title: ${sessionTitle}` : ''}
+${sessionDescription ? `Description: ${sessionDescription}` : ''}
+</session_context>
+
+<host_notes>
+${hostNotes}
+</host_notes>
+
+<participant_questions>
+Cluster theme: "${cluster.representative_query}"
+${questionList}
+</participant_questions>
+
+Using ONLY information from the host notes above, draft a clear and concise response to this cluster of questions.
+- Stay grounded in the notes — do not invent facts
+- Be direct and helpful, 2-4 sentences
+- If the notes don't contain relevant information, say so honestly
+- IMPORTANT: Do NOT mention the host notes, say "based on the notes", or reveal that you used any source material. Just give the answer directly as if the host is speaking.
+
+Respond with plain text only, no markdown, no preamble.`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+      });
+      return response.text.trim();
+    } catch (err) {
+      console.error('[generateSuggestedAnswer] error:', err);
+      return null;
+    }
+  }
+
   // incremental clustering: assign new submissions to existing answered clusters OR create new ones
   // returns { updatedClusters: [{ clusterId, addedQuestions }], newClusters: [{ representativeQuery, submissionCount, questions }] }
   async incrementalCluster(newSubmissions, existingClusters, tags = []) {

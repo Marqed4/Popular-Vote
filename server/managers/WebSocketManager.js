@@ -22,8 +22,12 @@ export class WebSocketManager {
       });
 
       // participant/host joins a session room
-      socket.on('join:room', ({ code, role }) => {
-        const session = sessionManager.getSession(code);
+      socket.on('join:room', async ({ code, role }) => {
+        // try in-memory first, fall back to DB (handles server restarts)
+        let session = sessionManager.getSession(code);
+        if (!session) {
+          try { session = await sessionManager.getSessionAsync(code); } catch { /* */ }
+        }
         if (!session) {
           socket.emit('error', { message: 'Session not found' });
           return;
