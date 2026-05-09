@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
-import Sidebar from "./Sidebar.jsx";
-import AuthModal from "./AuthModal.jsx";
 import "./Home.css";
 
 const BG_STORAGE_KEY = "pv-background";
@@ -269,12 +267,10 @@ function NewSessionModal({ onStart, onClose }) {
   );
 }
 
-export default function Home({ onNavigate, user }) {
+export default function Home({ onNavigate, user, onOpenSidebar, onOpenAuth, onSignOut, sidebarOpen }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showBgPicker,     setShowBgPicker]     = useState(false);
-  const [showAuth,         setShowAuth]          = useState(false);
   const [showNewSession,   setShowNewSession]    = useState(false);
-  const [sidebarOpen,      setSidebarOpen]       = useState(false);
   const [bgKey,     setBgKey]     = useState(() => localStorage.getItem(BG_STORAGE_KEY) ?? "barn");
   const [darkMode,  setDarkMode]  = useState(() => localStorage.getItem("pv-dark")  === "true");
   const [glassMode, setGlassMode] = useState(() => localStorage.getItem("pv-glass") === "true");
@@ -298,10 +294,7 @@ export default function Home({ onNavigate, user }) {
 
   function handleSelectBg(key) { setBgKey(key); localStorage.setItem(BG_STORAGE_KEY, key); }
 
-  async function handleSignOut() {
-    const { supabase } = await import("../lib/supabase.js");
-    await supabase.auth.signOut();
-  }
+
 
   const bgSrc = DefaultBackgrounds[bgKey] ?? DefaultBackgrounds.barn;
 
@@ -310,7 +303,7 @@ export default function Home({ onNavigate, user }) {
 
       {/* ── Navbar ── */}
       <nav className="pv-nav">
-        <button className="pv-nav-hamburger" onClick={() => setSidebarOpen(true)} title="Session history">
+        <button className="pv-nav-hamburger" onClick={onOpenSidebar} title="Session history">
           <span /><span /><span />
         </button>
         <div className="pv-nav-actions">
@@ -359,17 +352,6 @@ export default function Home({ onNavigate, user }) {
         </div>
       </main>
 
-      {/* ── Sidebar + modals ── */}
-      <Sidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        user={user}
-        onSignIn={() => { setSidebarOpen(false); setShowAuth(true); }}
-        onSignOut={handleSignOut}
-        onNavigate={(role, code) => onNavigate?.(role, code)}
-      />
-
-      {showAuth         && <AuthModal onClose={() => setShowAuth(false)} />}
       {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
       {showNewSession   && (
         <NewSessionModal
