@@ -20,6 +20,29 @@
   z-index: 50;
 }
 
+.pd-hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.pd-hamburger:hover { background: var(--surface-sub, #f5f4f2); }
+.pd-hamburger span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text, #1c1917);
+  border-radius: 2px;
+}
+
 .pd-header-left {
   display: flex;
   align-items: center;

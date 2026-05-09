@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Home from './components/Home.jsx';
 import HostView from './components/Host.jsx';
 import Participant from './components/Participant.jsx';
+import Sidebar from './components/Sidebar.jsx';
+import AuthModal from './components/AuthModal.jsx';
 import { supabase } from './lib/supabase.js';
 import './App.css';
 
@@ -51,8 +53,14 @@ async function migrateLocalSessions(userId) {
 }
 
 export default function App() {
-  const [view, setView]   = useState(null);
-  const [user, setUser]   = useState(null);
+  const [view, setView]         = useState(null);
+  const [user, setUser]         = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showAuth, setShowAuth]       = useState(false);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+  }
 
   useEffect(() => {
     // restore session on page load
@@ -105,28 +113,62 @@ export default function App() {
     setView({ role, code, ...meta });
   }
 
+  const sidebar = (
+    <Sidebar
+      open={sidebarOpen}
+      onClose={() => setSidebarOpen(false)}
+      user={user}
+      onSignIn={() => { setSidebarOpen(false); setShowAuth(true); }}
+      onSignOut={handleSignOut}
+      onNavigate={(role, code) => { setSidebarOpen(false); handleNavigate(role, code); }}
+    />
+  );
+
   if (view?.role === "host") {
     return (
-      <HostView
-        code={view.code}
-        initialTitle={view.title ?? ''}
-        initialDescription={view.description ?? ''}
-        user={user}
-        onSessionCreated={code => saveSession(code, "host")}
-        onBack={() => setView(null)}
-      />
+      <>
+        <HostView
+          code={view.code}
+          initialTitle={view.title ?? ''}
+          initialDescription={view.description ?? ''}
+          user={user}
+          onSessionCreated={code => saveSession(code, "host")}
+          onBack={() => setView(null)}
+          onOpenSidebar={() => setSidebarOpen(true)}
+        />
+        {sidebar}
+        {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      </>
     );
   }
 
   if (view?.role === "participant") {
     return (
-      <Participant
-        code={view.code}
-        user={user}
-        onBack={() => setView(null)}
-      />
+      <>
+        <Participant
+          code={view.code}
+          user={user}
+          onBack={() => setView(null)}
+          onOpenSidebar={() => setSidebarOpen(true)}
+        />
+        {sidebar}
+        {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      </>
     );
   }
 
-  return <Home onNavigate={handleNavigate} user={user} />;
+  return (
+    <>
+      <Home
+        onNavigate={handleNavigate}
+        user={user}
+        onOpenSidebar={() => setSidebarOpen(true)}
+        onOpenAuth={() => setShowAuth(true)}
+        onSignOut={handleSignOut}
+        sidebarOpen={sidebarOpen}
+      />
+      {sidebar}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+    </>
+  );
 }

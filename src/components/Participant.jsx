@@ -21,7 +21,7 @@ function saveMySubmissions(code, submissions) {
   localStorage.setItem(mySubsKey(code), JSON.stringify(submissions));
 }
 
-export default function Participant({ code, onBack, user }) {
+export default function Participant({ code, onBack, user, onOpenSidebar }) {
   const [phase, setPhase] = useState("OPEN");
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -260,7 +260,7 @@ export default function Participant({ code, onBack, user }) {
   if (phase === "ENDED") {
     return (
       <div className="pd-root">
-        <ParticipantHeader phase={phase} code={code} onBack={onBack} />
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} />
         <div className="pd-body">
           <Summary
             clusters={clusters}
@@ -276,7 +276,7 @@ export default function Participant({ code, onBack, user }) {
   if (phase === "OPEN" || phase === "CLOSED") {
     return (
       <div className="pd-root">
-        <ParticipantHeader phase={phase} code={code} onBack={onBack} />
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} />
         {(title || description) && (
           <div className="pd-session-context">
             {title && <div className="pd-session-title">{title}</div>}
@@ -302,7 +302,7 @@ export default function Participant({ code, onBack, user }) {
   if (phase === "CLUSTERING") {
     return (
       <div className="pd-root">
-        <ParticipantHeader phase={phase} code={code} onBack={onBack} />
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} />
         <div className="pd-body">
           <div className="pd-waiting">
             <div className="pd-spinner" />
@@ -354,7 +354,7 @@ export default function Participant({ code, onBack, user }) {
   if (phase === "EXPANDING") {
     return (
       <div className="pd-root">
-        <ParticipantHeader phase={phase} code={code} onBack={onBack} />
+        <ParticipantHeader phase={phase} code={code} onBack={onBack} onOpenSidebar={onOpenSidebar} />
         <div className="pd-body">
           <div className="pd-round2-banner">
             <div className="pd-round2-title">Round 2 — Dig deeper</div>

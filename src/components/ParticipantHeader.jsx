@@ -1,11 +1,14 @@
 import "./Participant.css";
 
-export default function ParticipantHeader({ phase, code, onBack, submittedCount, inClusterCount }) {
+export default function ParticipantHeader({ phase, code, onBack, onOpenSidebar, submittedCount, inClusterCount }) {
   const showStats = phase === "RESULTS" || phase === "ENDED";
 
   return (
     <header className="pd-header">
       <div className="pd-header-left">
+        <button className="pd-hamburger" onClick={onOpenSidebar} title="Session history">
+          <span /><span /><span />
+        </button>
         <button className="pd-back" onClick={onBack}>← back</button>
         <div className="pd-header-meta">
           <span className="pd-header-label">Participant</span>

@@ -1,9 +1,12 @@
 import "./HostHeader.css";
 
-export default function HostHeader({ phase, participantCount, submissionCount, onBack }) {
+export default function HostHeader({ phase, participantCount, submissionCount, onBack, onOpenSidebar }) {
   return (
     <header className="hd-header">
       <div className="hd-header-left">
+        <button className="hd-hamburger" onClick={onOpenSidebar} title="Session history">
+          <span /><span /><span />
+        </button>
         <button className="hd-back" onClick={onBack}>← back</button>
         <div className="hd-header-meta">
           <span className="hd-header-label">Host Dashboard</span>
