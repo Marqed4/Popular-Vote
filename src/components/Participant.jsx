@@ -10,6 +10,8 @@ import "./Participant.css";
 
 export default function Participant({ code, onBack }) {
   const [phase, setPhase] = useState("OPEN");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [submissions, setSubmissions] = useState([]);
   const [clusters, setClusters] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -94,6 +96,8 @@ export default function Participant({ code, onBack }) {
       if (!res.ok) throw new Error("Session not found");
       const data = await res.json();
       setPhase(data.phase);
+      setTitle(data.title ?? '');
+      setDescription(data.description ?? '');
       setClusters(data.clusters ?? []);
       setSubmissionCount(data.submissionCount ?? 0);
       const savedAnswers = {};
@@ -194,6 +198,12 @@ export default function Participant({ code, onBack }) {
     return (
       <div className="pd-root">
         <ParticipantHeader phase={phase} code={code} onBack={onBack} />
+        {(title || description) && (
+          <div className="pd-session-context">
+            {title && <div className="pd-session-title">{title}</div>}
+            {description && <div className="pd-session-description">{description}</div>}
+          </div>
+        )}
         <div className="pd-body">
           <ParticipantInput
             phase={phase}
