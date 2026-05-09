@@ -7,6 +7,30 @@
   color: var(--text);
 }
 
+.hd-session-context {
+  padding: 0.875rem 1.5rem 0.625rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.hd-session-title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.2rem;
+}
+
+.hd-session-description {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-2);
+  margin: 0;
+  line-height: 1.5;
+}
+
 .hd-body {
   display: grid;
   grid-template-columns: 260px 1fr;

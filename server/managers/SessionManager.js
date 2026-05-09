@@ -43,6 +43,9 @@ export class SessionManager {
           code: s.code,
           phase: s.phase,
           tags: s.tags ?? [],
+          title: s.title ?? '',
+          description: s.description ?? '',
+          hostNotes: s.host_notes ?? null,
           submissions: submissions ?? [],
           clusters: clusters ?? [],
           participantCount: 0,
@@ -58,12 +61,15 @@ export class SessionManager {
     }
   }
 
-  async createSession(tags = []) {
+  async createSession(tags = [], title = '', description = '') {
     const code = this.generateUniqueCode();
     const session = {
       code,
       phase: PHASES.OPEN,
       tags,
+      title,
+      description,
+      hostNotes: null,
       submissions: [],
       clusters: [],
       participantCount: 0,
@@ -74,7 +80,7 @@ export class SessionManager {
     };
     this.sessions.set(code, session);
     // write to DB in background — don't block the response
-    SessionStore.createSession(code, tags).catch(err =>
+    SessionStore.createSession(code, tags, title, description).catch(err =>
       console.error('[SessionManager] failed to persist session:', err)
     );
     return session;
@@ -98,6 +104,9 @@ export class SessionManager {
         code: s.code,
         phase: s.phase,
         tags: s.tags ?? [],
+        title: s.title ?? '',
+        description: s.description ?? '',
+        hostNotes: s.host_notes ?? null,
         submissions: submissions ?? [],
         clusters: clusters ?? [],
         participantCount: 0,

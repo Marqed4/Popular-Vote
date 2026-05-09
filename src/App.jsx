@@ -83,15 +83,17 @@ export default function App() {
     }
   }
 
-  function handleNavigate(role, code) {
+  function handleNavigate(role, code, meta = {}) {
     if (code && code !== "NEW") saveSession(code, role);
-    setView({ role, code });
+    setView({ role, code, ...meta });
   }
 
   if (view?.role === "host") {
     return (
       <HostView
         code={view.code}
+        initialTitle={view.title ?? ''}
+        initialDescription={view.description ?? ''}
         user={user}
         onSessionCreated={code => saveSession(code, "host")}
         onBack={() => setView(null)}

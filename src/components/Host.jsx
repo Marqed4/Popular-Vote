@@ -8,10 +8,12 @@ import ClusterList from "./ClusterList";
 
 import "./Host.css";
 
-export default function HostDashboard({ code: initialCode, onBack, onSessionCreated }) {
+export default function HostDashboard({ code: initialCode, initialTitle = '', initialDescription = '', onBack, onSessionCreated }) {
   // Core session state
   const [phase, setPhase] = useState("OPEN");
   const [code, setCode] = useState(initialCode);
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
   const [participantCount, setParticipantCount] = useState(0);
@@ -172,7 +174,7 @@ export default function HostDashboard({ code: initialCode, onBack, onSessionCrea
       const res = await fetch("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tags }),
+        body: JSON.stringify({ tags, title: initialTitle, description: initialDescription }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -183,6 +185,8 @@ export default function HostDashboard({ code: initialCode, onBack, onSessionCrea
       if (!mine.includes(data.code)) localStorage.setItem("pv-my-sessions", JSON.stringify([data.code, ...mine]));
       setPhase(data.phase);
       setTags(data.tags ?? []);
+      setTitle(data.title ?? '');
+      setDescription(data.description ?? '');
     } catch (err) {
       setError(err.message ?? "Failed to create session.");
     } finally {
@@ -199,6 +203,8 @@ export default function HostDashboard({ code: initialCode, onBack, onSessionCrea
 
       setPhase(data.phase);
       setTags(data.tags ?? []);
+      setTitle(data.title ?? '');
+      setDescription(data.description ?? '');
       setSubmissions(data.submissions ?? []);
       setSubmissionCount(data.submissionCount ?? 0);
       setSubmissionsAtLastCluster(data.submissionsAtLastCluster ?? 0);
@@ -421,6 +427,13 @@ export default function HostDashboard({ code: initialCode, onBack, onSessionCrea
         submissionCount={submissionCount}
         onBack={onBack}
       />
+
+      {(title || description) && (
+        <div className="hd-session-context">
+          {title && <h2 className="hd-session-title">{title}</h2>}
+          {description && <p className="hd-session-description">{description}</p>}
+        </div>
+      )}
 
       <div className="hd-body">
         <aside className="hd-sidebar-shell">

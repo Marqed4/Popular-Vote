@@ -2,10 +2,10 @@ import supabase from '../database/SupabaseClient.js';
 
 export const SessionStore = {
 
-  async createSession(code, tags = []) {
+  async createSession(code, tags = [], title = '', description = '') {
     const { error } = await supabase
       .from('sessions')
-      .insert({ code, phase: 'OPEN', tags, expansion_round: 0, curators: [] });
+      .insert({ code, phase: 'OPEN', tags, title, description, host_notes: null, expansion_round: 0, curators: [] });
     if (error) throw error;
   },
 
@@ -31,6 +31,22 @@ export const SessionStore = {
     const { error } = await supabase
       .from('sessions')
       .update({ tags })
+      .eq('code', code);
+    if (error) throw error;
+  },
+
+  async updateSessionContext(code, { title, description }) {
+    const { error } = await supabase
+      .from('sessions')
+      .update({ title, description })
+      .eq('code', code);
+    if (error) throw error;
+  },
+
+  async updateHostNotes(code, hostNotes) {
+    const { error } = await supabase
+      .from('sessions')
+      .update({ host_notes: hostNotes })
       .eq('code', code);
     if (error) throw error;
   },
