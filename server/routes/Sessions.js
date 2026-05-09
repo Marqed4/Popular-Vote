@@ -7,10 +7,10 @@ const clusteringEngine = new ClusteringController();
 
 router.post('/sessions', async (req, res) => {
   try {
-    const { tags = [] } = req.body;
+    const { tags = [], title = '', description = '' } = req.body;
     const sessionManager = req.app.locals.sessionManager;
-    const session = await sessionManager.createSession(tags);
-    res.json({ code: session.code, phase: session.phase, tags: session.tags });
+    const session = await sessionManager.createSession(tags, title, description);
+    res.json({ code: session.code, phase: session.phase, tags: session.tags, title: session.title, description: session.description });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to create session' });
@@ -315,6 +315,47 @@ router.post('/sessions/:code/upvote', async (req, res) => {
   }
 });
 
+// host updates session title and description
+router.patch('/sessions/:code/context', async (req, res) => {
+  try {
+    const { code } = req.params;
+    const { title = '', description = '' } = req.body;
+    const sessionManager = req.app.locals.sessionManager;
+
+    const session = sessionManager.getSession(code);
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+
+    session.title = title;
+    session.description = description;
+    await SessionStore.updateSessionContext(code, { title, description });
+
+    res.json({ title, description });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update session context' });
+  }
+});
+
+// host uploads or updates private notes (used for RAG suggested answers)
+router.patch('/sessions/:code/notes', async (req, res) => {
+  try {
+    const { code } = req.params;
+    const { hostNotes } = req.body;
+    const sessionManager = req.app.locals.sessionManager;
+
+    const session = sessionManager.getSession(code);
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+
+    session.hostNotes = hostNotes ?? null;
+    await SessionStore.updateHostNotes(code, hostNotes ?? null);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to save host notes' });
+  }
+});
+
 router.patch('/sessions/:code/tags', async (req, res) => {
   try {
     const sessionManager = req.app.locals.sessionManager;
@@ -350,7 +391,10 @@ router.get('/sessions/:code', async (req, res) => {
       code: session.code,
       phase: session.phase,
       tags: session.tags,
+      title: session.title ?? '',
+      description: session.description ?? '',
       clusters: session.clusters ?? [],
+      submissions: session.submissions ?? [],
       submissionCount: session.submissions?.length ?? 0,
       submissionsAtLastCluster: session.submissionsAtLastCluster ?? 0,
       participantCount: session.participantCount ?? 0,

@@ -520,3 +520,71 @@ body {
   .pv-center   { max-width: 100%; }
   .pv-modal    { padding: 1.5rem; }
 }
+
+/* ─── New session modal ──────────────────────────────────────────────────── */
+
+.pv-new-session-modal {
+  max-width: 460px;
+}
+
+.pv-modal-hint {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-3);
+  margin: -0.25rem 0 1.25rem;
+  line-height: 1.55;
+}
+
+.pv-field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 0.35rem;
+  margin-top: 0.875rem;
+}
+
+.pv-field-label:first-of-type { margin-top: 0; }
+
+.pv-field-optional {
+  color: var(--text-3);
+  font-size: 0.62rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.pv-field-input {
+  width: 100%;
+  padding: 0.6rem 0.875rem;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+.pv-field-input:focus {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.pv-field-input::placeholder { color: var(--text-3); }
+
+.pv-field-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.pv-btn-create--modal {
+  width: 100%;
+  margin-top: 1.25rem;
+  text-align: center;
+}
