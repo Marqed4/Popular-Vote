@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
+import { supabase } from "../lib/supabase.js";
 
 import ParticipantClusterList from "./ParticipantCluster";
 import ParticipantHeader from "./ParticipantHeader";
@@ -20,7 +21,7 @@ function saveMySubmissions(code, submissions) {
   localStorage.setItem(mySubsKey(code), JSON.stringify(submissions));
 }
 
-export default function Participant({ code, onBack }) {
+export default function Participant({ code, onBack, user }) {
   const [phase, setPhase] = useState("OPEN");
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -118,6 +119,20 @@ export default function Participant({ code, onBack }) {
         if (c.answer) savedAnswers[c.id] = c.answer;
       });
       setAnswers(savedAnswers);
+
+      // if signed in, restore "my" submissions from Supabase (overrides localStorage)
+      if (user) {
+        const { data: rows } = await supabase
+          .from("user_submissions")
+          .select("submission_id, content")
+          .eq("user_id", user.id)
+          .eq("session_code", code);
+        if (rows?.length) {
+          const restored = rows.map(r => ({ id: r.submission_id, text: r.content }));
+          setSubmissions(restored);
+          saveMySubmissions(code, restored); // keep localStorage in sync too
+        }
+      }
     } catch (err) {
       setError("Could not load session.");
     }
@@ -139,6 +154,12 @@ export default function Participant({ code, onBack }) {
         saveMySubmissions(code, next);
         return next;
       });
+      // if signed in, persist to Supabase permanently
+      if (user) {
+        supabase.from("user_submissions").insert({
+          user_id: user.id, session_code: code, submission_id: data.id, content: text
+        }).catch(err => console.error("[user_submissions] insert failed:", err));
+      }
     } catch (err) {
       setError(err.message ?? "Failed to submit question.");
     } finally {
@@ -154,6 +175,14 @@ export default function Participant({ code, onBack }) {
         saveMySubmissions(code, next);
         return next;
       });
+      // remove from Supabase too if signed in
+      if (user) {
+        supabase.from("user_submissions")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("submission_id", submissionId)
+          .catch(err => console.error("[user_submissions] delete failed:", err));
+      }
     } catch {
       setError("Failed to delete submission.");
     }
@@ -174,6 +203,12 @@ export default function Participant({ code, onBack }) {
         saveMySubmissions(code, next);
         return next;
       });
+      // if signed in, persist to Supabase permanently
+      if (user) {
+        supabase.from("user_submissions").insert({
+          user_id: user.id, session_code: code, submission_id: data.id, content: text
+        }).catch(err => console.error("[user_submissions] insert failed:", err));
+      }
     } catch (err) {
       setError(err.message ?? "Failed to submit to cluster.");
     }
