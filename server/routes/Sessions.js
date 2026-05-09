@@ -1,6 +1,14 @@
 import express from 'express';
+import multer from 'multer';
+// pdf-parse v1 — simple function: parsePdf(buffer) => { text, numpages, ... }
+import { createRequire } from 'module';
+const _require = createRequire(import.meta.url);
+const pdfParse = _require('pdf-parse');
 import { ClusteringController } from '../managers/ClusteringController.js';
 import { SessionStore } from '../database/SessionStore.js';
+
+// multer: store PDF in memory (no disk writes), max 10MB
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 const router = express.Router();
 const clusteringEngine = new ClusteringController();
@@ -119,6 +127,20 @@ router.post('/sessions/:code/cluster', async (req, res) => {
     wsManager.toSession(code, 'session:results', { clusters: saved, submissionsAtLastCluster: session.submissions.length });
 
     res.json({ clusters: saved });
+
+    // RAG: if host has notes, generate suggested answers per cluster async — push when ready
+    if (session.hostNotes) {
+      Promise.all(
+        saved.map(async cluster => {
+          const suggestion = await clusteringEngine.generateSuggestedAnswer(
+            cluster, session.hostNotes, session.title, session.description
+          );
+          return { clusterId: cluster.id, suggestion };
+        })
+      ).then(results => {
+        wsManager.toSession(code, 'cluster:suggestions', { suggestions: results });
+      }).catch(err => console.error('[RAG] suggestion generation failed:', err));
+    }
 
   } catch (err) {
     console.error(err);
@@ -327,7 +349,9 @@ router.patch('/sessions/:code/context', async (req, res) => {
 
     session.title = title;
     session.description = description;
-    await SessionStore.updateSessionContext(code, { title, description });
+    SessionStore.updateSessionContext(code, { title, description }).catch(err =>
+      console.warn('[context] DB write failed (schema cache may be stale):', err?.message)
+    );
 
     res.json({ title, description });
   } catch (err) {
@@ -337,19 +361,31 @@ router.patch('/sessions/:code/context', async (req, res) => {
 });
 
 // host uploads or updates private notes (used for RAG suggested answers)
-router.patch('/sessions/:code/notes', async (req, res) => {
+// accepts: multipart/form-data with optional pdf file OR json body with hostNotes text
+router.patch('/sessions/:code/notes', upload.single('pdf'), async (req, res) => {
   try {
     const { code } = req.params;
-    const { hostNotes } = req.body;
     const sessionManager = req.app.locals.sessionManager;
 
     const session = sessionManager.getSession(code);
     if (!session) return res.status(404).json({ error: 'Session not found' });
 
-    session.hostNotes = hostNotes ?? null;
-    await SessionStore.updateHostNotes(code, hostNotes ?? null);
+    if (req.file) {
+      // PDF upload — just extract and return the text; client appends to textarea and saves manually
+      const parsed = await pdfParse(req.file.buffer);
+      const extractedText = parsed.text?.trim() ?? null;
+      if (!extractedText) return res.status(400).json({ error: 'Could not extract text from PDF' });
+      return res.json({ extracted: extractedText });
+    }
 
-    res.json({ success: true });
+    // plain text save from JSON body — replace notes in memory
+    const hostNotes = req.body.hostNotes ?? null;
+    session.hostNotes = hostNotes;
+    SessionStore.updateHostNotes(code, hostNotes).catch(err =>
+      console.warn('[notes] DB write failed (schema cache may be stale):', err?.message)
+    );
+
+    res.json({ success: true, length: hostNotes?.length ?? 0 });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to save host notes' });
@@ -393,6 +429,7 @@ router.get('/sessions/:code', async (req, res) => {
       tags: session.tags,
       title: session.title ?? '',
       description: session.description ?? '',
+      hostNotes: session.hostNotes ?? null,
       clusters: session.clusters ?? [],
       submissions: session.submissions ?? [],
       submissionCount: session.submissions?.length ?? 0,

@@ -21,6 +21,8 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
   const [submissionsAtLastCluster, setSubmissionsAtLastCluster] = useState(0);
   const [clusters, setClusters] = useState([]);
   const [submissions, setSubmissions] = useState([]);
+  const [hostNotes, setHostNotes] = useState(null);
+  const [suggestedAnswers, setSuggestedAnswers] = useState({});
   const [loading, setLoading] = useState(initialCode === "NEW");
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
@@ -89,6 +91,16 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
           ),
         }))
       );
+    });
+
+    socket.on("cluster:suggestions", ({ suggestions }) => {
+      setSuggestedAnswers(prev => {
+        const next = { ...prev };
+        suggestions.forEach(({ clusterId, suggestion }) => {
+          if (suggestion) next[clusterId] = suggestion;
+        });
+        return next;
+      });
     });
 
     socket.on("session:ended", () => setPhase("ENDED"));
@@ -205,6 +217,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
       setTags(data.tags ?? []);
       setTitle(data.title ?? '');
       setDescription(data.description ?? '');
+      setHostNotes(data.hostNotes ?? null);
       setSubmissions(data.submissions ?? []);
       setSubmissionCount(data.submissionCount ?? 0);
       setSubmissionsAtLastCluster(data.submissionsAtLastCluster ?? 0);
@@ -445,6 +458,8 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
             error={error}
             actionLoading={actionLoading}
             expandLoading={expandLoading}
+            hostNotes={hostNotes}
+            onNotesChange={setHostNotes}
             onTagInput={setTagInput}
             onAddTag={addTag}
             onRemoveTag={removeTag}
@@ -469,10 +484,15 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
             submissionCount={submissionCount}
             answers={answers}
             editingAnswer={editingAnswer}
+            suggestedAnswers={suggestedAnswers}
             onDeleteCluster={deleteCluster}
             onSetEditingAnswer={setEditingAnswer}
             onAnswerChange={(id, val) => setAnswers(prev => ({ ...prev, [id]: val }))}
             onSaveAnswer={saveAnswer}
+            onUseSuggestion={(clusterId, text) => {
+              setAnswers(prev => ({ ...prev, [clusterId]: text }));
+              setEditingAnswer(clusterId);
+            }}
           />
         </main>
       </div>

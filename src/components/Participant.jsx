@@ -53,6 +53,19 @@ export default function Participant({ code, onBack, user }) {
       socket.emit("join:room", { code, role: "participant" });
     });
 
+    // sync on (re)connect — covers mid-session joins and page refreshes via socket
+    socket.on("session:sync", ({ clusters: syncClusters, phase: syncPhase }) => {
+      if (syncClusters?.length) {
+        setClusters(syncClusters);
+        setAnswers(prev => {
+          const next = { ...prev };
+          syncClusters.forEach(c => { if (c.answer) next[String(c.id)] = c.answer; });
+          return next;
+        });
+      }
+      if (syncPhase) setPhase(syncPhase);
+    });
+
     // on reconnect, re-fetch current session state to catch any events missed
     socket.on("reconnect", () => {
       fetchSession();
@@ -63,6 +76,12 @@ export default function Participant({ code, onBack, user }) {
     socket.on("session:clustering",() => setPhase("CLUSTERING"));
     socket.on("session:results",   ({ clusters }) => {
       setClusters(clusters);
+      // populate any answers already on clusters (e.g. after re-clustering)
+      setAnswers(prev => {
+        const next = { ...prev };
+        (clusters ?? []).forEach(c => { if (c.answer) next[String(c.id)] = c.answer; });
+        return next;
+      });
       setPhase("RESULTS");
     });
     socket.on("session:expanding",  () => setPhase("EXPANDING"));

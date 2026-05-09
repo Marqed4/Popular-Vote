@@ -217,3 +217,62 @@
   text-align: center;
   padding: 0.25rem 0;
 }
+/* ─── Host Notes ─────────────────────────────────────────────────────────── */
+
+.hd-notes-private {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--surface-sub);
+  color: var(--text-3);
+  padding: 1px 5px;
+  border-radius: 999px;
+  margin-left: 0.35rem;
+  vertical-align: middle;
+}
+
+.hd-notes-hint {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-3);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.hd-notes-textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--surface-sub);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.hd-notes-textarea:focus {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.hd-notes-textarea::placeholder { color: var(--text-3); }
+
+.hd-notes-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.hd-notes-file-input {
+  display: none;
+}
+
+.hd-notes-error {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--red);
+}

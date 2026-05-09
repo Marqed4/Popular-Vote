@@ -3,10 +3,20 @@ import supabase from '../database/SupabaseClient.js';
 export const SessionStore = {
 
   async createSession(code, tags = [], title = '', description = '') {
+    // Insert only the base columns that are guaranteed in the schema cache.
+    // title / description / host_notes are updated separately once the cache refreshes.
     const { error } = await supabase
       .from('sessions')
-      .insert({ code, phase: 'OPEN', tags, title, description, host_notes: null, expansion_round: 0, curators: [] });
+      .insert({ code, phase: 'OPEN', tags, expansion_round: 0, curators: [] });
     if (error) throw error;
+
+    // Best-effort: write the new columns — silently skip if schema cache is stale
+    if (title || description) {
+      supabase.from('sessions')
+        .update({ title, description })
+        .eq('code', code)
+        .then(({ error: e }) => { if (e) console.warn('[createSession] context write skipped:', e.message); });
+    }
   },
 
   async getSession(code) {
