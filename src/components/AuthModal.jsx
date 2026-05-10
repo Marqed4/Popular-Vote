@@ -19,13 +19,16 @@ export default function AuthModal({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
 
-  async function handleGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) setError(error.message);
-  }
+async function handleGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { 
+      redirectTo: "https://popularvote-production.up.railway.app",
+      skipBrowserRedirect: false
+    },
+  });
+  if (error) setError(error.message);
+}
 
   async function handleMagicLink() {
     if (!email.includes("@")) return;
