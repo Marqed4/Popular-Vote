@@ -1,0 +1,383 @@
+-- ============================================
+-- MASS INSERT FOR REVIEW SESSIONS
+-- ============================================
+
+WITH s AS (
+INSERT INTO sessions (code, phase, tags, title, description, host_notes, expansion_round, curators, submissions_at_last_cluster, created_at)
+VALUES
+('G7H2K9','CLOSED',ARRAY['history','modern history','europe'],
+'Modern European History Review',
+'Comprehensive review of 19th and 20th century Europe: revolutions, wars, nationalism, and integration.',
+'Focus on causation, comparative essays, and primary source interpretation.',
+0, '[]'::jsonb, 0, NOW() - INTERVAL '8 days'
+),
+('M4P8Q1','CLOSED',ARRAY['biology','cell biology','intro'],
+'Cell Biology and Metabolism Review',
+'Core cell biology topics including organelles, membranes, energy metabolism, and signaling pathways.',
+'Emphasize conceptual links between structure and function and common exam diagrams.',
+0, '[]'::jsonb, 0, NOW() - INTERVAL '7 days'
+),
+('R2T6Z5','CLOSED',ARRAY['philosophy','ethics','moral theory'],
+'Ethics and Moral Theory Workshop',
+'Survey of utilitarianism, deontology, virtue ethics, and applied ethical problems.',
+'Practice applying theories to case studies and structuring comparative essays.',
+0, '[]'::jsonb, 0, NOW() - INTERVAL '6 days'
+),
+('X9V3L1','CLOSED',ARRAY['economics','microeconomics','policy'],
+'Microeconomics Final Review',
+'Supply and demand, elasticity, market structures, externalities, and welfare analysis.',
+'Practice graphing, comparative statics, and policy evaluation problems.',
+0, '[]'::jsonb, 0, NOW() - INTERVAL '5 days'
+),
+('B8N5Y2','CLOSED',ARRAY['literature','analysis','close reading'],
+'Literary Analysis and Close Reading',
+'Techniques for close reading, thematic analysis, narrative voice, and evidence-based interpretation.',
+'Bring short passages for in-class practice and focus on quoting and explaining evidence.',
+0, '[]'::jsonb, 0, NOW() - INTERVAL '4 days'
+),
+('S3D7F6','CLOSED',ARRAY['computer science','data structures','algorithms'],
+'Data Structures and Algorithms Review',
+'Arrays, linked lists, stacks, queues, trees, graphs, hashing, and algorithmic complexity.',
+'Work through implementation tradeoffs and complexity analysis for common problems.',
+0, '[]'::jsonb, 0, NOW() - INTERVAL '3 days'
+),
+('C6J1U4','CLOSED',ARRAY['physics','mechanics','intro'],
+'Introductory Physics: Mechanics Review',
+'Kinematics, Newton’s laws, energy, momentum, rotational motion, and problem-solving strategies.',
+'Emphasize free-body diagrams, units, and stepwise problem setup.',
+0, '[]'::jsonb, 0, NOW() - INTERVAL '2 days'
+),
+('Z4W8E7','CLOSED',ARRAY['psychology','cognitive','research methods'],
+'Introduction to Psychology Final Review',
+'Major perspectives, learning and memory, research methods, development, and social psychology.',
+'Practice describing experiments, interpreting results, and connecting theory to evidence.',
+0, '[]'::jsonb, 0, NOW() - INTERVAL '1 day'
+)
+RETURNING code
+),
+
+sub AS (
+INSERT INTO submissions (id, session_code, content, participant_answer, is_curator, created_at)
+VALUES
+-- G7H2K9: Modern European History (12)
+(gen_random_uuid(),'G7H2K9','What were the long-term causes of World War I?', NULL, false, NOW() - INTERVAL '7 days 23 hours'),
+(gen_random_uuid(),'G7H2K9','How did the Treaty of Versailles contribute to political instability in Germany?', NULL, false, NOW() - INTERVAL '7 days 22 hours'),
+(gen_random_uuid(),'G7H2K9','What factors enabled the unification of Germany in the 19th century?', NULL, false, NOW() - INTERVAL '7 days 21 hours'),
+(gen_random_uuid(),'G7H2K9','How did industrialization change European social structures?', NULL, false, NOW() - INTERVAL '7 days 20 hours'),
+(gen_random_uuid(),'G7H2K9','What were the main ideological differences between fascism and communism?', NULL, false, NOW() - INTERVAL '7 days 19 hours'),
+(gen_random_uuid(),'G7H2K9','How did the Cold War shape political boundaries in Europe?', NULL, false, NOW() - INTERVAL '7 days 18 hours'),
+(gen_random_uuid(),'G7H2K9','What role did nationalism play in the Balkan conflicts?', NULL, false, NOW() - INTERVAL '7 days 17 hours'),
+(gen_random_uuid(),'G7H2K9','How did decolonization after WWII affect European powers?', NULL, false, NOW() - INTERVAL '7 days 16 hours'),
+(gen_random_uuid(),'G7H2K9','What were the economic consequences of the two world wars for Europe?', NULL, false, NOW() - INTERVAL '7 days 15 hours'),
+(gen_random_uuid(),'G7H2K9','How did the European Coal and Steel Community lead to the EU?', NULL, false, NOW() - INTERVAL '7 days 14 hours'),
+(gen_random_uuid(),'G7H2K9','How should I structure a comparative essay on WWI and WWII?', NULL, false, NOW() - INTERVAL '7 days 13 hours'),
+(gen_random_uuid(),'G7H2K9','Which primary sources are best for studying the interwar period?', NULL, false, NOW() - INTERVAL '7 days 12 hours'),
+
+-- M4P8Q1: Cell Biology (12)
+(gen_random_uuid(),'M4P8Q1','What is the difference between rough and smooth endoplasmic reticulum?', NULL, false, NOW() - INTERVAL '6 days 23 hours'),
+(gen_random_uuid(),'M4P8Q1','How does the sodium-potassium pump maintain membrane potential?', NULL, false, NOW() - INTERVAL '6 days 22 hours'),
+(gen_random_uuid(),'M4P8Q1','What evidence supports the endosymbiotic theory for mitochondria?', NULL, false, NOW() - INTERVAL '6 days 21 hours'),
+(gen_random_uuid(),'M4P8Q1','How do enzymes lower activation energy in metabolic reactions?', NULL, false, NOW() - INTERVAL '6 days 20 hours'),
+(gen_random_uuid(),'M4P8Q1','What are the stages of cellular respiration and where do they occur?', NULL, false, NOW() - INTERVAL '6 days 19 hours'),
+(gen_random_uuid(),'M4P8Q1','How does facilitated diffusion differ from active transport?', NULL, false, NOW() - INTERVAL '6 days 18 hours'),
+(gen_random_uuid(),'M4P8Q1','What roles do lysosomes play in the cell?', NULL, false, NOW() - INTERVAL '6 days 17 hours'),
+(gen_random_uuid(),'M4P8Q1','How do signal transduction pathways amplify a signal?', NULL, false, NOW() - INTERVAL '6 days 16 hours'),
+(gen_random_uuid(),'M4P8Q1','What is the role of the Golgi apparatus in protein processing?', NULL, false, NOW() - INTERVAL '6 days 15 hours'),
+(gen_random_uuid(),'M4P8Q1','How do membrane fluidity and cholesterol interact?', NULL, false, NOW() - INTERVAL '6 days 14 hours'),
+(gen_random_uuid(),'M4P8Q1','How do prokaryotic ribosomes differ from eukaryotic ribosomes?', NULL, false, NOW() - INTERVAL '6 days 13 hours'),
+(gen_random_uuid(),'M4P8Q1','What experimental methods reveal organelle function?', NULL, false, NOW() - INTERVAL '6 days 12 hours'),
+
+-- R2T6Z5: Philosophy (12)
+(gen_random_uuid(),'R2T6Z5','What is the basic idea of utilitarianism?', NULL, false, NOW() - INTERVAL '5 days 23 hours'),
+(gen_random_uuid(),'R2T6Z5','How does Kant’s categorical imperative differ from consequentialism?', NULL, false, NOW() - INTERVAL '5 days 22 hours'),
+(gen_random_uuid(),'R2T6Z5','What are the strengths of virtue ethics?', NULL, false, NOW() - INTERVAL '5 days 21 hours'),
+(gen_random_uuid(),'R2T6Z5','How should I approach the trolley problem in an essay?', NULL, false, NOW() - INTERVAL '5 days 20 hours'),
+(gen_random_uuid(),'R2T6Z5','What is moral relativism and its main criticisms?', NULL, false, NOW() - INTERVAL '5 days 19 hours'),
+(gen_random_uuid(),'R2T6Z5','How does rule utilitarianism attempt to avoid counterintuitive results?', NULL, false, NOW() - INTERVAL '5 days 18 hours'),
+(gen_random_uuid(),'R2T6Z5','What does it mean to treat someone as an end in Kantian ethics?', NULL, false, NOW() - INTERVAL '5 days 17 hours'),
+(gen_random_uuid(),'R2T6Z5','How do we compare deontology and utilitarianism on rights?', NULL, false, NOW() - INTERVAL '5 days 16 hours'),
+(gen_random_uuid(),'R2T6Z5','What is the role of moral luck in ethical evaluation?', NULL, false, NOW() - INTERVAL '5 days 15 hours'),
+(gen_random_uuid(),'R2T6Z5','How can I structure a comparative ethics essay?', NULL, false, NOW() - INTERVAL '5 days 14 hours'),
+(gen_random_uuid(),'R2T6Z5','What are common pitfalls when applying ethical theories to cases?', NULL, false, NOW() - INTERVAL '5 days 13 hours'),
+(gen_random_uuid(),'R2T6Z5','Which contemporary issues are useful for exam examples?', NULL, false, NOW() - INTERVAL '5 days 12 hours'),
+
+-- X9V3L1: Economics (12)
+(gen_random_uuid(),'X9V3L1','How do shifts in demand affect equilibrium price and quantity?', NULL, false, NOW() - INTERVAL '4 days 23 hours'),
+(gen_random_uuid(),'X9V3L1','What is price elasticity of demand and how is it calculated?', NULL, false, NOW() - INTERVAL '4 days 22 hours'),
+(gen_random_uuid(),'X9V3L1','How do externalities lead to market failure?', NULL, false, NOW() - INTERVAL '4 days 21 hours'),
+(gen_random_uuid(),'X9V3L1','What is deadweight loss and how do we find it?', NULL, false, NOW() - INTERVAL '4 days 20 hours'),
+(gen_random_uuid(),'X9V3L1','How does a price ceiling create shortages?', NULL, false, NOW() - INTERVAL '4 days 19 hours'),
+(gen_random_uuid(),'X9V3L1','What distinguishes monopoly from perfect competition?', NULL, false, NOW() - INTERVAL '4 days 18 hours'),
+(gen_random_uuid(),'X9V3L1','How do taxes affect consumer and producer surplus?', NULL, false, NOW() - INTERVAL '4 days 17 hours'),
+(gen_random_uuid(),'X9V3L1','What is the role of marginal cost in firm supply decisions?', NULL, false, NOW() - INTERVAL '4 days 16 hours'),
+(gen_random_uuid(),'X9V3L1','How do we interpret supply and demand graphs on exams?', NULL, false, NOW() - INTERVAL '4 days 15 hours'),
+(gen_random_uuid(),'X9V3L1','What are common mistakes when drawing comparative statics?', NULL, false, NOW() - INTERVAL '4 days 14 hours'),
+(gen_random_uuid(),'X9V3L1','How do subsidies change market outcomes?', NULL, false, NOW() - INTERVAL '4 days 13 hours'),
+(gen_random_uuid(),'X9V3L1','How should I practice elasticity problems?', NULL, false, NOW() - INTERVAL '4 days 12 hours'),
+
+-- B8N5Y2: Literature (12)
+(gen_random_uuid(),'B8N5Y2','How do I identify an unreliable narrator?', NULL, false, NOW() - INTERVAL '3 days 23 hours'),
+(gen_random_uuid(),'B8N5Y2','What steps are involved in a close reading?', NULL, false, NOW() - INTERVAL '3 days 22 hours'),
+(gen_random_uuid(),'B8N5Y2','How do I analyze symbolism in a short story?', NULL, false, NOW() - INTERVAL '3 days 21 hours'),
+(gen_random_uuid(),'B8N5Y2','How can I compare themes across two novels?', NULL, false, NOW() - INTERVAL '3 days 20 hours'),
+(gen_random_uuid(),'B8N5Y2','What is the difference between theme and motif?', NULL, false, NOW() - INTERVAL '3 days 19 hours'),
+(gen_random_uuid(),'B8N5Y2','How do I integrate quotations smoothly into my essay?', NULL, false, NOW() - INTERVAL '3 days 18 hours'),
+(gen_random_uuid(),'B8N5Y2','What is intertextuality and how do I spot it?', NULL, false, NOW() - INTERVAL '3 days 17 hours'),
+(gen_random_uuid(),'B8N5Y2','How do I avoid plot summary in analysis?', NULL, false, NOW() - INTERVAL '3 days 16 hours'),
+(gen_random_uuid(),'B8N5Y2','How should I structure a thesis-driven literary essay?', NULL, false, NOW() - INTERVAL '3 days 15 hours'),
+(gen_random_uuid(),'B8N5Y2','What close reading techniques work for poetry?', NULL, false, NOW() - INTERVAL '3 days 14 hours'),
+(gen_random_uuid(),'B8N5Y2','How do narrative voice and perspective affect meaning?', NULL, false, NOW() - INTERVAL '3 days 13 hours'),
+(gen_random_uuid(),'B8N5Y2','Which passages are best for timed close reading practice?', NULL, false, NOW() - INTERVAL '3 days 12 hours'),
+
+-- S3D7F6: Computer Science (12)
+(gen_random_uuid(),'S3D7F6','When should I use a linked list instead of an array?', NULL, false, NOW() - INTERVAL '2 days 23 hours'),
+(gen_random_uuid(),'S3D7F6','How do I analyze the time complexity of nested loops?', NULL, false, NOW() - INTERVAL '2 days 22 hours'),
+(gen_random_uuid(),'S3D7F6','What are the tradeoffs between stacks and queues?', NULL, false, NOW() - INTERVAL '2 days 21 hours'),
+(gen_random_uuid(),'S3D7F6','How does a binary search tree differ from a heap?', NULL, false, NOW() - INTERVAL '2 days 20 hours'),
+(gen_random_uuid(),'S3D7F6','When is BFS preferable to DFS?', NULL, false, NOW() - INTERVAL '2 days 19 hours'),
+(gen_random_uuid(),'S3D7F6','How do hash tables handle collisions in practice?', NULL, false, NOW() - INTERVAL '2 days 18 hours'),
+(gen_random_uuid(),'S3D7F6','What is amortized analysis and when does it matter?', NULL, false, NOW() - INTERVAL '2 days 17 hours'),
+(gen_random_uuid(),'S3D7F6','How should I choose data structures for interview problems?', NULL, false, NOW() - INTERVAL '2 days 16 hours'),
+(gen_random_uuid(),'S3D7F6','What are common pitfalls when implementing recursion?', NULL, false, NOW() - INTERVAL '2 days 15 hours'),
+(gen_random_uuid(),'S3D7F6','How do I reason about space complexity?', NULL, false, NOW() - INTERVAL '2 days 14 hours'),
+(gen_random_uuid(),'S3D7F6','What is the difference between adjacency list and adjacency matrix?', NULL, false, NOW() - INTERVAL '2 days 13 hours'),
+(gen_random_uuid(),'S3D7F6','How do I test my data structure implementations effectively?', NULL, false, NOW() - INTERVAL '2 days 12 hours'),
+
+-- C6J1U4: Physics (12)
+(gen_random_uuid(),'C6J1U4','How do I set up a free-body diagram for multiple forces?', NULL, false, NOW() - INTERVAL '1 day 23 hours'),
+(gen_random_uuid(),'C6J1U4','What is the difference between kinetic and potential energy?', NULL, false, NOW() - INTERVAL '1 day 22 hours'),
+(gen_random_uuid(),'C6J1U4','How do conservation of momentum problems work in collisions?', NULL, false, NOW() - INTERVAL '1 day 21 hours'),
+(gen_random_uuid(),'C6J1U4','How do I solve rotational motion problems with torque?', NULL, false, NOW() - INTERVAL '1 day 20 hours'),
+(gen_random_uuid(),'C6J1U4','What is the relationship between force and acceleration?', NULL, false, NOW() - INTERVAL '1 day 19 hours'),
+(gen_random_uuid(),'C6J1U4','How do I apply energy methods to solve mechanics problems?', NULL, false, NOW() - INTERVAL '1 day 18 hours'),
+(gen_random_uuid(),'C6J1U4','How do I choose coordinate systems for projectile motion?', NULL, false, NOW() - INTERVAL '1 day 17 hours'),
+(gen_random_uuid(),'C6J1U4','What common mistakes occur in unit conversions?', NULL, false, NOW() - INTERVAL '1 day 16 hours'),
+(gen_random_uuid(),'C6J1U4','How do I approach multi-step kinematics problems?', NULL, false, NOW() - INTERVAL '1 day 15 hours'),
+(gen_random_uuid(),'C6J1U4','How do I analyze equilibrium and stability?', NULL, false, NOW() - INTERVAL '1 day 14 hours'),
+(gen_random_uuid(),'C6J1U4','What is angular momentum and when is it conserved?', NULL, false, NOW() - INTERVAL '1 day 13 hours'),
+(gen_random_uuid(),'C6J1U4','How do I prepare for physics problem-solving under time pressure?', NULL, false, NOW() - INTERVAL '1 day 12 hours'),
+
+-- Z4W8E7: Psychology (12)
+(gen_random_uuid(),'Z4W8E7','What are the main differences between behaviorism and cognitive psychology?', NULL, false, NOW() - INTERVAL '23 hours'),
+(gen_random_uuid(),'Z4W8E7','How does classical conditioning differ from operant conditioning?', NULL, false, NOW() - INTERVAL '22 hours'),
+(gen_random_uuid(),'Z4W8E7','What are the stages of memory and common failures?', NULL, false, NOW() - INTERVAL '21 hours'),
+(gen_random_uuid(),'Z4W8E7','How do researchers establish causation in psychology?', NULL, false, NOW() - INTERVAL '20 hours'),
+(gen_random_uuid(),'Z4W8E7','What ethical considerations are central to human subjects research?', NULL, false, NOW() - INTERVAL '19 hours'),
+(gen_random_uuid(),'Z4W8E7','How do schemas influence perception and memory?', NULL, false, NOW() - INTERVAL '18 hours'),
+(gen_random_uuid(),'Z4W8E7','What is the difference between conformity and obedience?', NULL, false, NOW() - INTERVAL '17 hours'),
+(gen_random_uuid(),'Z4W8E7','How do twin studies inform nature vs nurture debates?', NULL, false, NOW() - INTERVAL '16 hours'),
+(gen_random_uuid(),'Z4W8E7','What are common symptoms of major depressive disorder?', NULL, false, NOW() - INTERVAL '15 hours'),
+(gen_random_uuid(),'Z4W8E7','How should I summarize Milgram and Zimbardo for the exam?', NULL, false, NOW() - INTERVAL '14 hours'),
+(gen_random_uuid(),'Z4W8E7','What are reliable study strategies for memory retention?', NULL, false, NOW() - INTERVAL '13 hours'),
+(gen_random_uuid(),'Z4W8E7','How do experimental and correlational studies differ?', NULL, false, NOW() - INTERVAL '12 hours')
+RETURNING session_code
+),
+
+c AS (
+INSERT INTO clusters (id, session_code, representative_query, submission_count, questions, answer, upvote_count, previewed_questions, selected_questions, contextual_facts, participant_answers, created_at)
+VALUES
+-- G7H2K9 clusters (3)
+(gen_random_uuid(),'G7H2K9',
+'What were the primary causes of World War I and how did they interact?',
+4,
+'["What were the long-term causes of World War I?","How did industrialization change European social structures?","What role did nationalism play in the Balkan conflicts?","Which primary sources are best for studying the interwar period?"]'::jsonb,
+'World War I resulted from a complex mix of militarism, alliance systems, imperial competition, and rising nationalism. These structural pressures created a fragile balance that the assassination of Archduke Franz Ferdinand triggered. Industrialization amplified the scale and lethality of warfare by enabling mass mobilization and new weaponry. Primary sources such as diplomatic correspondence, soldiers’ diaries, and contemporary newspapers help trace how these factors interacted at both elite and popular levels.',
+27, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '7 days 11 hours'
+),
+(gen_random_uuid(),'G7H2K9',
+'How did the Treaty of Versailles contribute to political instability in Germany?',
+4,
+'["How did the Treaty of Versailles contribute to political instability in Germany?","What were the economic consequences of the two world wars for Europe?","How did decolonization after WWII affect European powers?","How did the European Coal and Steel Community lead to the EU?"]'::jsonb,
+'The Treaty of Versailles imposed heavy reparations, territorial losses, and military restrictions on Germany, which many Germans perceived as humiliating and unjust. Economic hardship and political resentment created fertile ground for extremist movements that promised restoration and national pride. The treaty also left ambiguous security arrangements that contributed to later instability. Understanding the treaty’s political and economic effects helps explain the interwar radicalization and the eventual rise of authoritarianism.',
+14, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '7 days 10 hours'
+),
+(gen_random_uuid(),'G7H2K9',
+'How should I structure a comparative essay on WWI and WWII?',
+4,
+'["How should I structure a comparative essay on WWI and WWII?","How did the Cold War shape political boundaries in Europe?","What were the long-term causes of World War I?","How did the Treaty of Versailles contribute to political instability in Germany?"]'::jsonb,
+'Begin with a clear thesis that identifies the specific focus of comparison, such as causes, conduct, or consequences. Use thematic sections (e.g., political causes, economic impacts, social consequences) to compare both wars directly rather than treating them sequentially. Support claims with specific evidence and primary sources, and conclude by synthesizing what the comparison reveals about broader historical patterns.',
+33, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '7 days 9 hours'
+),
+
+-- M4P8Q1 clusters (3)
+(gen_random_uuid(),'M4P8Q1',
+'How do organelles coordinate to produce and secrete proteins?',
+4,
+'["What is the difference between rough and smooth endoplasmic reticulum?","What is the role of the Golgi apparatus in protein processing?","Which organelles are key to protein secretion?","What experimental methods reveal organelle function?"]'::jsonb,
+'Protein production begins on ribosomes attached to the rough ER, where nascent polypeptides enter the ER lumen for folding and initial modification. The Golgi apparatus further modifies, sorts, and packages proteins into vesicles for delivery to the membrane or secretion. Vesicular transport and signal sequences ensure proteins reach the correct destination. Microscopy and biochemical fractionation experiments are commonly used to map these pathways experimentally.',
+22, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '6 days 11 hours'
+),
+(gen_random_uuid(),'M4P8Q1',
+'What distinguishes passive diffusion from active transport across membranes?',
+4,
+'["How does facilitated diffusion differ from active transport?","How does the sodium-potassium pump maintain membrane potential?","How do membrane fluidity and cholesterol interact?","How do prokaryotic ribosomes differ from eukaryotic ribosomes?"]'::jsonb,
+'Passive diffusion moves molecules down their concentration gradient without energy input, while active transport uses energy (usually ATP) to move substances against gradients. Facilitated diffusion uses membrane proteins to allow polar or charged molecules to cross, but still follows the gradient. The sodium-potassium pump is a primary active transporter that maintains electrochemical gradients essential for cell function. Membrane composition, including cholesterol, affects fluidity and the function of embedded proteins.',
+7, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '6 days 10 hours'
+),
+(gen_random_uuid(),'M4P8Q1',
+'How are photosynthesis and cellular respiration complementary processes?',
+4,
+'["What are the stages of cellular respiration and where do they occur?","How is photosynthesis related to respiration?","How does ATP synthase generate ATP?","What evidence supports the endosymbiotic theory for mitochondria?"]'::jsonb,
+'Photosynthesis converts light energy into chemical energy stored in glucose, producing oxygen as a byproduct, while cellular respiration breaks down glucose to produce ATP and returns carbon dioxide and water. The two processes are complementary: the products of one serve as the reactants of the other in ecosystems. ATP synthase plays a central role in both by using proton gradients to synthesize ATP. Endosymbiotic evidence includes double membranes and mitochondrial DNA similar to bacteria.',
+31, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '6 days 9 hours'
+),
+
+-- R2T6Z5 clusters (3)
+(gen_random_uuid(),'R2T6Z5',
+'How does utilitarianism determine the right action in difficult cases?',
+4,
+'["What is the basic idea of utilitarianism?","How does rule utilitarianism attempt to avoid counterintuitive results?","How should I approach the trolley problem in an essay?","How do we compare deontology and utilitarianism on rights?"]'::jsonb,
+'Utilitarianism assesses actions by their consequences for overall well-being, aiming to maximize net happiness. Act utilitarianism evaluates each action individually, while rule utilitarianism endorses rules that generally promote the greatest good. In difficult cases like the trolley problem, utilitarians weigh outcomes and may endorse actions that minimize total harm, though rule utilitarians might resist exceptions that undermine beneficial rules. When writing, be explicit about which variant you are using and justify your choice with consistent principles.',
+19, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '5 days 11 hours'
+),
+(gen_random_uuid(),'R2T6Z5',
+'What is Kant’s categorical imperative and how is it applied?',
+4,
+'["How does Kant’s categorical imperative differ from consequentialism?","What does it mean to treat someone as an end in Kantian ethics?","How do we compare deontology and utilitarianism on rights?","How can I structure a comparative ethics essay?"]'::jsonb,
+'Kant’s categorical imperative requires acting only on maxims you could will to be universal laws and treating persons as ends in themselves. Application involves testing whether a proposed action could be consistently universalized and whether it respects the autonomy of rational agents. Kantian ethics emphasizes duty and the intrinsic moral worth of persons rather than consequences. In essays, show how Kantian reasoning yields different verdicts from consequentialist approaches and explain the implications for rights and justice.',
+5, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '5 days 10 hours'
+),
+(gen_random_uuid(),'R2T6Z5',
+'How should I structure a comparative essay on ethical theories?',
+4,
+'["How can I structure a comparative ethics essay?","How do we compare deontology and utilitarianism on rights?","What are common pitfalls when applying ethical theories to cases?","Which contemporary issues are useful for exam examples?"]'::jsonb,
+'Start with a clear thesis that identifies the dimension of comparison (e.g., outcomes vs duties). Use parallel sections to present each theory’s principles, apply them to the same case, and evaluate strengths and weaknesses. Support claims with canonical texts and clear examples, and conclude by assessing which theory better addresses the chosen dimension or by proposing a pluralistic approach. Avoid straw-man representations and be explicit about assumptions.',
+28, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '5 days 9 hours'
+),
+
+-- X9V3L1 clusters (3)
+(gen_random_uuid(),'X9V3L1',
+'How do supply and demand shifts affect equilibrium price and quantity?',
+4,
+'["How do shifts in demand affect equilibrium price and quantity?","How do we interpret supply and demand graphs on exams?","How do subsidies change market outcomes?","What are common mistakes when drawing comparative statics?"]'::jsonb,
+'Equilibrium is determined where supply equals demand; a rightward shift in demand raises both equilibrium price and quantity, while a rightward shift in supply lowers price and raises quantity. When analyzing shocks, explicitly state which curve shifts and why, and show the comparative statics on a graph. Subsidies effectively shift supply or demand depending on incidence and can create deadweight loss if they distort production. Common mistakes include confusing movements along a curve with shifts of the curve.',
+12, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '4 days 11 hours'
+),
+(gen_random_uuid(),'X9V3L1',
+'What does price elasticity of demand tell us about revenue and consumer response?',
+4,
+'["What is price elasticity of demand and how is it calculated?","How should I practice elasticity problems?","How do taxes affect consumer and producer surplus?","What is the role of marginal cost in firm supply decisions?"]'::jsonb,
+'Price elasticity measures the responsiveness of quantity demanded to price changes; if demand is elastic, price increases reduce total revenue, while inelastic demand leads to revenue increases with price hikes. Elasticity is calculated as the percentage change in quantity divided by the percentage change in price, often using midpoint formulas for discrete changes. Elasticity informs tax incidence, pricing strategies, and welfare analysis. Practice by computing elasticities from demand functions and applying them to revenue and tax problems.',
+36, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '4 days 10 hours'
+),
+(gen_random_uuid(),'X9V3L1',
+'How do externalities create market failures and what policies correct them?',
+4,
+'["How do externalities lead to market failure?","How do taxes affect consumer and producer surplus?","How do subsidies change market outcomes?","What is deadweight loss and how do we find it?"]'::jsonb,
+'Externalities occur when private transactions impose costs or benefits on third parties not reflected in market prices, leading to over- or under-production relative to the social optimum. Negative externalities like pollution justify Pigouvian taxes to internalize external costs, while positive externalities like vaccination may warrant subsidies. Tradable permits and regulation are alternative policy tools. Policy choice depends on information availability, administrative feasibility, and distributional concerns.',
+3, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '4 days 9 hours'
+),
+
+-- B8N5Y2 clusters (3)
+(gen_random_uuid(),'B8N5Y2',
+'What is the process of close reading and how do I apply it to a passage?',
+4,
+'["What steps are involved in a close reading?","How do I analyze symbolism in a short story?","What close reading techniques work for poetry?","How do I avoid plot summary in analysis?"]'::jsonb,
+'Close reading requires careful attention to diction, syntax, imagery, and rhetorical devices in a short passage. Identify striking words or patterns, consider their connotations, and link them to character, tone, or theme. Use brief quotations to support claims and explain how the language produces meaning rather than summarizing plot. Practice by annotating passages and writing focused paragraphs that connect textual details to interpretive claims.',
+21, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '3 days 11 hours'
+),
+(gen_random_uuid(),'B8N5Y2',
+'How do I construct a thesis-driven literary essay?',
+4,
+'["How should I structure a thesis-driven literary essay?","How do I integrate quotations smoothly into my essay?","How do I avoid plot summary in analysis?","How do narrative voice and perspective affect meaning?"]'::jsonb,
+'A strong literary essay opens with a concise thesis that makes an arguable claim about the text, followed by body paragraphs that each develop a sub-claim supported by close analysis of quotations. Integrate quotes into your sentences and always explain their significance. Avoid plot summary by focusing on how language and form produce meaning and by connecting each paragraph back to the thesis.',
+29, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '3 days 10 hours'
+),
+(gen_random_uuid(),'B8N5Y2',
+'How can I compare themes across two novels effectively?',
+4,
+'["How can I compare themes across two novels?","What is intertextuality and how do I spot it?","Which passages are best for timed close reading practice?","How do I analyze symbolism in a short story?"]'::jsonb,
+'When comparing themes, identify a shared thematic concern and analyze how each text approaches it through character, plot, and formal choices. Use paired evidence to show similarities and differences, and consider historical or authorial contexts that shape each work. Avoid superficial parallels by focusing on how each text’s techniques produce its thematic effects. Conclude by reflecting on what the comparison reveals about the theme’s complexity.',
+8, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '3 days 9 hours'
+),
+
+-- S3D7F6 clusters (3)
+(gen_random_uuid(),'S3D7F6',
+'How do I choose the most appropriate data structure for a problem?',
+4,
+'["When should I use a linked list instead of an array?","How should I choose data structures for interview problems?","What are the tradeoffs between stacks and queues?","What is the difference between adjacency list and adjacency matrix?"]'::jsonb,
+'Selecting a data structure depends on the operations you need: arrays provide O(1) indexed access, linked lists allow cheap insertions and deletions, and trees support hierarchical queries. Consider time and space complexity for typical operations and worst-case behavior. For graphs, adjacency lists are space-efficient for sparse graphs while adjacency matrices can speed up edge existence checks in dense graphs. In interviews, state the operations you prioritize and justify your choice with complexity analysis.',
+16, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '2 days 11 hours'
+),
+(gen_random_uuid(),'S3D7F6',
+'What does big-O notation tell us and how do I apply it?',
+4,
+'["How do I analyze the time complexity of nested loops?","What is big-O notation?","What is amortized analysis and when does it matter?","How do I reason about space complexity?"]'::jsonb,
+'Big-O notation characterizes how an algorithm’s running time or space usage grows with input size, focusing on the dominant term and ignoring constants. For nested loops, multiply the complexities of nested levels to estimate growth. Amortized analysis averages cost over sequences of operations, useful for dynamic arrays or splay trees. Always explain assumptions about input distribution and worst-case vs average-case behavior when applying big-O.',
+24, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '2 days 10 hours'
+),
+(gen_random_uuid(),'S3D7F6',
+'When is BFS preferable to DFS in graph problems?',
+4,
+'["When is BFS preferable to DFS?","What is DFS vs BFS?","When is BFS preferable to DFS?","How do I test my data structure implementations effectively?"]'::jsonb,
+'BFS is preferable when you need the shortest path in an unweighted graph or when exploring level-by-level structure, while DFS is useful for exploring connectivity, detecting cycles, and topological sorting. BFS uses a queue and explores neighbors before moving deeper, guaranteeing minimal edge count paths. DFS uses a stack or recursion and can be more memory-efficient on sparse graphs depending on implementation. Choose based on the problem’s requirements and constraints.',
+2, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '2 days 9 hours'
+),
+
+-- C6J1U4 clusters (3)
+(gen_random_uuid(),'C6J1U4',
+'How do I set up and solve conservation of momentum problems?',
+4,
+'["How do conservation of momentum problems work in collisions?","What is angular momentum and when is it conserved?","How do I analyze equilibrium and stability?","How do I apply energy methods to solve mechanics problems?"]'::jsonb,
+'Conservation of momentum applies in isolated systems where external forces are negligible; total momentum before collision equals total momentum after. For elastic collisions, kinetic energy is also conserved, allowing simultaneous solution of momentum and energy equations. For inelastic collisions, use momentum conservation and account for energy loss. Carefully define the system, choose a coordinate axis, and check units at each step.',
+30, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '1 day 11 hours'
+),
+(gen_random_uuid(),'C6J1U4',
+'How do I approach rotational motion and torque problems?',
+4,
+'["How do I solve rotational motion problems with torque?","What is the relationship between force and acceleration?","How do I choose coordinate systems for projectile motion?","How do I approach multi-step kinematics problems?"]'::jsonb,
+'Rotational motion problems require identifying torques about a pivot, summing moments, and applying rotational analogs of Newton’s laws (τ = Iα). Convert linear quantities to angular equivalents when appropriate and use conservation laws where applicable. Pay attention to sign conventions and units, and consider energy methods for complex systems. Practice by solving problems that combine translation and rotation to build intuition.',
+11, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '1 day 10 hours'
+),
+(gen_random_uuid(),'C6J1U4',
+'What strategies help with physics problem-solving under time pressure?',
+4,
+'["How do I prepare for physics problem-solving under time pressure?","What common mistakes occur in unit conversions?","How do I approach multi-step kinematics problems?","How do I set up a free-body diagram for multiple forces?"]'::jsonb,
+'Under time pressure, quickly diagram the problem, list knowns and unknowns, and choose a strategy (force balance, energy, or kinematics). Keep units consistent and check dimensional analysis to catch errors. Practice common problem types to build pattern recognition and use approximations only when justified. Time management and clear notation reduce careless mistakes.',
+4, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '1 day 9 hours'
+),
+
+-- Z4W8E7 clusters (3)
+(gen_random_uuid(),'Z4W8E7',
+'How do classical and operant conditioning differ and where are they applied?',
+4,
+'["How does classical conditioning differ from operant conditioning?","What are the stages of memory and common failures?","How do schemas influence perception and memory?","How should I summarize Milgram and Zimbardo for the exam?"]'::jsonb,
+'Classical conditioning pairs two stimuli so that a neutral stimulus elicits a conditioned response, while operant conditioning modifies voluntary behavior through reinforcement and punishment. Classical conditioning explains reflexive responses, and operant conditioning explains learned voluntary behaviors. Both frameworks have broad applications in therapy, education, and behavior modification. When studying experiments like Milgram and Zimbardo, focus on methods, findings, and ethical critiques to understand how behavior is influenced by context.',
+18, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '23 hours'
+),
+(gen_random_uuid(),'Z4W8E7',
+'What are the stages of memory and how can they fail?',
+4,
+'["What are the stages of memory and common failures?","What are reliable study strategies for memory retention?","How do schemas influence perception and memory?","How do experimental and correlational studies differ?"]'::jsonb,
+'Memory involves encoding, storage, and retrieval; failures can occur at any stage due to poor encoding, interference during storage, or retrieval cues that are insufficient. Techniques like spaced repetition and elaborative encoding improve retention by strengthening encoding and retrieval pathways. Schemas shape how information is encoded and recalled, sometimes introducing systematic biases. Distinguish between experimental evidence for causal mechanisms and correlational findings when evaluating studies.',
+26, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '22 hours'
+),
+(gen_random_uuid(),'Z4W8E7',
+'How should I prepare summaries of classic experiments for the exam?',
+4,
+'["How should I summarize Milgram and Zimbardo for the exam?","How do researchers establish causation in psychology?","What ethical considerations are central to human subjects research?","How do experimental and correlational studies differ?"]'::jsonb,
+'Summarize classic experiments by stating the research question, procedure, main findings, and ethical issues. For Milgram, note the obedience paradigm and ethical concerns about deception and participant distress; for Zimbardo, emphasize role assignment and situational influences on behavior. Explain how experimental controls support causal claims and contrast them with correlational designs that cannot establish causality. Practice concise summaries that include implications and critiques.',
+9, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NOW() - INTERVAL '21 hours'
+)
+RETURNING session_code
+)
+
+SELECT 'OK' AS status;
+
+-- ============================================
+-- DELETE FOR REVIEW SESSIONS
+-- ============================================
+
+
+BEGIN;
+
+DELETE FROM clusters
+WHERE session_code IN ('G7H2K9','M4P8Q1','R2T6Z5','X9V3L1','B8N5Y2','S3D7F6','C6J1U4','Z4W8E7');
+
+DELETE FROM submissions
+WHERE session_code IN ('G7H2K9','M4P8Q1','R2T6Z5','X9V3L1','B8N5Y2','S3D7F6','C6J1U4','Z4W8E7');
+
+DELETE FROM sessions
+WHERE code IN ('G7H2K9','M4P8Q1','R2T6Z5','X9V3L1','B8N5Y2','S3D7F6','C6J1U4','Z4W8E7');
+
+COMMIT;

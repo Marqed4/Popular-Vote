@@ -51,9 +51,15 @@ app.use('/api', expandRouter);
 app.use('/api', sessionsRouter);
 app.use('/api', submissionsRouter);
 
+// serve frontend in production
+app.use(express.static(join(__dirname, '../dist')));
+app.get('*', (req, res) => {
+  res.sendFile(join(__dirname, '../dist/index.html'));
+});
+
 // backend port
 const PORT = process.env.PORT || 2167;
-
+ 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
