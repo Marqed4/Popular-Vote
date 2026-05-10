@@ -48,7 +48,7 @@ export default function Sidebar({ open, onClose, user, onSignIn, onSignOut, onNa
           .eq("dismissed", false)
           .order("saved_at", { ascending: false });
 
-        if (!userSessions?.length) { setSessions([]); return; }
+        if (!userSessions?.length) { setSessions([]); setLoading(false); return; }
 
         const codes = userSessions.map(u => u.session_code);
         const { data: sessionData } = await supabase
