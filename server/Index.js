@@ -24,7 +24,14 @@ dotenv.config({ path: join(__dirname, 'database/.env') });
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: { origin: '*' }
+  cors: { 
+    origin: [
+      'https://vote.marqed.it',
+      'https://popularvote-production.up.railway.app',
+      'http://localhost:6967'
+    ],
+    methods: ['GET', 'POST']
+  }
 });
 
 app.use(express.json());
