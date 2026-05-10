@@ -51,6 +51,11 @@ app.use('/api', expandRouter);
 app.use('/api', sessionsRouter);
 app.use('/api', submissionsRouter);
 
+app.use(express.static(join(__dirname, '../dist')));
+app.get('*splat', (req, res) => {
+  res.sendFile(join(__dirname, '../dist/index.html'));
+});
+
 // backend port
 const PORT = process.env.PORT || 2167;
 
