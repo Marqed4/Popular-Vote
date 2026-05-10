@@ -2,8 +2,6 @@ import { useState } from "react";
 import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
 import "./HostHeader.css";
 
-// ── Icons ────────────────────────────────────────────────────────────────────
-
 function SettingsIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -33,8 +31,6 @@ function SunIcon() {
   );
 }
 
-// ── Background Picker ────────────────────────────────────────────────────────
-
 function BackgroundPicker({ current, onSelect, onClose, darkMode }) {
   const filtered = Object.entries(DefaultBackgrounds).filter(([key]) =>
     darkMode ? key.startsWith("night_") : key.startsWith("day_")
@@ -57,8 +53,6 @@ function BackgroundPicker({ current, onSelect, onClose, darkMode }) {
     </div>
   );
 }
-
-// ── HostHeader ───────────────────────────────────────────────────────────────
 
 export default function HostHeader({ phase, participantCount, submissionCount, onBack, onOpenSidebar, darkMode, onToggleDark, bgKey, onSelectBg }) {
   const [showBgPicker, setShowBgPicker] = useState(false);
