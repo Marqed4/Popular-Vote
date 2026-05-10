@@ -381,6 +381,19 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
             onSubmit={submitQuestion}
             onDelete={deleteSubmission}
           />
+
+          <ParticipantHeader
+            phase={phase}
+            code={code}
+            onBack={onBack}
+            onOpenSidebar={onOpenSidebar}
+            submittedCount={submittedCount}
+            inClusterCount={inClusterCount}
+            darkMode={darkMode}
+            onToggleDark={onToggleDark}
+            bgKey={bgKey}
+            onSelectBg={onSelectBg}
+          />
         </div>
       </div>
     );

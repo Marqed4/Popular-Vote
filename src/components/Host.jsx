@@ -498,6 +498,18 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
             }}
           />
         </main>
+
+        <HostHeader
+          phase={phase}
+          participantCount={participantCount}
+          submissionCount={submissionCount}
+          onBack={onBack}
+          onOpenSidebar={onOpenSidebar}
+          darkMode={darkMode}
+          onToggleDark={onToggleDark}
+          bgKey={bgKey}
+          onSelectBg={onSelectBg}
+        />
       </div>
     </div>
   );

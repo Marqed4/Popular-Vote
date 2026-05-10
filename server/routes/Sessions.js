@@ -308,30 +308,24 @@ router.post('/sessions/:code/curators', async (req, res) => {
 });
 
 // participant upvotes or un-upvotes a question within a cluster
+// /upvote route
 router.post('/sessions/:code/upvote', async (req, res) => {
   try {
     const { code } = req.params;
     const { questionText, undo } = req.body;
     const sessionManager = req.app.locals.sessionManager;
     const wsManager = req.app.locals.wsManager;
-    const session = sessionManager.getSession(code);
 
-    if (!session) return res.status(404).json({ error: 'Session not found' });
     if (!questionText) return res.status(400).json({ error: 'questionText is required' });
 
-    let updatedCount = 0;
-    for (const cluster of session.clusters) {
-      const question = (cluster.questions ?? []).find(q => q.text === questionText);
-      if (question) {
-        question.upvoteCount = Math.max(0, (question.upvoteCount ?? 0) + (undo ? -1 : 1));
-        updatedCount = question.upvoteCount;
-        break;
-      }
-    }
+    // delegates to SessionManager which persists to Supabase
+    const { upvoteCount } = await sessionManager.upvoteQuestion(code, questionText, undo ?? false);
 
-    wsManager.toSession(code, 'cluster:upvote', { questionText, upvoteCount: updatedCount });
-    res.json({ questionText, upvoteCount: updatedCount });
+    wsManager.toSession(code, 'cluster:upvote', { questionText, upvoteCount });
+    res.json({ questionText, upvoteCount });
   } catch (err) {
+    if (err.message === 'Session not found') return res.status(404).json({ error: err.message });
+    if (err.message === 'Question not found') return res.status(404).json({ error: err.message });
     console.error(err);
     res.status(500).json({ error: 'Failed to record upvote' });
   }
