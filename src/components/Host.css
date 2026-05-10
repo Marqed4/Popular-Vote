@@ -846,3 +846,141 @@
   color: #1c1917;
   opacity: 75%;
 }
+
+.hd-root {
+  background: transparent;
+}
+
+.hd-header {
+  background: var(--surface) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="dark"] .hd-header {
+  background: rgba(28, 25, 23, 0.75) !important;
+}
+
+[data-theme="light"] .hd-header {
+  background: rgba(255, 255, 255, 0.75) !important;
+}
+
+.hd-sidebar-shell {
+  background: transparent;
+}
+
+[data-theme="dark"] .hd-sidebar-shell {
+  background: rgba(28, 25, 23, 0.55);
+}
+
+[data-theme="light"] .hd-sidebar-shell {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.hd-session-context {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .hd-session-context {
+  background: rgba(28, 25, 23, 0.6);
+}
+
+[data-theme="light"] .hd-session-context {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.hd-cluster {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .hd-cluster {
+  background: rgba(28, 25, 23, 0.7);
+}
+
+[data-theme="light"] .hd-cluster {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.hd-main {
+  background: transparent;
+}
+
+/* ── Glassy overrides ───────────────────────────────────────── */
+
+.hd-sidebar-shell {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .hd-sidebar-shell  { background: rgba(28, 25, 23, 0.5); }
+[data-theme="light"] .hd-sidebar-shell { background: rgba(255, 255, 255, 0.45); }
+
+.hd-session-context {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .hd-session-context  { background: rgba(28, 25, 23, 0.5); }
+[data-theme="light"] .hd-session-context { background: rgba(255, 255, 255, 0.45); }
+
+.hd-sidebar {
+  background: transparent;
+}
+
+.hd-participants {
+  background: transparent;
+}
+
+.hd-cluster {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+[data-theme="dark"] .hd-cluster  { background: rgba(28, 25, 23, 0.55); }
+[data-theme="light"] .hd-cluster { background: rgba(255, 255, 255, 0.5); }
+
+.hd-answer-display,
+.hd-answer-textarea,
+.hd-manual-input,
+.hd-copy-btn,
+.hd-tag,
+.hd-share-link,
+.hd-preview-q {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .hd-answer-display,
+[data-theme="dark"] .hd-answer-textarea,
+[data-theme="dark"] .hd-manual-input,
+[data-theme="dark"] .hd-copy-btn,
+[data-theme="dark"] .hd-tag,
+[data-theme="dark"] .hd-share-link,
+[data-theme="dark"] .hd-preview-q {
+  background: rgba(28, 25, 23, 0.4);
+  border-color: rgba(255,255,255,0.08);
+}
+
+[data-theme="light"] .hd-answer-display,
+[data-theme="light"] .hd-answer-textarea,
+[data-theme="light"] .hd-manual-input,
+[data-theme="light"] .hd-copy-btn,
+[data-theme="light"] .hd-tag,
+[data-theme="light"] .hd-share-link,
+[data-theme="light"] .hd-preview-q {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(0,0,0,0.08);
+}
+
+.hd-suggestion {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="dark"] .hd-suggestion  { background: rgba(21, 128, 61, 0.12); }
+[data-theme="light"] .hd-suggestion { background: rgba(21, 128, 61, 0.08); }
