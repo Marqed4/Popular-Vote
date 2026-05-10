@@ -8,7 +8,7 @@ import ClusterList from "./ClusterList";
 
 import "./Host.css";
 
-export default function HostDashboard({ code: initialCode, initialTitle = '', initialDescription = '', onBack, onSessionCreated, onOpenSidebar, darkMode, onToggleDark }) {
+export default function HostDashboard({ code: initialCode, initialTitle = '', initialDescription = '', onBack, onSessionCreated, onOpenSidebar, darkMode, onToggleDark, bgKey, onSelectBg }) {
   // Core session state
   const [phase, setPhase] = useState("OPEN");
   const [code, setCode] = useState(initialCode);
@@ -422,8 +422,6 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     saveTags(updated);
   }
 
-  const isHost = true;
-
   if (loading) {
     return (
       <div className="hd-loading">
@@ -442,6 +440,8 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
         onOpenSidebar={onOpenSidebar}
         darkMode={darkMode}
         onToggleDark={onToggleDark}
+        bgKey={bgKey}
+        onSelectBg={onSelectBg}
       />
 
       {(title || description) && (
@@ -498,18 +498,6 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
             }}
           />
         </main>
-
-        <HostHeader
-          phase={phase}
-          participantCount={participantCount}
-          submissionCount={submissionCount}
-          onBack={onBack}
-          onOpenSidebar={onOpenSidebar}
-          darkMode={darkMode}
-          onToggleDark={onToggleDark}
-          bgKey={bgKey}
-          onSelectBg={onSelectBg}
-        />
       </div>
     </div>
   );
