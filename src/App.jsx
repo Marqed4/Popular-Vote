@@ -101,6 +101,7 @@ export default function App() {
       const u = session?.user ?? null;
       setUser(u);
       if (u && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED")) {
+        setShowAuth(false);
         await migrateLocalSessions(u.id);
       }
     });
