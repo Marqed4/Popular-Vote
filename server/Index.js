@@ -28,6 +28,7 @@ const io = new Server(httpServer, {
 });
 
 app.use(express.json());
+app.set('trust proxy', 1);
 
 // make sessionManager and wsManager available to all route handlers
 const sessionManager = new SessionManager();
@@ -59,7 +60,7 @@ app.use(express.static(join(__dirname, '../dist')));
 
 app.get('/{*path}', (req, res) => {
   res.sendFile(join(__dirname, '../dist/index.html'));
-});
+}); 
 
 // backend port
 const PORT = process.env.PORT || 2167;
