@@ -180,6 +180,12 @@
   max-width: 50%;
 }
 
+@media (max-width: 760px) {
+  .hd-answer-display.has-answer {
+    max-width: 100%;
+  }
+}
+
 .hd-answer-display.no-answer {
   color: #a8a29e;
   font-style: italic;

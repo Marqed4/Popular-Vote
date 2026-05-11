@@ -25,3 +25,4 @@ dist-ssr
 *.env
 .claude/
 src/assets/example_gifs/ignore/
+documents/secrets/

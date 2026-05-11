@@ -27,6 +27,27 @@ VALUES (
 );
 
 -- ============================================================
+-- INSERT SESSION
+-- ============================================================
+
+INSERT INTO sessions (
+  code, phase, tags, title, description, host_notes,
+  expansion_round, curators, submissions_at_last_cluster
+)
+VALUES (
+  'X4T9M2',
+  'RESULTS',
+  ARRAY['magic','college','winterhold'],
+  'College of Winterhold 2026 Committee',
+  'Compiled questions from apprentices, scholars, and visiting mages.',
+  '',
+  0,
+  '[]',
+  18
+);
+
+
+-- ============================================================
 -- INSERT SUBMISSIONS (18 total)
 -- ============================================================
 
