@@ -31,10 +31,14 @@
 
 | | |
 |---|---|
-| <p align="center"><strong>Landing page</strong><br/>Create a new session or join one with a code, a link, or a QR scan.</p> | <p align="center"><strong>Open session - host view</strong><br/>Share the code. Watch submissions come in. Close when the room is ready.</p> |
-| <p align="center"><img src="src/assets/examples/landing-page.png" /></p> | <p align="center"><img src="src/assets/examples/open-session.png" /></p> |
+
+| <p align="center"><strong>Landing page</strong><br/>Create a new session or join one with a code, a link, or a QR scan.</
+p>
+
+| <p align="center"><strong>Open session - host view</strong><br/>Share the code. Watch submissions come in. Close when the room is ready.</p> |
+| <p align="center"><img src="src/assets/examples/landing-page.gif" /></p> | <p align="center"><img src="src/assets/examples/open-session.gif" /></p> |
 | <p align="center"><strong>Results - host view</strong><br/>AI clusters similar questions together. Write a response to the ones that matter.</p> | <p align="center"><strong>Results - participant view</strong><br/>See your question land in a cluster, upvote others, and read the host's response.</p> |
-| <p align="center"><img src="src/assets/examples/hosts-view-results-phase.png" /></p> | <p align="center"><img src="src/assets/examples/participants-view-results-phase.png"/></p> |
+| <p align="center"><img src="src/assets/examples/hosts-view-results-phase.gif" /></p> | <p align="center"><img src="src/assets/examples/participants-view-results-phase.gif"/></p> |
 
 <h3 align="center">Host session walkthrough</h3>
 

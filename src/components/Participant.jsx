@@ -140,12 +140,14 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
       setAnswers(savedAnswers);
 
       if (user) {
-        const { data: rows } = await supabase
+        const { data: rows, error: sbError } = await supabase
           .from("user_submissions")
           .select("submission_id, content")
           .eq("user_id", user.id)
           .eq("session_code", code);
-        if (rows?.length) {
+        if (sbError) {
+          console.error("[user_submissions] select failed:", sbError);
+        } else if (rows?.length) {
           const restored = rows.map(r => ({ id: r.submission_id, text: r.content }));
           setSubmissions(restored);
           saveMySubmissions(code, restored);
@@ -175,9 +177,10 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
         return next;
       });
       if (user) {
-        supabase.from("user_submissions").insert({
-          user_id: user.id, session_code: code, submission_id: data.id, content: text
-        }).catch(err => console.error("[user_submissions] insert failed:", err));
+        const { error: sbError } = await supabase.from("user_submissions").insert({
+          user_id: user.id, session_code: code, submission_id: data.id, content: text,
+        });
+        if (sbError) console.error("[user_submissions] insert failed:", sbError);
       }
     } catch (err) {
       setError(err.message ?? "Failed to submit question.");
@@ -195,11 +198,12 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
         return next;
       });
       if (user) {
-        supabase.from("user_submissions")
+        const { error: sbError } = await supabase
+          .from("user_submissions")
           .delete()
           .eq("user_id", user.id)
-          .eq("submission_id", submissionId)
-          .catch(err => console.error("[user_submissions] delete failed:", err));
+          .eq("submission_id", submissionId);
+        if (sbError) console.error("[user_submissions] delete failed:", sbError);
       }
     } catch {
       setError("Failed to delete submission.");
@@ -222,9 +226,10 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
         return next;
       });
       if (user) {
-        supabase.from("user_submissions").insert({
-          user_id: user.id, session_code: code, submission_id: data.id, content: text
-        }).catch(err => console.error("[user_submissions] insert failed:", err));
+        const { error: sbError } = await supabase.from("user_submissions").insert({
+          user_id: user.id, session_code: code, submission_id: data.id, content: text,
+        });
+        if (sbError) console.error("[user_submissions] insert failed:", sbError);
       }
     } catch (err) {
       setError(err.message ?? "Failed to submit to cluster.");

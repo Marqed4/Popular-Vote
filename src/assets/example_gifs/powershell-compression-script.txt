@@ -4,3 +4,6 @@ foreach ($gif in Get-ChildItem "*.gif") {
     -loop 0 `
     "$($gif.DirectoryName)\$($gif.BaseName)-compressed.gif"
 }
+
+Notes:
+I will run exactly from the directory where all gifs I want altered are located.
