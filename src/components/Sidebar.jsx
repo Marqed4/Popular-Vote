@@ -41,12 +41,16 @@ export default function Sidebar({ open, onClose, user, onSignIn, onSignOut, onNa
     try {
       if (user) {
         // load from Supabase user_sessions table
-        const { data: userSessions } = await supabase
+        const { data: userSessions, error } = await supabase
           .from("user_sessions")
           .select("session_code, role, saved_at")
           .eq("user_id", user.id)
           .eq("dismissed", false)
           .order("saved_at", { ascending: false });
+
+        console.log('user id:', user.id);
+        console.log('userSessions:', userSessions);
+        console.log('error:', error);
 
         if (!userSessions?.length) { setSessions([]); setLoading(false); return; }
 

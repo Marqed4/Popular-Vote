@@ -23,7 +23,8 @@ async function handleGoogle() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: { 
-      redirectTo: "https://popularvote-production.up.railway.app",
+      // redirectTo: "https://popularvote-production.up.railway.app",
+      redirectTo: import.meta.env.VITE_SITE_URL ?? window.location.origin,
       skipBrowserRedirect: false
     },
   });

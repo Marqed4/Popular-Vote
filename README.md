@@ -18,6 +18,15 @@
 
 ---
 
+<h2 align="center">Homepage</h2>
+
+<div align="center">
+  <img src="src/assets/example gifs/Main Page Theme Preview.gif" alt="Day & night mode with background selector" width="700" />
+  <p><sub>Day & night mode · Background selector</sub></p>
+</div>
+
+---
+
 <h2 align="center">Views</h2>
 
 | | |
@@ -26,6 +35,18 @@
 | <p align="center"><img src="src/assets/examples/landing-page.png" /></p> | <p align="center"><img src="src/assets/examples/open-session.png" /></p> |
 | <p align="center"><strong>Results - host view</strong><br/>AI clusters similar questions together. Write a response to the ones that matter.</p> | <p align="center"><strong>Results - participant view</strong><br/>See your question land in a cluster, upvote others, and read the host's response.</p> |
 | <p align="center"><img src="src/assets/examples/hosts-view-results-phase.png" /></p> | <p align="center"><img src="src/assets/examples/participants-view-results-phase.png"/></p> |
+
+<h3 align="center">Host session walkthrough</h3>
+
+<div align="center">
+  <img src="src/assets/example gifs/Hosts Scroll Down.gif" alt="Host scrolling through a session" width="700" />
+</div>
+
+<h3 align="center">Participant session walkthrough</h3>
+
+<div align="center">
+  <img src="src/assets/example gifs/Participant Scroll Down.gif" alt="Participant scrolling through a session" width="700" />
+</div>
 
 ---
 
@@ -47,6 +68,9 @@
 
 - **Participant upvoting**  
   Once results are live, participants can upvote questions inside a cluster to surface what matters most.
+
+- **Day & night mode**  
+  Switch between light and dark themes with a customizable background selector.
 
 </div>
 
