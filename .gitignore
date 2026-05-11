@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 *.env
 .claude/
+src/assets/example_gifs/ignore/

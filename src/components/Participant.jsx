@@ -117,6 +117,12 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
     return () => socket.disconnect();
   }, [code]);
 
+  useEffect(() => {
+    if (!code || code === "NEW") return;
+    const interval = setInterval(fetchSession, 10000);
+    return () => clearInterval(interval);
+  }, [code]);
+
   async function fetchSession() {
     try {
       const res = await fetch(`/api/sessions/${code}`);

@@ -170,6 +170,12 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     return () => socket.disconnect();
   }, [code]);
 
+  useEffect(() => {
+    if (!code) return;
+    const interval = setInterval(fetchSession, 10000);
+    return () => clearInterval(interval);
+  }, [code]);
+
   // Theme setup
   useEffect(() => {
     const dark = localStorage.getItem("pv-dark") === "true";
