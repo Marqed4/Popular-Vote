@@ -7,9 +7,8 @@
   <h1>𝑃𝑜𝑝𝑢𝑙𝑎𝑟𝑉𝑜𝑡𝑒</h1>
   <p>Anonymous questions, collectively surfaced.</p>
 
-  <p>
-    <a href="https://github.com/Marqed4/PopularVote">🗳️ View the repository</a>
-  </p>
+  <p><a href="https://popularvote.marqed.it">🌐 Popular Vote Website</a></p>
+  <p><a href="https://github.com/Marqed4/PopularVote">📦 View the repository</a></p>
   <br/>
 </div>
 <div align="center">
@@ -27,29 +26,42 @@
 
 ---
 
-<h2 align="center">Views</h2>
+<h2 align="center">See it in action</h2>
 
-| | |
-|---|---|
-
-| <p align="center"><strong>Landing page</strong><br/>Create a new session or join one with a code, a link, or a QR scan.</
-p>
-
-| <p align="center"><strong>Open session - host view</strong><br/>Share the code. Watch submissions come in. Close when the room is ready.</p> |
-| <p align="center"><img src="src/assets/examples/landing-page.gif" /></p> | <p align="center"><img src="src/assets/examples/open-session.gif" /></p> |
-| <p align="center"><strong>Results - host view</strong><br/>AI clusters similar questions together. Write a response to the ones that matter.</p> | <p align="center"><strong>Results - participant view</strong><br/>See your question land in a cluster, upvote others, and read the host's response.</p> |
-| <p align="center"><img src="src/assets/examples/hosts-view-results-phase.gif" /></p> | <p align="center"><img src="src/assets/examples/participants-view-results-phase.gif"/></p> |
-
-<h3 align="center">Host session walkthrough</h3>
-
+<h3 align="center">Start a session or jump into one</h3>
 <div align="center">
-  <img src="src/assets/example_gifs/Hosts-Scroll-Down.gif" alt="Host scrolling through a session" width="700" />
+  <p><sub>Create a session in seconds, or join with a code, a link, or a QR scan.</sub></p>
+  <img src="src/assets/example_gifs/landing-page.gif" width="700" />
 </div>
 
-<h3 align="center">Participant session walkthrough</h3>
-
+<h3 align="center">Watch the room fill up ,  in real time</h3>
 <div align="center">
-  <img src="src/assets/example_gifs/Participant-Scroll-Down.gif" alt="Participant scrolling through a session" width="700" />
+  <p><sub>Share the code, watch submissions roll in, cluster when you're ready.</sub></p>
+  <img src="src/assets/example_gifs/open-session.gif" width="700" />
+</div>
+
+<h3 align="center">The host's full view</h3>
+<div align="center">
+  <p><sub>Clusters, responses, participant management ,  everything in one place.</sub></p>
+  <img src="src/assets/example_gifs/Hosts-Scroll-Down.gif" width="700" />
+</div>
+
+<h3 align="center">What participants see</h3>
+<div align="center">
+  <p><sub>Submit anonymously, watch your question surface, upvote what matters.</sub></p>
+  <img src="src/assets/example_gifs/participants-view.gif" width="700" />
+</div>
+
+<h3 align="center">The participant's full view</h3>
+<div align="center">
+  <p><sub>See clusters form, read responses, and dig deeper in round two.</sub></p>
+  <img src="src/assets/example_gifs/Participant-Scroll-Down.gif" width="700" />
+</div>
+
+<h3 align="center">Close out & take the results with you</h3>
+<div align="center">
+  <p><sub>End the session and download a clean PDF summary of every cluster and response.</sub></p>
+  <img src="src/assets/example_gifs/Hosts-End-Session-and-Summary-PDF-download.gif" width="700" />
 </div>
 
 ---
@@ -58,22 +70,28 @@ p>
 
 <div align="left">
 
-- **Anonymous submissions**  
+- **Anonymous submissions**
   Participants submit questions freely without any pressure. No names, no judgment.
 
-- **AI-powered clustering**  
+- **AI-powered clustering**
   Submissions are automatically grouped by meaning so hosts see themes, not clutter.
 
-- **Host responses**  
+- **Host responses**
   Hosts write a single response per cluster, answering everyone who asked the same thing at once.
 
-- **Live session management**  
+- **Live session management**
   Share a session code, link, or QR code. Track participants and submissions in real time.
 
-- **Participant upvoting**  
+- **Participant upvoting**
   Once results are live, participants can upvote questions inside a cluster to surface what matters most.
 
-- **Day & night mode**  
+- **Session summary & PDF export**
+  At the end of a session, a full summary of clusters and host responses can be downloaded as a PDF.
+
+- **Optional accounts**
+  Sign in to have your submissions remembered across devices. The app is fully usable without an account.
+
+- **Day & night mode**
   Switch between light and dark themes with a customizable background selector.
 
 </div>
@@ -97,11 +115,18 @@ npm install
 
 **3. Set up environment variables**
 
-Create a file at `server/database/.env` with the following:
+Create `server/database/.env`:
 ```
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_anon_key
 GEMINI_API_KEY=your_gemini_api_key
+```
+
+Create `.env` in the project root:
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_API_URL=your_server_url
 ```
 
 **4. Run the project**
@@ -119,9 +144,11 @@ This starts both the Vite frontend and the Node server concurrently. Open [http:
 
 <div align="left">
 
-- **Frontend** - React + Vite
-- **Backend** - Node.js (Express)
-- **Styling** - CSS
+- **Frontend** : React + Vite
+- **Backend** : Node.js (Express) + Socket.io
+- **Database** : PostgreSQL (via Supabase)
+- **AI** : Google Gemini
+- **Styling** : CSS
 
 </div>
 
@@ -129,8 +156,8 @@ This starts both the Vite frontend and the Node server concurrently. Open [http:
 
 <h2 align="center">Contributing</h2>
 
-- If you're thinking about contributing to PopularVote, first of all, thank you!
-- Feel free to open an issue or submit a pull request. All feedback is welcomed.
+If you're thinking about contributing to PopularVote, first of all, thank you!
+Feel free to open an issue or submit a pull request. All feedback is welcomed.
 
 ---
 
