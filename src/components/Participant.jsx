@@ -117,12 +117,15 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
     return () => socket.disconnect();
   }, [code]);
 
+<<<<<<< marqeds-railway-deployment
   useEffect(() => {
     if (!code || code === "NEW") return;
     const interval = setInterval(fetchSession, 10000);
     return () => clearInterval(interval);
   }, [code]);
 
+=======
+>>>>>>> main
   async function fetchSession() {
     try {
       const res = await fetch(`/api/sessions/${code}`);
@@ -140,14 +143,22 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
       setAnswers(savedAnswers);
 
       if (user) {
+<<<<<<< marqeds-railway-deployment
         const { data: rows, error: sbError } = await supabase
+=======
+        const { data: rows } = await supabase
+>>>>>>> main
           .from("user_submissions")
           .select("submission_id, content")
           .eq("user_id", user.id)
           .eq("session_code", code);
+<<<<<<< marqeds-railway-deployment
         if (sbError) {
           console.error("[user_submissions] select failed:", sbError);
         } else if (rows?.length) {
+=======
+        if (rows?.length) {
+>>>>>>> main
           const restored = rows.map(r => ({ id: r.submission_id, text: r.content }));
           setSubmissions(restored);
           saveMySubmissions(code, restored);
@@ -177,10 +188,16 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
         return next;
       });
       if (user) {
+<<<<<<< marqeds-railway-deployment
         const { error: sbError } = await supabase.from("user_submissions").insert({
           user_id: user.id, session_code: code, submission_id: data.id, content: text,
         });
         if (sbError) console.error("[user_submissions] insert failed:", sbError);
+=======
+        supabase.from("user_submissions").insert({
+          user_id: user.id, session_code: code, submission_id: data.id, content: text
+        }).catch(err => console.error("[user_submissions] insert failed:", err));
+>>>>>>> main
       }
     } catch (err) {
       setError(err.message ?? "Failed to submit question.");
@@ -198,12 +215,20 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
         return next;
       });
       if (user) {
+<<<<<<< marqeds-railway-deployment
         const { error: sbError } = await supabase
           .from("user_submissions")
           .delete()
           .eq("user_id", user.id)
           .eq("submission_id", submissionId);
         if (sbError) console.error("[user_submissions] delete failed:", sbError);
+=======
+        supabase.from("user_submissions")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("submission_id", submissionId)
+          .catch(err => console.error("[user_submissions] delete failed:", err));
+>>>>>>> main
       }
     } catch {
       setError("Failed to delete submission.");
@@ -226,10 +251,16 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
         return next;
       });
       if (user) {
+<<<<<<< marqeds-railway-deployment
         const { error: sbError } = await supabase.from("user_submissions").insert({
           user_id: user.id, session_code: code, submission_id: data.id, content: text,
         });
         if (sbError) console.error("[user_submissions] insert failed:", sbError);
+=======
+        supabase.from("user_submissions").insert({
+          user_id: user.id, session_code: code, submission_id: data.id, content: text
+        }).catch(err => console.error("[user_submissions] insert failed:", err));
+>>>>>>> main
       }
     } catch (err) {
       setError(err.message ?? "Failed to submit to cluster.");

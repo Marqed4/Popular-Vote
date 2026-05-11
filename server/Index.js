@@ -59,6 +59,7 @@ app.use('/api', expandRouter);
 app.use('/api', sessionsRouter);
 app.use('/api', submissionsRouter);
 
+<<<<<<< marqeds-railway-deployment
 // serve frontend in production
 app.use(express.static(join(__dirname, '../dist')));
 // app.get('*', (req, res) => {
@@ -68,6 +69,12 @@ app.use(express.static(join(__dirname, '../dist')));
 app.get('/{*path}', (req, res) => {
   res.sendFile(join(__dirname, '../dist/index.html'));
 }); 
+=======
+app.use(express.static(join(__dirname, '../dist')));
+app.get('*splat', (req, res) => {
+  res.sendFile(join(__dirname, '../dist/index.html'));
+});
+>>>>>>> main
 
 // backend port
 const PORT = process.env.PORT || 2167;
