@@ -26,7 +26,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { 
     origin: [
-      'https://vote.marqed.it',
+      'https://popularvote.marqed.it',
       'https://popularvote-production.up.railway.app',
       'http://localhost:6967'
     ],
