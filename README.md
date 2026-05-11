@@ -21,7 +21,7 @@
 <h2 align="center">Homepage</h2>
 
 <div align="center">
-  <img src="src/assets/example gifs/Main Page Theme Preview.gif" alt="Day & night mode with background selector" width="700" />
+  <img src="src/assets/example_gifs/Main-Page-Theme-Preview.gif" alt="Day & night mode with background selector" width="700" />
   <p><sub>Day & night mode · Background selector</sub></p>
 </div>
 
@@ -39,13 +39,13 @@
 <h3 align="center">Host session walkthrough</h3>
 
 <div align="center">
-  <img src="src/assets/example gifs/Hosts Scroll Down.gif" alt="Host scrolling through a session" width="700" />
+  <img src="src/assets/example_gifs/Hosts-Scroll-Down.gif" alt="Host scrolling through a session" width="700" />
 </div>
 
 <h3 align="center">Participant session walkthrough</h3>
 
 <div align="center">
-  <img src="src/assets/example gifs/Participant Scroll Down.gif" alt="Participant scrolling through a session" width="700" />
+  <img src="src/assets/example_gifs/Participant-Scroll-Down.gif" alt="Participant scrolling through a session" width="700" />
 </div>
 
 ---
