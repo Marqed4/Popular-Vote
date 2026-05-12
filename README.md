@@ -147,6 +147,7 @@ This starts both the Vite frontend and the Node server concurrently. Open [http:
 - **Frontend** : React + Vite
 - **Backend** : Node.js (Express) + Socket.io
 - **Database** : PostgreSQL (via Supabase)
+- **Authentication** : Google Identity Services (Google Auth API 2.0)
 - **AI** : Google Gemini
 - **Styling** : CSS
 
@@ -157,10 +158,20 @@ This starts both the Vite frontend and the Node server concurrently. Open [http:
 <h2 align="center">Contributing</h2>
 
 If you're thinking about contributing to PopularVote, first of all, thank you!
-Feel free to open an issue or submit a pull request. All feedback is welcomed.
+Feel free to open an issue or submit a pull request — all feedback is welcomed.
+
+For full contribution guidelines, please see the 
+<a href="documents/legal/CONTRIBUTING.md">Contributing Guide</a>.
 
 ---
 
 <h2 align="center">License</h2>
 
 This repository is licensed under [GNU General Public License (GPLv3)](documents/licenses/GNU%20GENERAL%20PUBLIC%20LICENSE%20Version%203,%2029%20June%202007.txt)
+
+---
+
+<h2 align="center">Legal</h2>
+
+For all licensing, service notices, privacy details, and security policies, see the
+<a href="LEGAL.md">Legal Overview</a>.
