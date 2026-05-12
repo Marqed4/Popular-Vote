@@ -41,19 +41,24 @@ export default function Sidebar({ open, onClose, user, onSignIn, onSignOut, onNa
     try {
       if (user) {
         // load from Supabase user_sessions table
-        const { data: userSessions } = await supabase
+        const { data: userSessions, error } = await supabase
           .from("user_sessions")
           .select("session_code, role, saved_at")
           .eq("user_id", user.id)
           .eq("dismissed", false)
           .order("saved_at", { ascending: false });
 
-        if (!userSessions?.length) { setSessions([]); return; }
+        console.log('user id:', user.id);
+        console.log('userSessions:', userSessions);
+        console.log('error:', error);
+
+        if (!userSessions?.length) { setSessions([]); setLoading(false); return; }
 
         const codes = userSessions.map(u => u.session_code);
         const { data: sessionData } = await supabase
           .from("sessions")
-          .select("code, phase, tags, created_at")
+          // Display title not join code
+          .select("code, phase, tags, title, created_at")
           .in("code", codes);
 
         const byCode = Object.fromEntries((sessionData ?? []).map(s => [s.code, s]));
@@ -71,7 +76,8 @@ export default function Sidebar({ open, onClose, user, onSignIn, onSignOut, onNa
 
         const { data } = await supabase
           .from("sessions")
-          .select("code, phase, tags, created_at")
+          // Display title not join code
+          .select("code, phase, tags, title, created_at")
           .in("code", allCodes)
           .order("created_at", { ascending: false });
 
@@ -131,7 +137,7 @@ export default function Sidebar({ open, onClose, user, onSignIn, onSignOut, onNa
               >
                 <div className="sb-item-content">
                   <div className="sb-item-topic">
-                    {s.tags?.length ? s.tags.join(", ") : s.code}
+                    {s.title || (s.tags?.length ? s.tags.join(", ") : s.code)}
                   </div>
                   <div className="sb-item-meta">
                     <span className="sb-item-role">{s.role === "host" ? "Host" : "Participant"}</span>

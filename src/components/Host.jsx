@@ -43,6 +43,83 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
   const socketRef  = useRef(null);
   const createdRef = useRef(false);
 
+  // ====================== API & Session Management ======================
+  // Defined BEFORE useEffects so closures can reference them safely.
+
+  async function createSession() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tags, title: initialTitle, description: initialDescription }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setCode(data.code);
+      onSessionCreated?.(data.code);
+      const mine = JSON.parse(localStorage.getItem("pv-my-sessions") ?? "[]");
+      if (!mine.includes(data.code)) localStorage.setItem("pv-my-sessions", JSON.stringify([data.code, ...mine]));
+      setPhase(data.phase);
+      setTags(data.tags ?? []);
+      setTitle(data.title ?? '');
+      setDescription(data.description ?? '');
+    } catch (err) {
+      setError(err.message ?? "Failed to create session.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // FIX: was using `initialCode` in the URL — now uses the `code` state so
+  // polling after a NEW session is created hits the right endpoint.
+  async function fetchSession(sessionCode = code) {
+    try {
+      const res = await fetch(`/api/sessions/${sessionCode}`);
+      if (!res.ok) throw new Error("Session not found");
+
+      const data = await res.json();
+
+      setPhase(data.phase);
+      setTags(data.tags ?? []);
+      setTitle(data.title ?? '');
+      setDescription(data.description ?? '');
+      setHostNotes(data.hostNotes ?? null);
+      setSubmissions(data.submissions ?? []);
+      setSubmissionCount(data.submissionCount ?? 0);
+      setSubmissionsAtLastCluster(data.submissionsAtLastCluster ?? 0);
+      setParticipantCount(data.participantCount ?? 0);
+      setClusters(data.clusters ?? []);
+      setCurators(data.curators ?? []);
+
+      const savedAnswers = {};
+      const savedSelected = {};
+      const savedPreviews = {};
+
+      (data.clusters ?? []).forEach(c => {
+        if (c.answer) savedAnswers[c.id] = c.answer;
+        if (c.participant_answers?.length) {
+          savedAnswers[c.id + "::followup"] = c.participant_answers[c.participant_answers.length - 1];
+        }
+        if (c.selected_questions?.length) {
+          savedSelected[c.id] = new Set(c.selected_questions);
+        }
+        if (c.previewed_questions?.length) {
+          savedPreviews[c.id] = { questions: c.previewed_questions, loading: false };
+        }
+      });
+
+      setAnswers(savedAnswers);
+      setSelectedQuestions(savedSelected);
+      setExpansionPreviews(savedPreviews);
+    } catch (err) {
+      setError("Could not load session.");
+    }
+  }
+
+  // ====================== Effects ======================
+
   // Initialize session
   useEffect(() => {
     if (initialCode === "NEW") {
@@ -50,7 +127,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
       createdRef.current = true;
       createSession();
     } else {
-      fetchSession();
+      fetchSession(initialCode);
     }
   }, []);
 
@@ -66,7 +143,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     });
 
     socket.on("reconnect", () => {
-      fetchSession();
+      fetchSession(code);
     });
 
     socket.on("submission:count", ({ count }) => setSubmissionCount(count));
@@ -170,6 +247,13 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     return () => socket.disconnect();
   }, [code]);
 
+  // Polling fallback
+  useEffect(() => {
+    if (!code || code === "NEW") return;
+    const interval = setInterval(() => fetchSession(code), 10000);
+    return () => clearInterval(interval);
+  }, [code]);
+
   // Theme setup
   useEffect(() => {
     const dark = localStorage.getItem("pv-dark") === "true";
@@ -177,78 +261,6 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     document.documentElement.setAttribute("data-glass", glass ? "on" : "off");
   }, []);
-
-  // ====================== API & Session Management ======================
-
-  async function createSession() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tags, title: initialTitle, description: initialDescription }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      setCode(data.code);
-      onSessionCreated?.(data.code);
-      const mine = JSON.parse(localStorage.getItem("pv-my-sessions") ?? "[]");
-      if (!mine.includes(data.code)) localStorage.setItem("pv-my-sessions", JSON.stringify([data.code, ...mine]));
-      setPhase(data.phase);
-      setTags(data.tags ?? []);
-      setTitle(data.title ?? '');
-      setDescription(data.description ?? '');
-    } catch (err) {
-      setError(err.message ?? "Failed to create session.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchSession() {
-    try {
-      const res = await fetch(`/api/sessions/${initialCode}`);
-      if (!res.ok) throw new Error("Session not found");
-
-      const data = await res.json();
-
-      setPhase(data.phase);
-      setTags(data.tags ?? []);
-      setTitle(data.title ?? '');
-      setDescription(data.description ?? '');
-      setHostNotes(data.hostNotes ?? null);
-      setSubmissions(data.submissions ?? []);
-      setSubmissionCount(data.submissionCount ?? 0);
-      setSubmissionsAtLastCluster(data.submissionsAtLastCluster ?? 0);
-      setParticipantCount(data.participantCount ?? 0);
-      setClusters(data.clusters ?? []);
-      setCurators(data.curators ?? []);
-
-      const savedAnswers = {};
-      const savedSelected = {};
-      const savedPreviews = {};
-
-      (data.clusters ?? []).forEach(c => {
-        if (c.answer) savedAnswers[c.id] = c.answer;
-        if (c.participant_answers?.length) {
-          savedAnswers[c.id + "::followup"] = c.participant_answers[c.participant_answers.length - 1];
-        }
-        if (c.selected_questions?.length) {
-          savedSelected[c.id] = new Set(c.selected_questions);
-        }
-        if (c.previewed_questions?.length) {
-          savedPreviews[c.id] = { questions: c.previewed_questions, loading: false };
-        }
-      });
-
-      setAnswers(savedAnswers);
-      setSelectedQuestions(savedSelected);
-      setExpansionPreviews(savedPreviews);
-    } catch (err) {
-      setError("Could not load session.");
-    }
-  }
 
   // ====================== Actions ======================
 
@@ -312,7 +324,6 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     }
   }
 
-  // if URI Component doesn't work switch back to regex and try to sanitize it
   async function saveAnswer(answerId) {
     const answer = answers[answerId] ?? "";
     const [clusterId, question] = answerId.includes("::")
@@ -348,13 +359,11 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     }
   }
 
-  // emit delete over socket — server transitions phase to DELETED and evicts from memory
   function deleteSession() {
     if (!socketRef.current) return;
     socketRef.current.emit("host:delete_session", { code });
   }
 
-  // open a second round — participants get to submit new follow-up questions
   async function openSecondRound() {
     setExpandLoading(true);
     setError("");

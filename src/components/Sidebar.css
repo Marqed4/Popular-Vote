@@ -1,5 +1,3 @@
-/* ─── Sidebar ────────────────────────────────────────────────────────────── */
-
 .sb-backdrop {
   position: fixed;
   inset: 0;
@@ -28,9 +26,6 @@
 .sb-sidebar--open {
   transform: translateX(0);
 }
-
-/* ─── Header ─────────────────────────────────────────────────────────────── */
-
 .sb-header {
   display: flex;
   align-items: center;
@@ -63,8 +58,6 @@
   color: var(--text, #1c1917);
   background: var(--surface-sub, #f5f4f2);
 }
-
-/* ─── Session list ───────────────────────────────────────────────────────── */
 
 .sb-body {
   flex: 1;
@@ -201,8 +194,6 @@
   background: rgba(220, 38, 38, 0.08);
 }
 
-/* ─── Footer / auth ──────────────────────────────────────────────────────── */
-
 .sb-footer {
   flex-shrink: 0;
   padding: 0.875rem 1.25rem;
@@ -285,8 +276,6 @@
   color: var(--text, #1c1917);
   background: var(--surface-sub, #f5f4f2);
 }
-
-/* ─── Auth modal ─────────────────────────────────────────────────────────── */
 
 .am-overlay {
   position: fixed;

@@ -151,7 +151,6 @@ export default function ClusterList({
             <div key={cluster.id} className="hd-cluster">
               <div className="hd-cluster-top">
                 <div className="hd-cluster-left">
-                  <span className="hd-cluster-num">{i + 1}</span>
                   <div className="hd-cluster-info">
                     <div className="hd-cluster-query">
                       <span className="hd-cluster-num">Q{i + 1}.</span> {cluster.representative_query}

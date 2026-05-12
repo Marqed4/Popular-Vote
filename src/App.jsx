@@ -101,6 +101,7 @@ export default function App() {
       const u = session?.user ?? null;
       setUser(u);
       if (u && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED")) {
+        setShowAuth(false);
         await migrateLocalSessions(u.id);
       }
     });
@@ -113,13 +114,16 @@ export default function App() {
     if (!code || code === "NEW") return;
 
     if (user) {
-      supabase
+      const { error } = await supabase
         .from("user_sessions")
         .upsert(
           { user_id: user.id, session_code: code, role },
           { onConflict: "user_id,session_code", ignoreDuplicates: true }
-        )
-        .catch(err => console.error('[saveSession]', err));
+        );
+
+      if (error) {
+        console.error("[saveSession]", error);
+      }
     } else {
       if (role === "host") {
         const prev = JSON.parse(localStorage.getItem(MY_SESSIONS_KEY) ?? "[]");
@@ -129,12 +133,13 @@ export default function App() {
       } else {
         const prev = JSON.parse(localStorage.getItem(JOINED_KEY) ?? "[]");
         const filtered = prev.filter(s => (s.code ?? s) !== code);
-        localStorage.setItem(JOINED_KEY, JSON.stringify([
-          { code, joinedAt: new Date().toISOString() },
-          ...filtered,
-        ]));
+        localStorage.setItem(
+          JOINED_KEY,
+          JSON.stringify([{ code, joinedAt: new Date().toISOString() }, ...filtered])
+        );
       }
     }
+
   }
 
   function handleNavigate(role, code, meta = {}) {

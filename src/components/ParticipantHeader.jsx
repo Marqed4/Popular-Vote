@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
 import "./Participant.css";
 
-// ── Icons ────────────────────────────────────────────────────────────────────
+// Icons
 
 function SettingsIcon() {
   return (
@@ -33,8 +33,6 @@ function SunIcon() {
   );
 }
 
-// ── Background Picker ────────────────────────────────────────────────────────
-
 function BackgroundPicker({ current, onSelect, onClose, darkMode }) {
   const filtered = Object.entries(DefaultBackgrounds).filter(([key]) =>
     darkMode ? key.startsWith("night_") : key.startsWith("day_")
@@ -58,9 +56,7 @@ function BackgroundPicker({ current, onSelect, onClose, darkMode }) {
   );
 }
 
-// ── ParticipantHeader ────────────────────────────────────────────────────────
-
-export default function ParticipantHeader({ phase, code, onBack, onOpenSidebar, submittedCount, inClusterCount, darkMode, onToggleDark, bgKey, onSelectBg }) {
+export default function ParticipantHeader({ phase = "OPEN", code, onBack, onOpenSidebar, submittedCount, inClusterCount, darkMode, onToggleDark, bgKey, onSelectBg }) {
   const [showBgPicker, setShowBgPicker] = useState(false);
   const showStats = phase === "RESULTS" || phase === "ENDED";
 

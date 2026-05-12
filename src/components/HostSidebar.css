@@ -111,10 +111,12 @@
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
+
 .hd-tag-input:focus {
   border-color: var(--text);
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
+
 .hd-tag-input::placeholder { color: var(--text-3); }
 
 .hd-btn-ghost {
@@ -217,7 +219,6 @@
   text-align: center;
   padding: 0.25rem 0;
 }
-/* ─── Host Notes ─────────────────────────────────────────────────────────── */
 
 .hd-notes-private {
   font-family: 'DM Mono', monospace;
@@ -275,4 +276,45 @@
   font-family: 'DM Mono', monospace;
   font-size: 0.68rem;
   color: var(--red);
+}
+
+.hd-tag-input-row {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--surface-sub);
+}
+
+.hd-tag-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text);
+  padding: 6px 10px;
+  outline: none;
+}
+
+.hd-tag-add-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 1.1rem;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.hd-tag-add-btn:hover {
+  background: var(--surface-sub);
+  border-color: var(--text);
 }

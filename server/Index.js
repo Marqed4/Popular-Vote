@@ -24,10 +24,18 @@ dotenv.config({ path: join(__dirname, 'database/.env') });
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: { origin: '*' }
+  cors: { 
+    origin: [
+      'https://popularvote.marqed.it',
+      'https://popularvote-production.up.railway.app',
+      'http://localhost:6967'
+    ],
+    methods: ['GET', 'POST']
+  }
 });
 
 app.use(express.json());
+app.set('trust proxy', 1);
 
 // make sessionManager and wsManager available to all route handlers
 const sessionManager = new SessionManager();
@@ -51,14 +59,26 @@ app.use('/api', expandRouter);
 app.use('/api', sessionsRouter);
 app.use('/api', submissionsRouter);
 
+<<<<<<< marqeds-railway-deployment
+// serve frontend in production
+app.use(express.static(join(__dirname, '../dist')));
+// app.get('*', (req, res) => {
+//   res.sendFile(join(__dirname, '../dist/index.html'));
+// });
+
+app.get('/{*path}', (req, res) => {
+  res.sendFile(join(__dirname, '../dist/index.html'));
+}); 
+=======
 app.use(express.static(join(__dirname, '../dist')));
 app.get('*splat', (req, res) => {
   res.sendFile(join(__dirname, '../dist/index.html'));
 });
+>>>>>>> main
 
 // backend port
 const PORT = process.env.PORT || 2167;
-
+ 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

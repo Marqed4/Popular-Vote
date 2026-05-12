@@ -127,13 +127,16 @@ export default function HostSidebar({
           ))}
         </div>
         {canEditTags && (
-          <input
-            className="hd-tag-input"
-            placeholder="Add tag, press Enter…"
-            value={tagInput}
-            onChange={e => onTagInput(e.target.value)}
-            onKeyDown={onAddTag}
-          />
+          <div className="hd-tag-input-row">
+            <input
+              className="hd-tag-input"
+              placeholder="ADD SESSION TAG "
+              value={tagInput}
+              onChange={e => onTagInput(e.target.value)}
+              onKeyDown={onAddTag}
+            />
+            <button className="hd-tag-add-btn" onClick={() => onAddTag({ key: 'Enter' })}>+</button>
+          </div>
         )}
       </section>
 
