@@ -1,5 +1,5 @@
 import Summary from "./Summary";
-import "./ClusterList.css";
+import "./HostCluster.css";
 import React from "react";
 
 function ExpandableQuestions({ questions }) {
@@ -37,9 +37,10 @@ function getClusterUpvotes(cluster) {
   }, 0);
 }
 
-export default function ClusterList({
+export default function HostList({
   phase,
   clusters,
+  submissions = [],
   submissionCount,
   answers,
   editingAnswer,
@@ -65,17 +66,36 @@ export default function ClusterList({
   }
 
   if (phase === "OPEN" || phase === "CLOSED") {
+    const hasEnough = submissionCount >= 3;
     return (
       <div className="hd-waiting">
         <div className="hd-waiting-title">
           {phase === "OPEN" ? "Waiting for submissions…" : "Ready to cluster."}
         </div>
-        <p className="hd-waiting-sub">
-          {phase === "OPEN"
-            ? `Share the code with your audience. Close submissions when ready.`
-            : `${submissionCount} submission${submissionCount !== 1 ? "s" : ""} received. Trigger clustering to group them.`
-          }
-        </p>
+
+        {submissions.length > 0 ? (
+          <ul className="hd-submissions-feed">
+            {submissions.map(s => (
+              <li key={s.id} className="hd-submission-feed-item">{s.content}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="hd-waiting-sub">
+            {phase === "OPEN"
+              ? "Share the code with your audience. Submissions will appear here."
+              : "No submissions yet."
+            }
+          </p>
+        )}
+
+        {submissions.length > 0 && (
+          <p className="hd-waiting-sub" style={{ marginTop: "0.75rem" }}>
+            {hasEnough
+              ? `${submissionCount} submission${submissionCount !== 1 ? "s" : ""} ~ looking good, ready to cluster.`
+              : `${submissionCount} submission${submissionCount !== 1 ? "s" : ""} so far.`
+            }
+          </p>
+        )}
       </div>
     );
   }

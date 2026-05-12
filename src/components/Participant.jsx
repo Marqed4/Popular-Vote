@@ -7,7 +7,7 @@ import ParticipantHeader from "./ParticipantHeader";
 import ParticipantInput from "./ParticipantInput";
 import Summary from "./Summary";
 
-import "./Participant.css";
+import "./ParticipantLayout.css";
 
 // localStorage key scoped to this session code so multiple sessions don't collide
 function mySubsKey(code) { return `pv-my-subs-${code}`; }

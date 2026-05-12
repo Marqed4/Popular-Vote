@@ -135,7 +135,7 @@ export default function HostSidebar({
               onChange={e => onTagInput(e.target.value)}
               onKeyDown={onAddTag}
             />
-            <button className="hd-tag-add-btn" onClick={() => onAddTag({ key: 'Enter' })}>+</button>
+            <button className="hd-tag-add-btn" onClick={() => onAddTag({ key: 'Enter', preventDefault: () => {} })}>+</button>
           </div>
         )}
       </section>

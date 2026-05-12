@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DefaultBackgrounds } from '../assets/backgrounds/index.js';
-import "./Participant.css";
+import "./ParticipantHeader.css";
 
 // Icons
 

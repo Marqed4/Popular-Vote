@@ -149,7 +149,7 @@ ${questionList}
 </participant_questions>
 
 Using ONLY information from the host notes above, draft a clear and concise response to this cluster of questions.
-- Stay grounded in the notes — do not invent facts
+- Stay grounded in the notes - do not invent facts
 - Be direct and helpful, 2-4 sentences
 - If the notes don't contain relevant information, say so honestly
 - IMPORTANT: Do NOT mention the host notes, say "based on the notes", or reveal that you used any source material. Just give the answer directly as if the host is speaking.
@@ -184,7 +184,7 @@ Respond with plain text only, no markdown, no preamble.`;
     const prompt = `You are helping organize new questions submitted during a live Q&A session.
 ${tagContext}
 
-These clusters already exist and have been answered by the host. Do NOT change them — only add new questions to them if they fit:
+These clusters already exist and have been answered by the host. Do NOT change them - only add new questions to them if they fit:
 ${existingList}
 
 These are NEW submissions that just came in (indexed 0 to ${newSubmissions.length - 1}):
@@ -320,7 +320,7 @@ Respond ONLY with a valid JSON object, no markdown, no explanation:
         throw new Error('Gemini did not return valid expansion preview');
       }
 
-      // remap clusterId from index to real cluster UUID — Gemini returns index strings like "0", "1"
+      // remap clusterId from index to real cluster UUID - Gemini returns index strings like "0", "1"
       result.clusterPreviews = result.clusterPreviews.map(preview => ({
         ...preview,
         clusterId: clusters[parseInt(preview.clusterId)]?.id ?? preview.clusterId

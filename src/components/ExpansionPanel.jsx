@@ -1,4 +1,4 @@
-import "./ExpansionPanel.css";
+import "./HostExpansion.css";
 
 export default function ExpansionPanel({
   cluster,

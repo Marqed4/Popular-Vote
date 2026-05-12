@@ -163,4 +163,4 @@ Feel free to open an issue or submit a pull request. All feedback is welcomed.
 
 <h2 align="center">License</h2>
 
-This repository is licensed under [MIT](LICENSE)
+This repository is licensed under [GNU General Public License (GPLv3)](documents/licenses/GNU%20GENERAL%20PUBLIC%20LICENSE%20Version%203,%2029%20June%202007.txt)

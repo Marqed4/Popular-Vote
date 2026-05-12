@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
 import HostHeader from "./HostHeader";
+import HostList from "./HostList";
 import HostSidebar from "./HostSidebar.jsx";
 import ParticipantList from "./ParticipantList";
-import ClusterList from "./ClusterList";
-
-import "./Host.css";
+import "./HostLayout.css";
 
 export default function HostDashboard({ code: initialCode, initialTitle = '', initialDescription = '', onBack, onSessionCreated, onOpenSidebar, darkMode, onToggleDark, bgKey, onSelectBg }) {
   // Core session state
@@ -72,7 +71,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     }
   }
 
-  // FIX: was using `initialCode` in the URL — now uses the `code` state so
+  // FIX: was using `initialCode` in the URL now uses the `code` state so
   // polling after a NEW session is created hits the right endpoint.
   async function fetchSession(sessionCode = code) {
     try {
@@ -220,7 +219,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
         clusterPreviews.forEach(({ clusterId, previewedQuestions }) => {
           next[clusterId] = { questions: previewedQuestions, loading: false };
         });
-        console.log("[socket] expansion:preview — new expansionPreviews:", next);
+        console.log("[socket] expansion:preview new expansionPreviews:", next);
         return next;
       });
       console.log("[socket] setting phase to RESULTS");
@@ -241,7 +240,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
       );
     });
 
-    // host triggered delete — navigate away
+    // host triggered delete navigate away
     socket.on("session:deleted", () => onBack());
 
     return () => socket.disconnect();
@@ -490,9 +489,10 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
         </aside>
 
         <main className="hd-main">
-          <ClusterList
+          <HostList
             phase={phase}
             clusters={clusters}
+            submissions={submissions}
             submissionCount={submissionCount}
             answers={answers}
             editingAnswer={editingAnswer}

@@ -4,7 +4,6 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  background: var(--surface);
   overflow-y: auto;
 }
 
@@ -23,7 +22,7 @@
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--text);
 }
 
 .hd-code {
@@ -48,7 +47,7 @@
 .hd-url {
   font-family: 'DM Mono', monospace;
   font-size: 0.55rem;
-  color: var(--text-3);
+  color: var(--text-2);
   word-break: break-all;
   line-height: 1.4;
 }
@@ -61,10 +60,7 @@
   padding: 6px;
   background: var(--surface);
 }
-
-[data-theme="dark"] .hd-qr-canvas {
-  filter: invert(1);
-}
+[data-theme="dark"] .hd-qr-canvas { filter: invert(1); }
 
 .hd-tags {
   display: flex;
@@ -98,26 +94,43 @@
 }
 .hd-tag-remove:hover { color: var(--red); }
 
-.hd-tag-input {
-  width: 100%;
-  background: var(--surface-sub);
+.hd-tag-input-row {
+  display: flex;
+  align-items: center;
   border: 1px solid var(--border);
   border-radius: 7px;
+  overflow: hidden;
+  background: var(--surface-sub);
+}
+
+.hd-tag-input {
+  flex: 1;
+  background: transparent;
+  border: none;
   font-family: 'EB Garamond', serif;
   font-size: 0.9rem;
   font-style: italic;
   color: var(--text);
   padding: 6px 10px;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
 }
-
-.hd-tag-input:focus {
-  border-color: var(--text);
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
 .hd-tag-input::placeholder { color: var(--text-3); }
+
+.hd-tag-add-btn {
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 1.1rem;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.hd-tag-add-btn:hover { background: var(--surface); color: var(--text); }
 
 .hd-btn-ghost {
   background: var(--surface);
@@ -131,12 +144,7 @@
   padding: 5px 12px;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
-.hd-btn-ghost:hover {
-  border-color: var(--border-str);
-  color: var(--text);
-  background: var(--surface-sub);
-}
-
+.hd-btn-ghost:hover { border-color: var(--border-str); color: var(--text); background: var(--surface-sub); }
 .hd-btn-ghost--full { width: 100%; padding: 0.6rem 1rem; font-size: 0.975rem; }
 
 .hd-btn-primary {
@@ -150,9 +158,9 @@
   border-radius: 8px;
   background: var(--text);
   color: var(--bg);
-  transition: background 0.15s, transform 0.1s;
+  transition: opacity 0.15s, transform 0.1s;
 }
-.hd-btn-primary:hover:not(:disabled) { opacity: 0.88; }
+.hd-btn-primary:hover:not(:disabled)  { opacity: 0.88; }
 .hd-btn-primary:active:not(:disabled) { transform: scale(0.99); }
 .hd-btn-primary:disabled { background: var(--border); color: var(--text-3); cursor: not-allowed; }
 
@@ -171,9 +179,9 @@
   font-family: 'EB Garamond', serif;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s, transform 0.1s;
+  transition: opacity 0.15s, transform 0.1s;
 }
-.hd-btn-end:hover:not(:disabled) { opacity: 0.88; }
+.hd-btn-end:hover:not(:disabled)  { opacity: 0.88; }
 .hd-btn-end:active:not(:disabled) { transform: scale(0.99); }
 .hd-btn-end:disabled { opacity: 0.35; cursor: not-allowed; }
 
@@ -237,7 +245,7 @@
   font-family: 'EB Garamond', serif;
   font-size: 0.8rem;
   font-style: italic;
-  color: var(--text-3);
+  color: var(--text);
   line-height: 1.5;
   margin: 0;
 }
@@ -263,14 +271,8 @@
 }
 .hd-notes-textarea::placeholder { color: var(--text-3); }
 
-.hd-notes-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.hd-notes-file-input {
-  display: none;
-}
+.hd-notes-actions { display: flex; gap: 0.5rem; }
+.hd-notes-file-input { display: none; }
 
 .hd-notes-error {
   font-family: 'DM Mono', monospace;
@@ -278,43 +280,6 @@
   color: var(--red);
 }
 
-.hd-tag-input-row {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  overflow: hidden;
-  background: var(--surface-sub);
-}
-
-.hd-tag-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  font-family: 'EB Garamond', serif;
-  font-size: 0.9rem;
-  font-style: italic;
-  color: var(--text);
-  padding: 6px 10px;
-  outline: none;
-}
-
-.hd-tag-add-btn {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text);
-  font-size: 1.1rem;
-  width: 28px;
-  height: 28px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.hd-tag-add-btn:hover {
-  background: var(--surface-sub);
-  border-color: var(--text);
+.hd-curator-note {
+  color: var(--text-2);
 }
