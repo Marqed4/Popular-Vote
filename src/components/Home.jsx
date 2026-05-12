@@ -142,7 +142,8 @@ function JoinFlow({ onJoin }) {
     if (target.length !== 6) { setError("Codes are 6 characters."); return; }
     setJoining(true);
     try {
-      const res = await fetch(`/api/sessions/${target}/join`, { method: "POST" });
+      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const res = await fetch(`${apiBase}/api/sessions/${target}/join`, { method: "POST" });
       if (!res.ok) { const b = await res.json().catch(() => ({})); setError(b.error ?? "Session not found."); return; }
       onJoin(target);
     } catch { setError("Could not reach server."); }

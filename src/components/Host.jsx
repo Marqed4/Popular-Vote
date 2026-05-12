@@ -41,6 +41,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
 
   const socketRef  = useRef(null);
   const createdRef = useRef(false);
+  const apiBase = import.meta.env.VITE_API_URL ?? "";
 
   // ====================== API & Session Management ======================
   // Defined BEFORE useEffects so closures can reference them safely.
@@ -48,7 +49,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
   async function createSession() {
     setLoading(true);
     try {
-      const res = await fetch("/api/sessions", {
+      const res = await fetch(`${apiBase}/api/sessions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tags, title: initialTitle, description: initialDescription }),
@@ -75,7 +76,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
   // polling after a NEW session is created hits the right endpoint.
   async function fetchSession(sessionCode = code) {
     try {
-      const res = await fetch(`/api/sessions/${sessionCode}`);
+      const res = await fetch(`${apiBase}/api/sessions/${sessionCode}`);
       if (!res.ok) throw new Error("Session not found");
 
       const data = await res.json();
@@ -134,7 +135,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
   useEffect(() => {
     if (!code || code === "NEW") return;
 
-    const socket = io("http://localhost:2167");
+    const socket = io(import.meta.env.VITE_API_URL ?? "http://localhost:2167");
     socketRef.current = socket;
 
     socket.on("connect", () => {
@@ -267,7 +268,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     setActionLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/sessions/${code}/close`, { method: "POST" });
+      const res = await fetch(`${apiBase}/api/sessions/${code}/close`, { method: "POST" });
       if (!res.ok) throw new Error((await res.json()).error);
       setPhase("CLOSED");
     } catch (err) {
@@ -287,7 +288,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     setPhase("CLUSTERING");
 
     try {
-      const res = await fetch(`/api/sessions/${code}/cluster`, { method: "POST" });
+      const res = await fetch(`${apiBase}/api/sessions/${code}/cluster`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
@@ -303,7 +304,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
 
   async function deleteCluster(clusterId) {
     try {
-      await fetch(`/api/sessions/${code}/clusters/${clusterId}`, { method: "DELETE" });
+      await fetch(`${apiBase}/api/sessions/${code}/clusters/${clusterId}`, { method: "DELETE" });
       setClusters(prev => prev.filter(c => c.id !== clusterId));
     } catch {
       setError("Failed to delete cluster.");
@@ -312,7 +313,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
 
   async function submitManualQuestion(clusterId, question) {
     try {
-      await fetch(`/api/sessions/${code}/clusters/${clusterId}/submit`, {
+      await fetch(`${apiBase}/api/sessions/${code}/clusters/${clusterId}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: question }),
@@ -348,7 +349,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
   async function endSession() {
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/sessions/${code}/end`, { method: "POST" });
+      const res = await fetch(`${apiBase}/api/sessions/${code}/end`, { method: "POST" });
       if (!res.ok) throw new Error((await res.json()).error);
       setPhase("ENDED");
     } catch (err) {
@@ -367,7 +368,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
     setExpandLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/sessions/${code}/expand`, { method: "POST" });
+      const res = await fetch(`${apiBase}/api/sessions/${code}/expand`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPhase("EXPANDING");
@@ -380,7 +381,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
 
   async function toggleCurator(socketId) {
     try {
-      const res = await fetch(`/api/sessions/${code}/curators`, {
+      const res = await fetch(`${apiBase}/api/sessions/${code}/curators`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ socketId }),
@@ -399,7 +400,7 @@ export default function HostDashboard({ code: initialCode, initialTitle = '', in
 
   async function saveTags(updatedTags) {
     try {
-      await fetch(`/api/sessions/${code}/tags`, {
+      await fetch(`${apiBase}/api/sessions/${code}/tags`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tags: updatedTags }),

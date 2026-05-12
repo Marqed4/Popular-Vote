@@ -48,6 +48,8 @@ export default function HostSidebar({
     setNotesText(hostNotes ?? '');
   }, [hostNotes]);
 
+  const apiBase = import.meta.env.VITE_API_URL ?? "";
+
   function copyCode() { navigator.clipboard.writeText(code); }
   function copyLink() { navigator.clipboard.writeText(`${window.location.origin}?code=${code}`); }
 
@@ -59,7 +61,7 @@ export default function HostSidebar({
     setNotesError('');
     setNotesSaved(false);
     try {
-      const res = await fetch(`/api/sessions/${code}/notes`, {
+      const res = await fetch(`${apiBase}/api/sessions/${code}/notes`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ hostNotes: text }),
@@ -84,7 +86,7 @@ export default function HostSidebar({
     try {
       const form = new FormData();
       form.append('pdf', file);
-      const res = await fetch(`/api/sessions/${code}/notes`, { method: 'PATCH', body: form });
+      const res = await fetch(`${apiBase}/api/sessions/${code}/notes`, { method: 'PATCH', body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       if (!data.extracted) throw new Error('Could not extract text from PDF');

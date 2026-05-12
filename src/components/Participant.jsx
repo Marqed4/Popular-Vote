@@ -46,8 +46,8 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
   useEffect(() => {
     if (!code) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:2167";
-    const socket = io(apiUrl);
+    const apiUrl = import.meta.env.VITE_API_URL ?? "";
+    const socket = io(apiUrl || "http://localhost:2167");
     socketRef.current = socket;
 
     socket.on("connect", () => {
@@ -123,9 +123,11 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
     return () => clearInterval(interval);
   }, [code]);
 
+  const apiBase = import.meta.env.VITE_API_URL ?? "";
+
   async function fetchSession() {
     try {
-      const res = await fetch(`/api/sessions/${code}`);
+      const res = await fetch(`${apiBase}/api/sessions/${code}`);
       if (!res.ok) throw new Error("Session not found");
       const data = await res.json();
       setPhase(data.phase ?? "OPEN");
@@ -164,7 +166,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
     setSubmitLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/sessions/${code}/submit`, {
+      const res = await fetch(`${apiBase}/api/sessions/${code}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: text }),
@@ -191,7 +193,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
 
   async function deleteSubmission(submissionId) {
     try {
-      await fetch(`/api/sessions/${code}/submit/${submissionId}`, { method: "DELETE" });
+      await fetch(`${apiBase}/api/sessions/${code}/submit/${submissionId}`, { method: "DELETE" });
       setSubmissions(prev => {
         const next = prev.filter(s => s.id !== submissionId);
         saveMySubmissions(code, next);
@@ -213,7 +215,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
   async function submitToCluster(clusterId, text) {
     setError("");
     try {
-      const res = await fetch(`/api/sessions/${code}/clusters/${clusterId}/submit`, {
+      const res = await fetch(`${apiBase}/api/sessions/${code}/clusters/${clusterId}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: text }),
@@ -240,7 +242,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
     const alreadyVoted = upvotes[questionText];
     setUpvotes(prev => ({ ...prev, [questionText]: !alreadyVoted }));
     try {
-      await fetch(`/api/sessions/${code}/upvote`, {
+      await fetch(`${apiBase}/api/sessions/${code}/upvote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ questionText, undo: alreadyVoted }),
