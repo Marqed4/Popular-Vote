@@ -74,13 +74,11 @@ export default function App() {
   }, [darkMode]);
 
   function handleToggleDark() {
-    setDarkMode(prev => {
-      const next = !prev;
-      const prefix = next ? "night_" : "day_";
-      const match = Object.keys(DefaultBackgrounds).find(k => k.startsWith(prefix));
-      if (match) { setBgKey(match); localStorage.setItem(BG_STORAGE_KEY, match); }
-      return next;
-    });
+    const next = !darkMode;
+    const prefix = next ? "night_" : "day_";
+    const match = Object.keys(DefaultBackgrounds).find(k => k.startsWith(prefix));
+    if (match) { setBgKey(match); localStorage.setItem(BG_STORAGE_KEY, match); }
+    setDarkMode(next);
   }
 
   function handleSelectBg(key) { setBgKey(key); localStorage.setItem(BG_STORAGE_KEY, key); }
