@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Participant.css";
+import "./ParticipantInput.css";
 
 const MAX_CHARS = 500;
 

@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-// pdf-parse v1 — simple function: parsePdf(buffer) => { text, numpages, ... }
+// pdf-parse v1 simple function: parsePdf(buffer) => { text, numpages, ... }
 import { createRequire } from 'module';
 const _require = createRequire(import.meta.url);
 const pdfParse = _require('pdf-parse');
@@ -28,11 +28,15 @@ router.post('/sessions', async (req, res) => {
 router.post('/sessions/:code/join', async (req, res) => {
   try {
     const sessionManager = req.app.locals.sessionManager;
-    // async — falls back to Supabase if not in memory after server restart
+    // async falls back to Supabase if not in memory after server restart
     const session = await sessionManager.getSessionAsync(req.params.code);
 
     if (!session) return res.status(404).json({ error: 'Session not found' });
-    if (session.phase === 'ENDED') return res.status(400).json({ error: 'Session has ended' });
+
+    // ENDED sessions are read-only - participants may still join to view the summary
+    if (session.phase === 'ENDED') {
+      return res.json({ code: session.code, phase: session.phase, participantCount: session.participantCount, summaryAvailable: true });
+    }
 
     const count = sessionManager.incrementParticipants(req.params.code);
     res.json({ code: session.code, phase: session.phase, participantCount: count });
@@ -46,7 +50,7 @@ router.post('/sessions/:code/close', async (req, res) => {
   try {
     const sessionManager = req.app.locals.sessionManager;
     const wsManager = req.app.locals.wsManager;
-    // async — falls back to Supabase if not in memory after server restart
+    // async - falls back to Supabase if not in memory after server restart
     const session = await sessionManager.getSessionAsync(req.params.code);
 
     if (!session) return res.status(404).json({ error: 'Session not found' });
@@ -97,7 +101,7 @@ router.post('/sessions/:code/cluster', async (req, res) => {
         if (!cluster) continue;
         cluster.questions = [...(cluster.questions ?? []), ...addedQuestions];
         cluster.submission_count = (cluster.submission_count ?? 0) + addedQuestions.length;
-        // persist to Supabase (fire-and-forget — don't block the response)
+        // persist to Supabase (fire-and-forget - don't block the response)
         SessionStore.updateClusterQuery(clusterId, cluster.representative_query, cluster.submission_count, cluster.questions)
           .catch(err => console.error('[incremental] failed to update cluster', clusterId, err));
       }
@@ -128,7 +132,7 @@ router.post('/sessions/:code/cluster', async (req, res) => {
 
     res.json({ clusters: saved });
 
-    // RAG: if host has notes, generate suggested answers per cluster async — push when ready
+    // RAG: if host has notes, generate suggested answers per cluster async - push when ready
     if (session.hostNotes) {
       Promise.all(
         saved.map(async cluster => {
@@ -153,7 +157,7 @@ router.post('/sessions/:code/cluster', async (req, res) => {
   }
 });
 
-// host opens a second round — participants submit new follow-up questions
+// host opens a second round - participants submit new follow-up questions
 router.post('/sessions/:code/expand', async (req, res) => {
   try {
     const { code } = req.params;
@@ -169,7 +173,7 @@ router.post('/sessions/:code/expand', async (req, res) => {
     wsManager.toSession(code, 'session:expanding', { expansionRound: session.expansionRound });
     res.json({ phase: 'EXPANDING', expansionRound: session.expansionRound });
 
-    // generate AI prompt suggestions async — push to participants when ready
+    // generate AI prompt suggestions async - push to participants when ready
     clusteringEngine.generateExpansionPreview(session.clusters, session.tags, session.contextualFacts)
       .then(preview => {
         wsManager.toSession(code, 'expansion:prompts', {
@@ -262,7 +266,7 @@ router.post('/sessions/:code/clusters/:clusterId/answer', async (req, res) => {
     const sessionManager = req.app.locals.sessionManager;
     const wsManager = req.app.locals.wsManager;
 
-    // follow-up answer — appends to participant_answers, never touches main answer
+    // follow-up answer - appends to participant_answers, never touches main answer
     if (question) {
       const cluster = await sessionManager.addParticipantAnswerToCluster(code, clusterId, answer);
       wsManager.toSession(code, 'cluster:followup:answered', { clusterId, answer });
@@ -365,14 +369,14 @@ router.patch('/sessions/:code/notes', upload.single('pdf'), async (req, res) => 
     if (!session) return res.status(404).json({ error: 'Session not found' });
 
     if (req.file) {
-      // PDF upload — just extract and return the text; client appends to textarea and saves manually
+      // PDF upload - just extract and return the text; client appends to textarea and saves manually
       const parsed = await pdfParse(req.file.buffer);
       const extractedText = parsed.text?.trim() ?? null;
       if (!extractedText) return res.status(400).json({ error: 'Could not extract text from PDF' });
       return res.json({ extracted: extractedText });
     }
 
-    // plain text save from JSON body — replace notes in memory
+    // plain text save from JSON body - replace notes in memory
     const hostNotes = req.body.hostNotes ?? null;
     session.hostNotes = hostNotes;
     SessionStore.updateHostNotes(code, hostNotes).catch(err =>
@@ -412,7 +416,7 @@ router.patch('/sessions/:code/tags', async (req, res) => {
 router.get('/sessions/:code', async (req, res) => {
   try {
     const sessionManager = req.app.locals.sessionManager;
-    // async — falls back to Supabase if not in memory after server restart
+    // async falls back to Supabase if not in memory after server restart
     const session = await sessionManager.getSessionAsync(req.params.code);
 
     if (!session) return res.status(404).json({ error: 'Session not found, buddy' });
@@ -464,6 +468,41 @@ router.post('/sessions/:code/end', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to end session' });
+  }
+});
+
+// participants fetch the session summary once the session has ended
+router.get('/sessions/:code/summary', async (req, res) => {
+  try {
+    const sessionManager = req.app.locals.sessionManager;
+    const session = await sessionManager.getSessionAsync(req.params.code);
+
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (session.phase !== 'ENDED') return res.status(403).json({ error: 'Summary is not available until the session has ended' });
+
+    const summary = {
+      code: session.code,
+      title: session.title ?? '',
+      description: session.description ?? '',
+      tags: session.tags ?? [],
+      expansionRound: session.expansionRound ?? 0,
+      contextualFacts: session.contextualFacts ?? [],
+      clusters: session.clusters.map(c => ({
+        id: c.id,
+        representativeQuery: c.representative_query,
+        submissionCount: c.submission_count,
+        questions: c.questions ?? [],
+        answer: c.answer ?? null,
+        participantAnswers: c.participant_answers ?? [],
+        selectedQuestions: c.selected_questions ?? [],
+        contextualFacts: c.contextual_facts ?? [],
+      })),
+    };
+
+    res.json(summary);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load session summary' });
   }
 });
 

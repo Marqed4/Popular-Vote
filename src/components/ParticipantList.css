@@ -69,6 +69,9 @@
   flex-shrink: 0;
   transition: 0.15s;
   white-space: nowrap;
+  color: var(--text-2);
+  border-color: var(--border-str);
+  font-weight: 600;
 }
 .hd-btn-curator:hover { border-color: #15803d; color: #15803d; }
 .hd-btn-curator.active { border-color: #fca5a5; color: #dc2626; }
