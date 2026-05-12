@@ -1,7 +1,7 @@
 [build]
-builder = "nixpacks"
-buildCommand = "npm run build"
+builder = "NIXPACKS"
+buildCommand = "npm install && npm run build"
 
 [deploy]
 startCommand = "node server/Index.js"
-restartPolicyType = "on_failure"
+restartPolicyType = "ON_FAILURE"
