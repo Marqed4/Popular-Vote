@@ -87,6 +87,17 @@ export default function App() {
 
   const bgSrc = DefaultBackgrounds[bgKey] ?? DefaultBackgrounds.day_SummerForest;
 
+  // Apply background directly to <html> — most reliable across mobile browsers.
+  // position:fixed divs break on iOS Safari during scroll.
+  useEffect(() => {
+    const el = document.documentElement;
+    el.style.backgroundImage = `url(${bgSrc})`;
+    el.style.backgroundSize = "cover";
+    el.style.backgroundPosition = "center";
+    el.style.backgroundRepeat = "no-repeat";
+    el.style.backgroundAttachment = "scroll";
+  }, [bgSrc]);
+
   async function handleSignOut() {
     await supabase.auth.signOut();
   }
@@ -164,18 +175,9 @@ export default function App() {
     />
   );
 
-  // Global fixed background — always behind everything
-  const globalBg = (
-    <div
-      className="app-global-bg"
-      style={{ backgroundImage: `url(${bgSrc})` }}
-    />
-  );
-
   if (view?.role === "host") {
     return (
       <>
-        {globalBg}
         <HostView
           code={view.code}
           initialTitle={view.title ?? ''}
@@ -195,7 +197,6 @@ export default function App() {
   if (view?.role === "participant") {
     return (
       <>
-        {globalBg}
         <Participant
           code={view.code}
           user={user}
@@ -211,7 +212,6 @@ export default function App() {
 
   return (
     <>
-      {globalBg}
       <Home
         onNavigate={handleNavigate}
         user={user}

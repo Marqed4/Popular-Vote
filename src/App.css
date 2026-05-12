@@ -1,20 +1,17 @@
-/* ── Global fixed background — always behind every view ── */
-.app-global-bg {
+/* ── Background lives on <html> — set via JS in App.jsx ── */
+/* Scrim overlay so white text stays readable on bright images */
+body::before {
+  content: '';
   position: fixed;
   inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: -1; /* behind all normal-flow content */
+  background: rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Subtle dark scrim so white text is readable on any image brightness.
-   Only visible on the home page — host/participant have opaque panels on top. */
-.app-global-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.22);
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 *, *::before, *::after {
