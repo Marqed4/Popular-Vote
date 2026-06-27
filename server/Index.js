@@ -27,7 +27,7 @@ const io = new Server(httpServer, {
   cors: { 
     origin: [
       'https://popularvote.marqed.it',
-      'https://popularvote-production.up.railway.app',
+      'https://popularvote-frontend.onrender.com',
       'http://localhost:6967'
     ],
     methods: ['GET', 'POST']

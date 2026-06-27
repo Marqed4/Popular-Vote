@@ -69,7 +69,7 @@ function InstructionsModal({ onClose }) {
         </div>
         <div className="pv-modal-section">
           <h3>Privacy</h3>
-          <p>All questions are anonymous. Sign in to keep your session history — otherwise it stays local to this browser.</p>
+          <p>All questions are anonymous. Sign in to keep your session history - otherwise it stays local to this browser.</p>
         </div>
       </div>
     </div>

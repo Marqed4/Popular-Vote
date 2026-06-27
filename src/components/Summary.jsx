@@ -94,7 +94,7 @@ export default function SummaryView({ clusters, answers, tags, submissionCount }
         .slice(0, 5);
 
       checkPage(40);
-      // cluster number circle approximation — just bold number + query
+      // cluster number circle approximation - just bold number + query
       writeText(`${i + 1}. ${cluster.representative_query}`, { fontSize: 13, bold: true });
       writeText(`${cluster.submission_count} submission${cluster.submission_count !== 1 ? "s" : ""}`, { fontSize: 9, color: "#a8a29e" });
       y += 6;

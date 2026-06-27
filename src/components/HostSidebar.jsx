@@ -145,7 +145,7 @@ export default function HostSidebar({
       {phase !== 'ENDED' && phase !== 'DELETED' && (
         <section className="hd-card">
           <div className="hd-card-title">Host Notes <span className="hd-notes-private">private</span></div>
-          <p className="hd-notes-hint">Paste notes or add PDFs — each PDF is appended below. Hit Save when done. Participants never see this.</p>
+          <p className="hd-notes-hint">Paste notes or add PDFs - each PDF is appended below. Hit Save when done. Participants never see this.</p>
           <textarea
             className="hd-notes-textarea"
             placeholder="Paste speaker notes, context, FAQs…"

@@ -28,7 +28,7 @@ export default function ParticipantList({ participants, curators, onToggleCurato
       </div>
       {curators.length > 0 && (
         <div className="hd-curator-note">
-          Curators are certified to answer — but everyone can still participate.
+          Curators are certified to answer - but everyone can still participate.
         </div>
       )}
     </section>
