@@ -10,7 +10,7 @@ const { error } = await supabase
 .insert({ code, phase: 'OPEN', tags, expansion_round: 0, curators: [] });
 if (error) throw error;
 
-// Best-effort: write the new columns — silently skip if schema cache is stale
+// Best-effort: write the new columns, silently skip if schema cache is stale
 if (title || description) {
 supabase.from('sessions')
 .update({ title, description })

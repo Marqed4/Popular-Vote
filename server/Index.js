@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { SessionStore } from './database/SessionStore.js';
@@ -34,6 +35,13 @@ const io = new Server(httpServer, {
   }
 });
 
+const ALLOWED_ORIGINS = [
+  'https://popularvote.marqed.it',
+  'https://popularvote-frontend.onrender.com',
+  'http://localhost:6967',
+];
+
+app.use(cors({ origin: ALLOWED_ORIGINS, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] }));
 app.use(express.json());
 app.set('trust proxy', 1);
 
@@ -43,7 +51,7 @@ const sessionManager = new SessionManager();
 Google: hydration generally refers to the process of filling a "dry" 
 or empty structure with data or behavior to make it functional.
 */
-// hydrate in background — don't block server startup
+// hydrate in background, don't block server startup
 sessionManager.hydrate().catch(err => console.error('[startup] hydration failed:', err));
 
 const wsManager = new WebSocketManager(io);

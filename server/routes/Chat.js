@@ -49,7 +49,7 @@ function buildClusterNarrative(session) {
     const originals = cluster.questions?.length
       ? `Original questions include: ${cluster.questions.slice(0, 5).join(' | ')}`
       : '';
-    return `Theme ${i + 1}: "${cluster.representativeQuery}" — raised by approximately ${cluster.submissionCount} participants. ${originals}`;
+    return `Theme ${i + 1}: "${cluster.representativeQuery}", raised by approximately ${cluster.submissionCount} participants. ${originals}`;
   }).join('\n');
 
   return `You are a conversational assistant helping to explore the key themes that emerged from a group Q&A session.

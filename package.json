@@ -1,34 +1,23 @@
 {
-  "name": "popularvote",
+  "name": "popularvote-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"node server/Index.js\"",
     "build": "vite build",
-    "start": "node server/Index.js",
+    "setup": "npm install && cd server && npm install",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@google/genai": "^1.50.1",
     "@supabase/supabase-js": "^2.105.1",
-    "concurrently": "^9.2.1",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.4.1",
     "html5-qrcode": "^2.3.8",
     "jspdf": "^4.2.1",
-    "multer": "^2.1.1",
-    "pdf-parse": "^1.1.1",
     "qrcode": "^1.5.4",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3"
-  },
-  "engines": {
-    "node": ">=20.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
@@ -38,6 +27,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "babel-plugin-react-compiler": "^1.0.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",

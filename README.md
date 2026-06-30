@@ -158,7 +158,7 @@ This starts both the Vite frontend and the Node server concurrently. Open [http:
 <h2 align="center">Contributing</h2>
 
 If you're thinking about contributing to PopularVote, first of all, thank you!
-Feel free to open an issue or submit a pull request — all feedback is welcomed.
+Feel free to open an issue or submit a pull request; all feedback is welcomed.
 
 For full contribution guidelines, please see the 
 <a href="documents/legal/CONTRIBUTING.md">Contributing Guide</a>.

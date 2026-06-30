@@ -4,7 +4,7 @@ import { ClusteringController } from '../managers/ClusteringController.js';
 const router = express.Router();
 const clusteringEngine = new ClusteringController();
 
-// host triggers expansion — generates ai previewed questions and contextual facts
+// host triggers expansion: generates ai previewed questions and contextual facts
 router.post('/sessions/:code/expand', async (req, res) => {
   try {
     const { code } = req.params;
