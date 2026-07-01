@@ -61,7 +61,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAuth, setShowAuth]       = useState(false);
 
-  // Global theme + background - available across all pages
+  // Global theme + background — available across all pages
   const [bgKey,    setBgKey]    = useState(() => localStorage.getItem(BG_STORAGE_KEY) ?? "day_SummerForest");
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("pv-dark") === "true");
 
@@ -85,7 +85,7 @@ export default function App() {
 
   const bgSrc = DefaultBackgrounds[bgKey] ?? DefaultBackgrounds.day_SummerForest;
 
-  // Apply background directly to <html> - most reliable across mobile browsers.
+  // Apply background directly to <html> — most reliable across mobile browsers.
   // position:fixed divs break on iOS Safari during scroll.
   useEffect(() => {
     const el = document.documentElement;
@@ -118,7 +118,7 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Save a session reference - localStorage for anon users, Supabase for signed-in users
+  // Save a session reference — localStorage for anon users, Supabase for signed-in users
   async function saveSession(code, role) {
     if (!code || code === "NEW") return;
 

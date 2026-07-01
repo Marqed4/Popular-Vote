@@ -1,4 +1,4 @@
-/* -- Background lives on <html> - set via JS in App.jsx -- */
+/* ── Background lives on <html> — set via JS in App.jsx ── */
 /* Scrim overlay so white text stays readable on bright images */
 body::before {
   content: '';

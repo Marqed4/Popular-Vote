@@ -381,7 +381,7 @@ export default function Participant({ code, onBack, user, onOpenSidebar, darkMod
         <ParticipantHeader {...headerProps} />
         <div className="pd-body">
           <div className="pd-round2-banner">
-            <div className="pd-round2-title">Round 2 - Dig deeper</div>
+            <div className="pd-round2-title">Round 2 — Dig deeper</div>
             <p className="pd-round2-sub">The host has answered the first round. Now's your chance to ask follow-up questions.</p>
           </div>
 
