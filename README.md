@@ -155,6 +155,14 @@ This starts both the Vite frontend and the Node server concurrently. Open [http:
 
 ---
 
+<h2 align="center">Hosting Note</h2>
+
+<div align="center">
+Both the frontend and backend are hosted on Render's free tier. Free tier services spin down after periods of inactivity, so the first request after idle time (or a cold start) can take 50+ seconds to respond while the service spins back up. Subsequent requests will be fast. Please be patient on that first load.
+</div>
+
+---
+
 <h2 align="center">Contributing</h2>
 
 If you're thinking about contributing to PopularVote, first of all, thank you!
